@@ -1,11 +1,11 @@
 <template>
     <div>
         <div>
-            <img :src="ressource.logoChemin" :alt="iconName" />
+            <img :src="resource.logoPath" :alt="iconName" />
         </div>
         <div>
-            <h3>{{ressource.nom}}</h3>
-            <p>{{rate}}</p>
+            <h3>{{resource.name}}</h3>
+            <p>{{taux}}</p>
         </div>
     </div>
 </template>
@@ -13,13 +13,12 @@
 <script setup lang="ts">
 // TODO: avoir un truc du style "quantité souhaitée qui indique le nombre d'extracteur 
 //       selon le niveau du gisement + celui de l'extracteur"
-import type {Ressource} from '@/types'
-import { computed, onMounted } from 'vue';
+import type {Resource} from '@/types'
 const props = defineProps<{
-    ressource: Ressource,
-    rate: number
+    resource: Resource,
+    taux: number
 }>()
 
-const iconName = `icon: ${props.ressource.nom}`
+const iconName = `icon: ${props.resource.name}`
 
 </script>
