@@ -1,19 +1,19 @@
 export interface Item {
     id: string,
-    name: string,
-    logoPath: string
+    nom: string,
+    logoChemin: string
 }
 
-export interface Receipe {
+export interface Recettes {
     id: string,
-    name: string,
+    nom: string,
     items: Item[],
-    logoPath: string
+    logoChemin: string
 }
 
-export interface Resource {
-    id?: string,
-    name: string,
-    quality: 'pur' | 'normal' | 'impur',
-    logoPath: string
+export interface Ressource {
+    id: string,
+    nom: string,
+    qualite: 'pur' | 'normal' | 'impur',
+    logoChemin: string
 }
