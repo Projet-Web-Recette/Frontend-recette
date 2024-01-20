@@ -1,7 +1,8 @@
 <script setup lang="ts">
-import {storeAuthentification} from "@/stores/storeAuthentification";
+import { authenticationStore } from '@/stores/authenticationStore';
 
-console.log(storeAuthentification.isAdmin);
+
+console.log(authenticationStore().isAdmin);
 
 </script>
 

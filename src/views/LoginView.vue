@@ -91,7 +91,7 @@
 <script setup lang="ts">
 import {useMockStore} from '@/stores/mockStore'
 import {MDBBtn, MDBInput, MDBTabContent, MDBTabItem, MDBTabNav, MDBTabPane, MDBTabs,} from "mdb-vue-ui-kit";
-import {storeAuthentification} from "@/stores/storeAuthentification";
+import {authenticationStore} from "@/stores/authenticationStore";
 import {ref} from "vue";
 import {useRouter} from "vue-router";
 
@@ -114,12 +114,13 @@ const mockStore = useMockStore()
 // })
 
 async function loginSubmit() {
+  const authentication = authenticationStore()
   if (form7LoginUsername.value !== "" && form7LoginPassword.value !== "") {
-    await storeAuthentification.login(form7LoginUsername.value, form7LoginPassword.value, () => {
+    await authentication.login(form7LoginUsername.value, form7LoginPassword.value, () => {
       console.log('Echec');
     });
 
-    if(storeAuthentification.isAuthenticated){
+    if(authentication.isAuthenticated){
       router.push({path:'/'});
     }
   }

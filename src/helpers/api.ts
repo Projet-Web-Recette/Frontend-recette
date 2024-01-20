@@ -1,4 +1,4 @@
-import { storeAuthentification } from "@/stores/storeAuthentification"
+import { authenticationStore } from "@/stores/authenticationStore"
 import type { Resource } from "@/types"
 
 const baseUrl = 'https://webinfo.iutmontp.univ-montp2.fr/~bordl/API-PLATFORM-main/API-PLATFORM/public/api'
@@ -18,10 +18,12 @@ export async function sendRequest(endpoint: string, method: 'GET' | 'POST', payl
     let token = {}
     if(useJWT) {
 
-        if(!storeAuthentification.isAuthenticated) return
+        const authentication = authenticationStore()
+
+        if(!authentication.isAuthenticated) return
 
         token = {
-            'Authorization': storeAuthentification.JWT
+            'Authorization': authentication.JWT
         }
     }
     
