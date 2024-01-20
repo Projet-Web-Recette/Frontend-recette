@@ -1,28 +1,38 @@
 
 <template>
-    <div>
-        <ResourceDetail v-for="resource in resources" :resource="resource">
-        </ResourceDetail>
-    </div>
-    <div style="width 200px; height: 400px; background-color: lightcyan;">
-        <ItemReceipeVue></ItemReceipeVue>
+    <div v-if="itemReceipe" id="receipe">
+        <ItemReceipeVue :item="itemReceipe"></ItemReceipeVue>
     </div>
 </template>
 
 
 <script setup lang="ts">
 import ItemReceipeVue from '@/components/ItemReceipe.vue';
-import ResourceDetail from '@/components/ResourceDetail.vue';
 import { useMockStore } from '@/stores/mockStore';
-import type { Resource } from '@/types';
+import type { Item } from '@/types';
 import { onMounted, ref } from 'vue';
 
 
-const resources = ref<Resource[]>([])
+const items = ref<Item[]>([])
+const itemReceipe = ref<Item>()
 
 onMounted(async() => {
     const mock = useMockStore();
-    resources.value = mock.resources
+    items.value = mock.items
+    if(items.value.length > 0){
+        itemReceipe.value = items.value[0]
+    }
     // resources.value = await getResources()
 })
 </script>
+
+<style scoped>
+#receipe {
+    position: absolute;
+    left: 0px;
+    top: 0px;
+    width: 100%; 
+    height: 100%;
+    background-color: lightcyan;
+}
+</style>

@@ -7,6 +7,7 @@ export const useMockStore = defineStore('mockStore', {
     }),
 
     getters: {
-        resources: (state) => state.mock.resources
+        resources: (state) => state.mock.resources,
+        items: (state) => state.mock.items
     }
 })

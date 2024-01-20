@@ -1,48 +1,41 @@
 <script setup lang="ts">
 import type { Item, Receipe, Resource } from '@/types';
 import { VueFlow, Position } from '@vue-flow/core'
-import { ref } from 'vue';
+import { onMounted, ref } from 'vue';
 import ResourceDetail from './ResourceDetail.vue';
 import ItemDetail from './itemDetail.vue';
 
 
-const item=ref<Item>()
+const props = defineProps<{item: Item}>()
 
-const ironOre: Resource = {
-    id: 'rsc2',
-    name: 'Fer',
-    logoPath: 'https://static.wikia.nocookie.net/satisfactory_gamepedia_en/images/8/87/Iron_Ore.png'
-}
+const elements = ref<any>([])
 
-const ironIngotReceipe: Receipe = {
-        id: 'rcp1',
-        resources: [ironOre]
-    }
+onMounted(async () => {
+  const {item} = props
+  if(item){
+    const {receipe} = item
 
-const ironIngot: Item = {
-    id: 'itm1',
-    logoPath: "https://static.wikia.nocookie.net/satisfactory_gamepedia_en/images/0/0a/Iron_Ingot.png",
-    name: "Lingot de fer",
-    receipe: ironIngotReceipe
-}
+    elements.value.push({
+      id: '1',
+      label: item.name,
+      type: 'item',
+      data: item,
+      position: { x: 50, y: 0 },
+    })
 
-const elements = ref([
-  {
-    id: '1',
-    label: 'iron ore',
-    type: 'resource',
-    data: ironOre,
-    position: { x: 50, y: 0 },
-  },
-  {
-    id: '2',
-    label: 'iron ingot',
-    type: 'item',
-    data: ironIngot,
-    position: { x: 50, y: 200 },
-  },
-  { id: 'e1-2', source: '1', target: '2' }
-])
+    receipe.resources?.map((resource, idx) => {
+      const id = `2${idx}`
+      elements.value.push({id:`1-${id}`, source: '1', target: id})
+      elements.value.push({
+          id,
+          label: resource.name,
+          type: 'resource',
+          data: resource,
+          position: {x:idx * 100, y: 200}
+        })
+      })
+  }
+})
 </script>
 
 <template>

@@ -4,6 +4,7 @@ import LoginView from "@/views/LoginView.vue";
 import GameView from '@/views/GameView.vue';
 import Account from '@/views/AccountView.vue';
 import ReceipesView from '@/views/ReceipesView.vue'
+import IngredientsList from '@/views/IngredientsList.vue'
 
 const routesSecure = [
     {
@@ -30,11 +31,15 @@ const routesNoSecure = [
         component: LoginView,
         name: "Login"
     },
-
     {
         path: "/receipes",
         component: ReceipesView,
         name: 'receipes'
+    },
+    {
+        path: "/listAll",
+        component: IngredientsList,
+        name: 'listAll'
     }
 ] as RouteRecordRaw[]
 
