@@ -1,8 +1,8 @@
 import {createRouter, createWebHistory} from 'vue-router'
 import ProtectedRoute from "@/router/ProtectedRoute.vue"
-import LoginView from "@/LoginView.vue";
-import GameView from '@/GameView.vue';
-import Account from '@/AccountView.vue';
+import LoginView from "@/views/LoginView.vue";
+import GameView from '@/views/GameView.vue';
+import Account from '@/views/AccountView.vue';
 
 const routesSecure = [
     {

@@ -12,7 +12,7 @@ const router = useRouter();
 const route = useRoute();
 
 
-if (!storeAuthentification.estConnecte) {
+if (!storeAuthentification.isAuthenticated) {
   router.push({path: "/login"})
 }
 
