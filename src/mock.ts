@@ -1,21 +1,21 @@
-import type { Resource } from "./types";
+import type { Ressource } from "./types";
 
-export function generateMock(): { resources: Resource[]} {
+export function generateMock(): { ressources: Ressource[]} {
     const bronze = {
         id: 'b1',
-        name: 'Bronze',
-        quality: 'impur',
-        logoPath: 'https://satisfactory.fandom.com/fr/wiki/Minerai_de_cuivre#/media/Fichier:Copper_Ore.png'
-    } as Resource
+        nom: 'Bronze',
+        qualite: 'impur',
+        logoChemin: 'https://satisfactory.fandom.com/fr/wiki/Minerai_de_cuivre#/media/Fichier:Copper_Ore.png'
+    } as Ressource
 
     const fer = {
         id: 'f1',
-        name: 'Fer',
-        quality: 'normal',
-        logoPath: 'https://static.wikia.nocookie.net/satisfactory_gamepedia_en/images/8/87/Iron_Ore.png'
-    } as Resource
+        nom: 'Fer',
+        qualite: 'normal',
+        logoChemin: 'https://static.wikia.nocookie.net/satisfactory_gamepedia_en/images/8/87/Iron_Ore.png'
+    } as Ressource
 
     return {
-        resources: [bronze, fer]
+        ressources: [bronze, fer]
     }
 }

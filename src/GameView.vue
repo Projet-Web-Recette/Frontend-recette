@@ -1,13 +1,17 @@
 <script setup lang="ts">
+import {storeAuthentification} from "@/stores/storeAuthentification";
+
+console.log(storeAuthentification.isAdmin);
+
 </script>
 
 <template>
   <main>
-    <router-view/>
+    <div>JEU DE L'ANNEE !</div>
   </main>
 </template>
 
-<style scoped>
+<style>
 header {
   line-height: 1.5;
 }
@@ -38,5 +42,6 @@ header {
 #app {
   font-family: Roboto, Helvetica, Arial, sans-serif;
 }
+
 
 </style>

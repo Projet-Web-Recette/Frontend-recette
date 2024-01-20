@@ -1,12 +1,24 @@
 @import './base.css';
 
 #app {
-  max-width: 1280px;
   margin: 0 auto;
   padding: 2rem;
-
+  width: 35vw;
   font-weight: normal;
 }
+
+.loginFormContainer {
+  background-color: #ffffff;
+  border-radius: 10px;
+}
+.buttonsLoginForm {
+  padding: 10px 20px 20px 20px !important;
+}
+
+.tab-content {
+  padding: 20px 20px 0 20px;
+}
+
 
 a,
 .green {
@@ -26,10 +38,10 @@ a,
     display: flex;
     place-items: center;
   }
+}
 
-  #app {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    padding: 0 2rem;
-  }
+body {
+  backdrop-filter: blur(4px);
+  background: url("/src/assets/ressources/background_loginForm.png") no-repeat;
+  background-size: 100% 100%;
 }
