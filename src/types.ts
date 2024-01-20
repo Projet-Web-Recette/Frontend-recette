@@ -1,14 +1,15 @@
 export interface Item {
     id: string,
     name: string,
-    logoPath: string
+    logoPath: string,
+    receipe: Receipe
 }
 
 export interface Receipe {
     id: string,
-    name: string,
-    items: Item[],
-    logoPath: string
+    items?: Item[],
+    resources?: Resource[],
+    machine?: undefined
 }
 
 export interface Resource {

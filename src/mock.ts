@@ -1,19 +1,33 @@
-import type { Resource } from "./types";
+import type { Item, Receipe, Resource } from "./types";
 
-export function generateMock(): { resources: Resource[]} {
-    const bronze = {
-        id: 'b1',
-        name: 'Bronze',
-        logoPath: 'https://satisfactory.fandom.com/fr/wiki/Minerai_de_cuivre#/media/Fichier:Copper_Ore.png'
+export function generateMock(): { resources: Resource[], items: Item[]} {
+    const cooper = {
+        id: 'rsc1',
+        name: 'cuivre',
+        logoPath: 'https://static.wikia.nocookie.net/satisfactory_gamepedia_en/images/7/78/Copper_Ore.png'
     } as Resource
 
-    const fer = {
-        id: 'f1',
+    const iron: Resource = {
+        id: 'rsc2',
         name: 'Fer',
         logoPath: 'https://static.wikia.nocookie.net/satisfactory_gamepedia_en/images/8/87/Iron_Ore.png'
-    } as Resource
+    }
+
+
+    const ironIngotReceipe: Receipe = {
+        id: 'rcp1',
+        resources: [iron]
+    }
+
+    const ironIngot: Item = {
+        id: 'itm1',
+        logoPath: "https://static.wikia.nocookie.net/satisfactory_gamepedia_en/images/0/0a/Iron_Ingot.png",
+        name: "Lingot de fer",
+        receipe: ironIngotReceipe
+    }
 
     return {
-        resources: [bronze, fer]
+        resources: [cooper, iron],
+        items: [ironIngot]
     }
 }
