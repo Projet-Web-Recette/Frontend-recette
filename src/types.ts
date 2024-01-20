@@ -14,7 +14,7 @@ export interface Receipe {
 export interface Resource {
     id?: string,
     name: string,
-    quality: 'pur' | 'normal' | 'impur',
+    quality?: 'pur' | 'normal' | 'impur',
     logoPath: string
 }
 
@@ -27,4 +27,10 @@ export interface LoginInformations {
 export enum HttpErrors {
     SUCCESS = 200,
     CREATED = 201
+}
+
+export interface HttpRequest {
+    method: 'GET' | 'POST',
+    headers: {[key: string]: string},
+    body?: string
 }

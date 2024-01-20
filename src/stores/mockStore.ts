@@ -1,11 +1,12 @@
 import { generateMock } from "@/mock";
 import { defineStore } from "pinia";
 
-export const useMockStore = defineStore('mockStore', () => {
-    const mock = generateMock()
+export const useMockStore = defineStore('mockStore', {
+    state: () => ({
+        mock: generateMock()
+    }),
 
-
-    return {
-        ressources: mock.ressources
+    getters: {
+        resources: (state) => state.mock.resources
     }
 })

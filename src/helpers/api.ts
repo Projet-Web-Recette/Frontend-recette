@@ -1,5 +1,5 @@
 import { authenticationStore } from "@/stores/authenticationStore"
-import type { Resource } from "@/types"
+import type { HttpRequest, Resource } from "@/types"
 
 const baseUrl = 'https://webinfo.iutmontp.univ-montp2.fr/~bordl/API-PLATFORM-main/API-PLATFORM/public/api'
 const baseUrl2 = 'https://webinfo.iutmontp.univ-montp2.fr/~royov/WebRecette/API-PLATFORM/public/api'
@@ -14,8 +14,20 @@ function translateResourceFromApi(resource: any): Resource {
     }
 }
 
-export async function sendRequest(endpoint: string, method: 'GET' | 'POST', payload: any, useJWT = false){
+function translateResourceToApi(resource: Resource): any {
+    const { id, name, quality, logoPath} = resource
+    return {
+        id,
+        nomRessource: name,
+        qualite: quality,
+        file: logoPath
+    }
+}
+
+export async function sendRequest(endpoint: string, method: 'GET' | 'POST', payload?: any, useJWT = false){
     let token = {}
+    let request = {} as HttpRequest
+
     if(useJWT) {
 
         const authentication = authenticationStore()
@@ -26,37 +38,42 @@ export async function sendRequest(endpoint: string, method: 'GET' | 'POST', payl
             'Authorization': authentication.JWT
         }
     }
+
+    request.method = method
+    request.headers = {
+        'Content-Type': 'application/json',
+        ...token
+    }
+
+    if(payload){
+        request.body = JSON.stringify({...payload })
+    }
+
     
-    const response = await fetch(`${baseUrl}/${endpoint}`, {
-        method: method,
-        headers: {
-            'Content-Type': 'application/json',
-            ...token
-        },
-        body: JSON.stringify({
-            ...payload
-        })
-    })
+    const response = await fetch(`${baseUrl}/${endpoint}`, request)
 
     const result = { status: response.status, content: await response.json()} 
     return result
 }
 
 
-// export async function getResources(): Promise<Resource[]> {
-//     const response = await fetch(`${baseUrl}/ressources`, {method: 'GET'})
-//     const resources = await response.json()
+export async function getResources(): Promise<Resource[]> {
+    const request = await sendRequest('ressources', 'GET')
 
+    const resources = request?.content
 
-//     const result = resources['hydra:member'].map((resource: any) => {
-//         const result = translateResourceFromApi(resource)
-//         return result
-//     })
+    const result = resources['hydra:member'].map((resource: any) => {
+        const result = translateResourceFromApi(resource)
+        return result
+    })
 
-//     return result
-// }
+    return result
+}
 
 // export async function registerResource(resource: Resource): Promise<Resource> {
+//     const payload = translateResourceToApi(resource)
+//     sendRequest('ressources', 'POST', payload, true)
+
 //     const response = await fetch(`${baseUrl}/ressources`, {
 //         method: 'POST',
 //         headers: {
