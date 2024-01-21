@@ -4,15 +4,17 @@
 
 
 <script setup lang="ts">
-import {storeAuthentification} from "@/stores/storeAuthentification";
+import {authenticationStore} from "@/stores/authenticationStore";
 import {useRoute, useRouter} from "vue-router";
 
 
 const router = useRouter();
 const route = useRoute();
 
+const authentication = authenticationStore()
 
-if (!storeAuthentification.estConnecte) {
+
+if (!authentication.isAuthenticated) {
   router.push({path: "/login"})
 }
 
