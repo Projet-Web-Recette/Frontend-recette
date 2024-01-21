@@ -5,6 +5,7 @@ import factoryDisplay from '@/components/factoryDisplay.vue'
 import type { Item, Receipe, Resource } from '@/types';
 import { createConvoyer, createFactory, createMiner, launchGame} from '@/gameData/gameWorld';
 import ConvoyerDisplay from '@/components/convoyerDisplay.vue';
+import quantityDisplay from '@/components/quantityDisplay.vue';
 
 
 console.log(authenticationStore().isAdmin);
@@ -57,17 +58,21 @@ launchGame()
 <template>
   <div class="gameWindow">
     <factoryDisplay :display="miner1.data.displayData">
-      <div style="display: flex; flex-direction: row; background-color: white;">
-        <h1 style="width: fit-content;">{{ miner1.data.quantity }}</h1>
-        <img :src="miner1.data.output.logoPath" style="width: 50px;">
-      </div>
-      <h1 style="color: white;" >+ 1</h1>
+      <quantityDisplay 
+        :logo-path="miner1.data.output.logoPath" 
+        :quantity="miner1.data.quantity" />
     </factoryDisplay>
-
+    
     <factoryDisplay :display="smelter1.data.displayData">
-      <div style="display: flex; flex-direction: row; background-color: white;">
-        <h1 style="width: fit-content;">{{ smelter1.data.quantity }}</h1>
-        <img :src="smelter1.data.output.logoPath" style="width: 50px;">
+      <div>
+        <quantityDisplay 
+          :logo-path="smelter1.data.input.logoPath" 
+          :quantity="smelter1.data.inQuantity" />
+          
+        <quantityDisplay 
+          :logo-path="smelter1.data.output.logoPath" 
+          :quantity="smelter1.data.quantity" />
+
       </div>
     </factoryDisplay>
 
