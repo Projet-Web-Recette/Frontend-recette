@@ -10,7 +10,7 @@ export interface Display {
 }
 
 export interface Updatable {
-    tick: () => void
+    tick: (delta: number) => void
 }
 
 export interface Miner {
@@ -26,6 +26,7 @@ export interface Factory {
     input: Resource | Item,
     output: Resource,
     rate: number,
+    inQuantity: Ref<number>,
     quantity: Ref<number>,
     take: (quantity: number) => number
     give: (quantity: number) => number

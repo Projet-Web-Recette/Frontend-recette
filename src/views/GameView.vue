@@ -1,11 +1,9 @@
 <script setup lang="ts">
-import type { Miner, Factory } from '@/gameData/types';
 import { authenticationStore } from '@/stores/authenticationStore';
 import { gameStore } from '@/stores/gameStore';
 import factoryDisplay from '@/components/factoryDisplay.vue'
 import type { Item, Receipe, Resource } from '@/types';
-import {Minerclass, ConvoyerClass} from '@/gameData/gameWorld';
-import { ref } from 'vue';
+import { createConvoyer, createFactory, createMiner, launchGame} from '@/gameData/gameWorld';
 import ConvoyerDisplay from '@/components/convoyerDisplay.vue';
 
 
@@ -32,52 +30,25 @@ const ironIngot: Item = {
 }
 
 
+const miner1 = createMiner(iron, {x: 0, y: 0})
 
-const minerInterface: Miner = {
-  displayData: {
-    x: 0, 
-    y: 0,
-    width: 100,
-    height: 200,
-    src: "https://static.wikia.nocookie.net/satisfactory_gamepedia_en/images/c/cf/Miner_Mk.1.png"
-  },
-  output: iron,
-  rate: 20,
-  quantity: ref(0),
-  take: () => 0
-}
 
-const miner1 = new Minerclass(minerInterface)
+const smelter1 = createFactory(iron, ironIngot, {x:300, y:300})
 
-const smelter1Q = ref(0)
+const convoyer1 = createConvoyer(miner1.data, smelter1.data)
 
-const smelter1: Factory = {
-  displayData: {
-    src: "https://static.wikia.nocookie.net/satisfactory_gamepedia_en/images/4/45/Smelter.png",
-    x: 300,
-    y: 300,
-    width: 100,
-    height: 200,
-  },
-  input: iron,
-  output: ironIngot,
-  quantity: smelter1Q,
-  rate: 10,
-  give: (newQuantity: number) => {
-    smelter1Q.value += newQuantity
-    return 0
-  },
-  take: () => 0
-}
+game.updatables.push(miner1.updatable)
+game.updatables.push(smelter1.updatable)
+game.updatables.push(convoyer1.updatable)
 
-const convoyer1 = new ConvoyerClass({from: miner1, to: smelter1})
 
-game.addMiner(miner1)
-game.addConvoyer(convoyer1)
 
-setInterval(() => {
-  game.tick()
-}, 1000)
+// game.miners.push(miner1.data)
+// game.convoyers.push(convoyer1.data)
+
+
+launchGame()
+
 
 
 
@@ -85,21 +56,22 @@ setInterval(() => {
 
 <template>
   <div class="gameWindow">
-    <factoryDisplay :display="miner1.displayData">
+    <factoryDisplay :display="miner1.data.displayData">
       <div style="display: flex; flex-direction: row; background-color: white;">
-        <h1 style="width: fit-content;">{{ miner1.quantity }}</h1>
-        <img :src="miner1.output.logoPath" style="width: 50px;">
+        <h1 style="width: fit-content;">{{ miner1.data.quantity }}</h1>
+        <img :src="miner1.data.output.logoPath" style="width: 50px;">
+      </div>
+      <h1 style="color: white;" >+ 1</h1>
+    </factoryDisplay>
+
+    <factoryDisplay :display="smelter1.data.displayData">
+      <div style="display: flex; flex-direction: row; background-color: white;">
+        <h1 style="width: fit-content;">{{ smelter1.data.quantity }}</h1>
+        <img :src="smelter1.data.output.logoPath" style="width: 50px;">
       </div>
     </factoryDisplay>
 
-    <factoryDisplay :display="smelter1.displayData">
-      <div style="display: flex; flex-direction: row; background-color: white;">
-        <h1 style="width: fit-content;">{{ smelter1.quantity }}</h1>
-        <img :src="smelter1.output.logoPath" style="width: 50px;">
-      </div>
-    </factoryDisplay>
-
-    <ConvoyerDisplay :convoyer="convoyer1">
+    <ConvoyerDisplay :convoyer="convoyer1.data">
     </ConvoyerDisplay>
     <!-- <factoryDisplay :display="miner2.displayData"></factoryDisplay> -->
   </div>
