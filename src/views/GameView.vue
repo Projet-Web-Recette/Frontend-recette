@@ -6,6 +6,9 @@ import type { Item, Receipe, Resource } from '@/types';
 import { createConvoyer, createFactory, createMiner, launchGame} from '@/gameData/gameWorld';
 import ConvoyerDisplay from '@/components/convoyerDisplay.vue';
 import quantityDisplay from '@/components/quantityDisplay.vue';
+import draggable from '@/components/draggable.vue'
+import { ref } from 'vue';
+import { Convoyer } from '@/gameData/types';
 
 
 console.log(authenticationStore().isAdmin);
@@ -43,6 +46,9 @@ game.updatables.push(smelter1.updatable)
 game.updatables.push(convoyer1.updatable)
 
 
+const conveyerList = ref<any[]>([])
+
+conveyerList.value.push(convoyer1.data)
 
 // game.miners.push(miner1.data)
 // game.convoyers.push(convoyer1.data)
@@ -50,33 +56,45 @@ game.updatables.push(convoyer1.updatable)
 
 launchGame()
 
-
-
+const gameWindowRef = ref<Element>()
 
 </script>
 
 <template>
   <div class="gameWindow">
-    <factoryDisplay :display="miner1.data.displayData">
-      <quantityDisplay 
-        :logo-path="miner1.data.output.logoPath" 
-        :quantity="miner1.data.quantity" />
-    </factoryDisplay>
+
+    <draggable :height="miner1.data.displayData.height" 
+                :width="miner1.data.displayData.width" 
+                :left="miner1.data.displayData.x.value" 
+                :top="miner1.data.displayData.y.value"
+                @update-pos="({x, y}) => { miner1.data.displayData.x.value = x; miner1.data.displayData.y.value = y}">
+      <factoryDisplay :display="miner1.data.displayData">
+        <quantityDisplay 
+          :logo-path="miner1.data.output.logoPath" 
+          :quantity="miner1.data.quantity" />
+      </factoryDisplay>
+    </draggable>
     
-    <factoryDisplay :display="smelter1.data.displayData">
-      <div>
-        <quantityDisplay 
-          :logo-path="smelter1.data.input.logoPath" 
-          :quantity="smelter1.data.inQuantity" />
-          
-        <quantityDisplay 
-          :logo-path="smelter1.data.output.logoPath" 
-          :quantity="smelter1.data.quantity" />
+    <draggable :height="smelter1.data.displayData.height" 
+                :width="smelter1.data.displayData.width" 
+                :left="smelter1.data.displayData.x.value" 
+                :top="smelter1.data.displayData.y.value"
+                @update-pos="({x, y}) => { smelter1.data.displayData.x.value = x; smelter1.data.displayData.y.value = y}">
+      <factoryDisplay :display="smelter1.data.displayData">
+        <div>
+          <quantityDisplay 
+            :logo-path="smelter1.data.input.logoPath" 
+            :quantity="smelter1.data.inQuantity" />
 
-      </div>
-    </factoryDisplay>
+          <quantityDisplay 
+            :logo-path="smelter1.data.output.logoPath" 
+            :quantity="smelter1.data.quantity" />
 
-    <ConvoyerDisplay :convoyer="convoyer1.data">
+        </div>
+      </factoryDisplay>
+    </draggable>
+
+    <ConvoyerDisplay :convoyers="[convoyer1.data]">
     </ConvoyerDisplay>
     <!-- <factoryDisplay :display="miner2.displayData"></factoryDisplay> -->
   </div>
@@ -85,6 +103,9 @@ launchGame()
 <style>
 .gameWindow {
   position: relative;
+  overflow: hidden;
+  width: 100vh;
+  height: 100vh;
 }
 
 

@@ -5,8 +5,8 @@ export interface Display {
     src: string,
     width: number,
     height: number,
-    x: number,
-    y: number
+    x: Ref<number>,
+    y: Ref<number>
 }
 
 export interface Updatable {

@@ -1,9 +1,5 @@
 <template>
-    <div class="factoryDisplay" :style="{
-        left: (display.x - display.width / 2) + 'px', 
-        top: (display.y - display.height / 2) + 'px', 
-        width: display.width + 'px',
-        height: display.height + 'px'}">
+    <div>
         <img :src="display.src">
         <slot></slot>
     </div>
@@ -16,7 +12,4 @@ const props = defineProps<{display: Display}>()
 </script>
 
 <style scoped>
-.factoryDisplay {
-    position: absolute;
-}
 </style>

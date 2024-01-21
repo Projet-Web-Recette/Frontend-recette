@@ -6,10 +6,13 @@ import { ref } from "vue";
 
 export function createMiner(resource: Resource, coords: {x: number, y: number}){
     const minerQuantity = ref(0) // quantity for miner
+    const x = ref(coords.x)
+    const y = ref(coords.y)
+
     const minerData: Miner = {
     displayData: {
-        x: coords.x,
-        y: coords.y,
+        x,
+        y,
         width: 100,
         height: 200,
         src: "https://static.wikia.nocookie.net/satisfactory_gamepedia_en/images/c/cf/Miner_Mk.1.png"
@@ -40,11 +43,14 @@ export function createFactory(input: Resource | Item, output: Item, coords: {x: 
     const smelterQuantity = ref(0)
     const smelterInputQuantity = ref(0)
 
+    const x = ref(coords.x)
+    const y = ref(coords.y)
+
     const smelterData: Factory = {
     displayData: {
         src: "https://static.wikia.nocookie.net/satisfactory_gamepedia_en/images/4/45/Smelter.png",
-        x: coords.x,
-        y: coords.y,
+        x,
+        y,
         width: 100,
         height: 200,
     },
