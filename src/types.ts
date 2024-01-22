@@ -1,19 +1,37 @@
 export interface Item {
     id: string,
-    nom: string,
-    logoChemin: string
+    name: string,
+    logoPath: string,
+    receipe: Receipe
 }
 
-export interface Recettes {
+export interface Receipe {
     id: string,
-    nom: string,
-    items: Item[],
-    logoChemin: string
+    items?: Item[],
+    resources?: Resource[],
+    machine?: undefined
 }
 
-export interface Ressource {
-    id: string,
-    nom: string,
-    qualite: 'pur' | 'normal' | 'impur',
-    logoChemin: string
+export interface Resource {
+    id?: string,
+    name: string,
+    quality?: 'pur' | 'normal' | 'impur',
+    logoPath: string
+}
+
+export interface LoginInformations {
+    login: string,
+    password: string
+}
+
+
+export enum HttpErrors {
+    SUCCESS = 200,
+    CREATED = 201
+}
+
+export interface HttpRequest {
+    method: 'GET' | 'POST',
+    headers: {[key: string]: string},
+    body?: string
 }
