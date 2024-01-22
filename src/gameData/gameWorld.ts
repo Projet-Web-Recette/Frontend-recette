@@ -45,7 +45,7 @@ export function createMiner(resource: Resource, coords: {x: number, y: number}){
     return {data: minerData, updatable: minerUpdate}
 }
 
-export function createFactory(input: Resource | Item, output: Item, coords: {x: number, y: number}){
+export function createFactory(output: Item, coords: {x: number, y: number}){
     const smelterQuantity = ref(0)
     const smelterInputQuantity = ref(0)
 
@@ -58,13 +58,19 @@ export function createFactory(input: Resource | Item, output: Item, coords: {x: 
         height: 200,
     }
 
+    let input: Item | Resource | undefined
+
+    if(output.receipe.resources){
+        input = output.receipe.resources[0]
+    }
+
     const smelterData: Factory = {
         displayData,
         position: {
             x,
             y
         },
-        input,
+        input: input ? input : output,
         output,
         quantity: smelterQuantity,
         inQuantity: smelterInputQuantity,
@@ -104,9 +110,11 @@ export function createConvoyer(from: Miner | Factory, to: Factory) {
 
     const convoyerUpdate: Updatable = {
         tick: () => {
-            if(convoyerData.from.quantity.value > 0){
-                const taken = convoyerData.from.take(1)
-                convoyerData.to.give(taken)
+            if(convoyerData.to.input.name === convoyerData.from.output.name){
+                if(convoyerData.from.quantity.value > 0){
+                    const taken = convoyerData.from.take(1)
+                    convoyerData.to.give(taken)
+                }
             }
         }
     }

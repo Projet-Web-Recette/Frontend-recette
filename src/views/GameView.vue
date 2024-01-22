@@ -7,8 +7,10 @@ import { createConvoyer, createFactory, createMiner, launchGame} from '@/gameDat
 import ConvoyerDisplay from '@/components/convoyerDisplay.vue';
 import quantityDisplay from '@/components/quantityDisplay.vue';
 import draggable from '@/components/draggable.vue'
-import { ref, toRaw, type VNodeRef } from 'vue';
+import { ref, toRaw, watch, type VNodeRef } from 'vue';
 import type { ConvoyerDisplayData, Factory, Miner } from '@/gameData/types';
+import WindowComponent from '@/components/windowComponent.vue';
+import SelectItem from '@/components/selectItem.vue';
 
 
 const game = gameStore()
@@ -18,6 +20,12 @@ const iron: Resource = {
     id: 'rsc2',
     name: 'Fer',
     logoPath: 'https://static.wikia.nocookie.net/satisfactory_gamepedia_en/images/8/87/Iron_Ore.png'
+}
+
+const cooper: Resource = {
+    id: 'rsc1',
+    name: 'cuivre',
+    logoPath: 'https://static.wikia.nocookie.net/satisfactory_gamepedia_en/images/7/78/Copper_Ore.png'
 }
 
 const ironIngotReceipe: Receipe = {
@@ -32,13 +40,25 @@ const ironIngot: Item = {
     receipe: ironIngotReceipe
 }
 
+const cooperIngotReceipe: Receipe = {
+    id: 'rcp2',
+    resources: [cooper]
+}
+
+const cooperIngot: Item = {
+    id: 'itm2',
+    logoPath: "https://static.wikia.nocookie.net/satisfactory_gamepedia_en/images/0/00/Copper_Ingot.png",
+    name: "Lingot de cuivre",
+    receipe: cooperIngotReceipe
+}
+
 
 const miner1 = createMiner(iron, {x: 0, y: 0})
-const miner2 = createMiner(iron, {x: 300, y: 300})
+const miner2 = createMiner(cooper, {x: 300, y: 300})
 
 
-const smelter1 = createFactory(iron, ironIngot, {x:300, y:300})
-const smelter2 = createFactory(iron, ironIngot, {x:600, y:300})
+const smelter1 = createFactory(ironIngot, {x:300, y:300})
+const smelter2 = createFactory(ironIngot, {x:600, y:300})
 
 const convoyer1 = createConvoyer(miner1.data, smelter1.data)
 const convoyer2 = createConvoyer(miner2.data, smelter2.data)
@@ -65,7 +85,13 @@ convoyerList.value.push(convoyer1.data.displayData)
 
 const gameWindowRef = ref<VNodeRef>()
 
-const selectedMode = ref<'conveyer' | 'place'>()
+const selectedMode = ref<'conveyer' | 'place' | 'interact'>()
+const selectBuild = ref<'miner' | 'factory'>()
+
+watch(() => selectedMode.value, (value) => {
+  selectedElement = undefined
+  selectedFactory = undefined
+})
 
 function addEntity(event: MouseEvent){
   const miner = createMiner(iron, {x: event.offsetX, y: event.offsetY})
@@ -78,8 +104,8 @@ function mouseDownHandler(event: MouseEvent){
     if(selectedMode.value === 'place'){
       addEntity(event)
     }
-    else if(selectedMode.value !== 'conveyer'){
-      console.error('action unknown')
+    else{
+      console.log(`action selected: ${selectedMode.value}`)
     }
   }
 }
@@ -91,9 +117,9 @@ function placeConveyer(from: Factory | Miner, to: Factory){
 }
 
 let selectedElement: Factory | Miner | undefined
+let selectedFactory: Factory | undefined
 
 function selectItem(data: Factory | Miner, type: string){
-  console.log(data)
   if(selectedMode.value === 'conveyer'){
     if(!selectedElement){
       selectedElement = data
@@ -103,19 +129,53 @@ function selectItem(data: Factory | Miner, type: string){
       }
       selectedElement = undefined
     }
+  } else {
+    selectedElement = data
+    if(type === 'factory') selectedFactory = data as Factory
+    selectResourceWindow.value = true
   }
 }
+
+function changeFactoryReceipe(factory: Factory, item: Item){
+  factory.output = item
+
+  let input: Item | Resource | undefined
+
+  if(item.receipe.resources){
+    input = item.receipe.resources[0]
+  } else if(item.receipe.items) {
+    input = item.receipe.items[0]
+  }
+
+  if(input) factory.input	= input
+}
+
+const selectResourceWindow = ref(false)
+
+
+const windowOpen= ref(true)
 
 </script>
 
 <template>
-  <div>
-    <h1>Mode sélectionné: {{ selectedMode }}</h1>
-    <ul>
-      <li @click.stop="() => selectedMode = 'place'">Placer</li>
-      <li @click.stop="() => selectedMode = 'conveyer'">Conveyer</li>
-    </ul>
+  <div id="ui">
+    <div style="background-color: lightgrey;">
+      <h1>Mode sélectionné: {{ selectedMode }}</h1>
+      <ul>
+        <li @click.stop="() => selectedMode = 'place'">Placer</li>
+        <li @click.stop="() => selectedMode = 'conveyer'">Conveyer</li>
+        <li @click.stop="() => selectedMode = 'interact'">Interact</li>
+      </ul>
+    </div>
+
+    <h1 @click="windowOpen = true" v-if="!windowOpen">Menu</h1>
   </div>
+
+
+  <WindowComponent v-model="selectResourceWindow">
+    <SelectItem :item-list="[ironIngot, cooperIngot]" @item-selected="(item: Item) => changeFactoryReceipe(selectedFactory, item)"></SelectItem>
+  </WindowComponent>
+
   <div class="gameWindow" @mousedown="mouseDownHandler($event)" v-if="entities" :ref="gameWindowRef">
 
     <draggable v-for="({type, data}, index) in entities" :key="index"
@@ -125,7 +185,7 @@ function selectItem(data: Factory | Miner, type: string){
               :top="data.position.y"
               :disable="() => selectedMode === 'conveyer'"
               @update-pos="({x, y}) => { data.position.x = x; data.position.y = y}">
-      <div @click="selectItem(data, type)" >
+      <div @click="selectItem(data, type)">
         <factoryDisplay :display="data.displayData">
           <div>
             <quantityDisplay v-if="type === 'factory'"
@@ -155,5 +215,10 @@ function selectItem(data: Factory | Miner, type: string){
   height: 100vh;
 }
 
+
+#ui {
+  position: absolute;
+  left: 100px;
+}
 
 </style>
