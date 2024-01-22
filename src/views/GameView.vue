@@ -85,10 +85,9 @@ function mouseDownHandler(event: MouseEvent){
 }
 
 function placeConveyer(from: Factory | Miner, to: Factory){
-  const conveyerTest = createConvoyer(toRaw(from), toRaw(to))
-  const convoyer = createConvoyer(from, to)
-  game.updatables.push(conveyerTest.updatable)
-  convoyerList.value.push(conveyerTest.data.displayData)
+  const conveyer = createConvoyer(from, to)
+  game.updatables.push(conveyer.updatable)
+  convoyerList.value.push(conveyer.data.displayData)
 }
 
 let selectedElement: Factory | Miner | undefined
@@ -100,7 +99,7 @@ function selectItem(data: Factory | Miner, type: string){
       selectedElement = data
     } else {
       if(type === 'factory'){
-        placeConveyer(selectedElement, data as Factory)
+        placeConveyer(toRaw(selectedElement), toRaw(data) as Factory)
       }
       selectedElement = undefined
     }
