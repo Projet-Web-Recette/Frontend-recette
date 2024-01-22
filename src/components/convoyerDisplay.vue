@@ -1,7 +1,7 @@
 <template>
     <div class="convoyers">
         <svg height="100%" width="100%">
-            <g v-for="({x1, x2, y1, y2}, index) in simplerConvoyers">
+            <g v-for="({x1, x2, y1, y2}, index) in simplerConvoyers" :key="'conv' + index">
                 <defs>
                     <linearGradient :id="`e${index}`" :x1="x1.value" :y1="y1.value" :x2="x2.value" :y2="y2.value" gradientUnits="userSpaceOnUse">
                         <stop stop-color="red" offset="0" />

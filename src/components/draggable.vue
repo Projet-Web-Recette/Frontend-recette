@@ -1,5 +1,5 @@
 <template>
-    <div class="draggable" @mousedown="dragMouseDown($event)" :style="{
+    <div class="draggable" @mousedown.stop="dragMouseDown($event)" :style="{
       left: (left - width / 2) + 'px', 
       top: (top - height / 2) + 'px', 
       width: width + 'px',

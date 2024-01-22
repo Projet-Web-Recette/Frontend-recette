@@ -6,6 +6,7 @@ import { ref } from "vue";
 
 export function createMiner(resource: Resource, coords: {x: number, y: number}){
     const minerQuantity = ref(0) // quantity for miner
+    
     const x = ref(coords.x)
     const y = ref(coords.y)
 

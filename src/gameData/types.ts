@@ -36,3 +36,10 @@ export interface Convoyer {
     from: Miner | Factory,
     to: Factory
 }
+
+export interface ConvoyerDisplay {
+    x1: Ref<number>,
+    y1: Ref<number>,
+    x2: Ref<number>,
+    y2: Ref<number>,
+}

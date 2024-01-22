@@ -8,7 +8,7 @@ import ConvoyerDisplay from '@/components/convoyerDisplay.vue';
 import quantityDisplay from '@/components/quantityDisplay.vue';
 import draggable from '@/components/draggable.vue'
 import { ref } from 'vue';
-import { Convoyer } from '@/gameData/types';
+import { Convoyer, type Display } from '@/gameData/types';
 
 
 console.log(authenticationStore().isAdmin);
@@ -35,6 +35,7 @@ const ironIngot: Item = {
 
 
 const miner1 = createMiner(iron, {x: 0, y: 0})
+const miner2 = createMiner(iron, {x: 300, y: 300})
 
 
 const smelter1 = createFactory(iron, ironIngot, {x:300, y:300})
@@ -42,13 +43,18 @@ const smelter1 = createFactory(iron, ironIngot, {x:300, y:300})
 const convoyer1 = createConvoyer(miner1.data, smelter1.data)
 
 game.updatables.push(miner1.updatable)
+game.updatables.push(miner2.updatable)
 game.updatables.push(smelter1.updatable)
 game.updatables.push(convoyer1.updatable)
 
+const entities = ref<{type: string, displayData: Display, data: any}[]>([
+  {type: 'miner', displayData: miner1.data.displayData, data: miner1.data},
+  {type: 'miner', displayData: miner2.data.displayData, data: miner2.data},
+  {type: 'factory', displayData: smelter1.data.displayData, data: smelter1.data}
+])
+const convoyerList = ref<any[]>([])
 
-const conveyerList = ref<any[]>([])
-
-conveyerList.value.push(convoyer1.data)
+convoyerList.value.push(convoyer1.data)
 
 // game.miners.push(miner1.data)
 // game.convoyers.push(convoyer1.data)
@@ -58,37 +64,33 @@ launchGame()
 
 const gameWindowRef = ref<Element>()
 
+function addEntity(event: MouseEvent){
+  const miner = createMiner(iron, {x: event.x, y: event.y})
+  game.updatables.push(miner.updatable)
+  const  {height, width, src, x, y} = miner.data.displayData
+  entities.value.push({type: 'miner', data: miner.data, displayData:{height, src, width, x:x.value, y:y.value}})
+}
+
 </script>
 
 <template>
-  <div class="gameWindow">
+  <div class="gameWindow" @mousedown="addEntity($event)" v-if="entities">
 
-    <draggable :height="miner1.data.displayData.height" 
-                :width="miner1.data.displayData.width" 
-                :left="miner1.data.displayData.x.value" 
-                :top="miner1.data.displayData.y.value"
-                @update-pos="({x, y}) => { miner1.data.displayData.x.value = x; miner1.data.displayData.y.value = y}">
-      <factoryDisplay :display="miner1.data.displayData">
-        <quantityDisplay 
-          :logo-path="miner1.data.output.logoPath" 
-          :quantity="miner1.data.quantity" />
-      </factoryDisplay>
-    </draggable>
-    
-    <draggable :height="smelter1.data.displayData.height" 
-                :width="smelter1.data.displayData.width" 
-                :left="smelter1.data.displayData.x.value" 
-                :top="smelter1.data.displayData.y.value"
-                @update-pos="({x, y}) => { smelter1.data.displayData.x.value = x; smelter1.data.displayData.y.value = y}">
-      <factoryDisplay :display="smelter1.data.displayData">
+    <draggable v-for="({displayData, type, data}, index) in entities" :key="index"
+              :height="displayData.height" 
+              :width="displayData.width" 
+              :left="displayData.x" 
+              :top="displayData.y"
+              @update-pos="({x, y}) => { displayData.x = x; displayData.y = y}">
+      <factoryDisplay :display="displayData">
         <div>
-          <quantityDisplay 
-            :logo-path="smelter1.data.input.logoPath" 
-            :quantity="smelter1.data.inQuantity" />
+          <quantityDisplay v-if="type === 'factory'"
+            :logo-path="data.input.logoPath" 
+            :quantity="data.inQuantity" />
 
-          <quantityDisplay 
-            :logo-path="smelter1.data.output.logoPath" 
-            :quantity="smelter1.data.quantity" />
+          <quantityDisplay v-if="type === 'miner' || type === 'factory'"
+            :logo-path="data.output.logoPath" 
+            :quantity="data.quantity" />
 
         </div>
       </factoryDisplay>
