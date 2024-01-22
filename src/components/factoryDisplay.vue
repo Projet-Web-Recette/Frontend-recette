@@ -8,7 +8,7 @@
 <script setup lang="ts">
 import type { Display } from '../gameData/types';
 
-const props = defineProps<{display: Display}>()
+defineProps<{display: Display}>()
 </script>
 
 <style scoped>

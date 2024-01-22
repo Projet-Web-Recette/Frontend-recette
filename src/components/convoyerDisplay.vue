@@ -1,16 +1,16 @@
 <template>
     <div class="convoyers">
         <svg height="100%" width="100%">
-            <g v-for="({x1, x2, y1, y2}, index) in simplerConvoyers" :key="'conv' + index">
+            <g v-for="({x1, x2, y1, y2}, index) in convoyers" :key="'conv' + index">
                 <defs>
-                    <linearGradient :id="`e${index}`" :x1="x1.value" :y1="y1.value" :x2="x2.value" :y2="y2.value" gradientUnits="userSpaceOnUse">
+                    <linearGradient :id="`e${index}`" :x1="x1" :y1="y1" :x2="x2" :y2="y2" gradientUnits="userSpaceOnUse">
                         <stop stop-color="red" offset="0" />
                         <stop stop-color="steelblue" offset="1" />
                     </linearGradient>
                 </defs>
         
                 <line
-                    :x1="x1.value" :y1="y1.value" :x2="x2.value" :y2="y2.value"
+                    :x1="x1" :y1="y1" :x2="x2" :y2="y2"
                     :style="{stroke:`url(#e${index})`, strokeWidth: 5}"
                 ></line>
             </g>
@@ -19,17 +19,9 @@
 </template>
 
 <script setup lang="ts">
-import type { Convoyer } from '@/gameData/types';
-import { computed } from 'vue';
+import type { ConvoyerDisplayData } from '@/gameData/types';
 
-const props = defineProps<{convoyers: Convoyer[]}>()
-
-const simplerConvoyers = computed(() => props.convoyers.map((convoyer) => {
-    const {x: x1, y: y1} = convoyer.from.displayData
-    const {x: x2, y: y2} = convoyer.to.displayData
-
-    return {x1, x2, y1, y2}
-}))
+defineProps<{convoyers: {x1: number, x2: number, y1: number, y2: number}[]}>()
 
 </script>
 

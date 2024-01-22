@@ -4,17 +4,21 @@ import type { Ref } from "vue"
 export interface Display {
     src: string,
     width: number,
-    height: number,
-    x: Ref<number>,
-    y: Ref<number>
+    height: number
 }
 
 export interface Updatable {
     tick: (delta: number) => void
 }
 
+export interface PositionData {
+    x: Ref<number>,
+    y: Ref<number>
+}
+
 export interface Miner {
     displayData: Display,
+    position: PositionData,
     output: Resource,
     rate: number,
     quantity: Ref<number>,
@@ -23,6 +27,7 @@ export interface Miner {
 
 export interface Factory {
     displayData: Display,
+    position: PositionData,
     input: Resource | Item,
     output: Resource,
     rate: number,
@@ -33,13 +38,14 @@ export interface Factory {
 }
 
 export interface Convoyer {
+    displayData: ConvoyerDisplayData,
     from: Miner | Factory,
     to: Factory
 }
 
-export interface ConvoyerDisplay {
+export interface ConvoyerDisplayData {
     x1: Ref<number>,
     y1: Ref<number>,
     x2: Ref<number>,
-    y2: Ref<number>,
+    y2: Ref<number>
 }

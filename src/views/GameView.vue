@@ -8,7 +8,7 @@ import ConvoyerDisplay from '@/components/convoyerDisplay.vue';
 import quantityDisplay from '@/components/quantityDisplay.vue';
 import draggable from '@/components/draggable.vue'
 import { ref } from 'vue';
-import { Convoyer, type Display } from '@/gameData/types';
+import type { ConvoyerDisplayData } from '@/gameData/types';
 
 
 console.log(authenticationStore().isAdmin);
@@ -47,14 +47,14 @@ game.updatables.push(miner2.updatable)
 game.updatables.push(smelter1.updatable)
 game.updatables.push(convoyer1.updatable)
 
-const entities = ref<{type: string, displayData: Display, data: any}[]>([
-  {type: 'miner', displayData: miner1.data.displayData, data: miner1.data},
-  {type: 'miner', displayData: miner2.data.displayData, data: miner2.data},
-  {type: 'factory', displayData: smelter1.data.displayData, data: smelter1.data}
+const entities = ref<{type: string, data: any}[]>([
+  {type: 'miner', data: miner1.data},
+  {type: 'miner', data: miner2.data},
+  {type: 'factory', data: smelter1.data}
 ])
-const convoyerList = ref<any[]>([])
+const convoyerList = ref<ConvoyerDisplayData[]>([])
 
-convoyerList.value.push(convoyer1.data)
+convoyerList.value.push(convoyer1.data.displayData)
 
 // game.miners.push(miner1.data)
 // game.convoyers.push(convoyer1.data)
@@ -65,10 +65,9 @@ launchGame()
 const gameWindowRef = ref<Element>()
 
 function addEntity(event: MouseEvent){
-  const miner = createMiner(iron, {x: event.x, y: event.y})
+  const miner = createMiner(iron, {x: event.clientX, y: event.clientY})
   game.updatables.push(miner.updatable)
-  const  {height, width, src, x, y} = miner.data.displayData
-  entities.value.push({type: 'miner', data: miner.data, displayData:{height, src, width, x:x.value, y:y.value}})
+  entities.value.push({type: 'miner', data: miner.data})
 }
 
 </script>
@@ -76,13 +75,13 @@ function addEntity(event: MouseEvent){
 <template>
   <div class="gameWindow" @mousedown="addEntity($event)" v-if="entities">
 
-    <draggable v-for="({displayData, type, data}, index) in entities" :key="index"
-              :height="displayData.height" 
-              :width="displayData.width" 
-              :left="displayData.x" 
-              :top="displayData.y"
-              @update-pos="({x, y}) => { displayData.x = x; displayData.y = y}">
-      <factoryDisplay :display="displayData">
+    <draggable v-for="({type, data}, index) in entities" :key="index"
+              :height="data.displayData.height" 
+              :width="data.displayData.width" 
+              :left="data.position.x" 
+              :top="data.position.y"
+              @update-pos="({x, y}) => { data.position.x = x; data.position.y = y}">
+      <factoryDisplay :display="data.displayData">
         <div>
           <quantityDisplay v-if="type === 'factory'"
             :logo-path="data.input.logoPath" 
@@ -96,7 +95,7 @@ function addEntity(event: MouseEvent){
       </factoryDisplay>
     </draggable>
 
-    <ConvoyerDisplay :convoyers="[convoyer1.data]">
+    <ConvoyerDisplay :convoyers="(convoyerList)">
     </ConvoyerDisplay>
     <!-- <factoryDisplay :display="miner2.displayData"></factoryDisplay> -->
   </div>
