@@ -11,7 +11,7 @@
 
 <script setup lang="ts">
 import { ref } from 'vue';
-const initPosition = defineProps<{left: number, top: number, width: number, height: number}>()
+const initPosition = defineProps<{left: number, top: number, width: number, height: number, disable: () => boolean | false}>()
 
 const top = ref(initPosition.top)
 const left = ref(initPosition.left)
@@ -24,9 +24,13 @@ let dropY = initPosition.top
 
 
 
-const emit = defineEmits<{(e: 'updatePos', pos: {x: number, y:number}): void}>()
+const emit = defineEmits<{
+  (e: 'updatePos', pos: {x: number, y:number}): void
+}>()
 
 function dragMouseDown(e: MouseEvent) {
+  if(initPosition.disable()) return
+
   e.preventDefault();
   // get the mouse cursor position at startup:
   document.onmouseup = closeDragElement;
