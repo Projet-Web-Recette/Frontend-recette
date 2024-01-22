@@ -7,7 +7,7 @@ import { createConvoyer, createFactory, createMiner, launchGame} from '@/gameDat
 import ConvoyerDisplay from '@/components/convoyerDisplay.vue';
 import quantityDisplay from '@/components/quantityDisplay.vue';
 import draggable from '@/components/draggable.vue'
-import { ref } from 'vue';
+import { ref, type VNodeRef } from 'vue';
 import type { ConvoyerDisplayData } from '@/gameData/types';
 
 
@@ -62,10 +62,10 @@ convoyerList.value.push(convoyer1.data.displayData)
 
 launchGame()
 
-const gameWindowRef = ref<Element>()
+const gameWindowRef = ref<VNodeRef>()
 
 function addEntity(event: MouseEvent){
-  const miner = createMiner(iron, {x: event.clientX, y: event.clientY})
+  const miner = createMiner(iron, {x: event.offsetX, y: event.offsetY})
   game.updatables.push(miner.updatable)
   entities.value.push({type: 'miner', data: miner.data})
 }
@@ -73,7 +73,7 @@ function addEntity(event: MouseEvent){
 </script>
 
 <template>
-  <div class="gameWindow" @mousedown="addEntity($event)" v-if="entities">
+  <div class="gameWindow" @mousedown="addEntity($event)" v-if="entities" :ref="gameWindowRef">
 
     <draggable v-for="({type, data}, index) in entities" :key="index"
               :height="data.displayData.height" 

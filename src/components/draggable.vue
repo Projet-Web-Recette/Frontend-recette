@@ -19,8 +19,8 @@ const left = ref(initPosition.left)
 let offsetX = 0
 let offsetY = 0
 
-let dropX = initPosition.top
-let dropY = initPosition.left
+let dropX = initPosition.left
+let dropY = initPosition.top
 
 
 
