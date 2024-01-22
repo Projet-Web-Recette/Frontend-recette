@@ -32,9 +32,9 @@ const routesNoSecure = [
         name: "Login"
     },
     {
-        path: "/receipes",
+        path: "/recipes",
         component: ReceipesView,
-        name: 'receipes'
+        name: 'recipes'
     },
     {
         path: "/listAll",

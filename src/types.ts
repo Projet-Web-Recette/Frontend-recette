@@ -2,7 +2,7 @@ export interface Item {
     id: string,
     name: string,
     logoPath: string,
-    receipe: Receipe
+    ingredients: any[]
 }
 
 export interface Receipe {
@@ -11,6 +11,7 @@ export interface Receipe {
     resources?: Resource[],
     machine?: undefined
 }
+
 
 export interface Resource {
     id?: string,

@@ -1,13 +1,13 @@
 import { authenticationStore } from "@/stores/authenticationStore"
-import type { HttpRequest, Resource } from "@/types"
+import type { HttpRequest, Item, Resource } from "@/types"
 
-const baseUrl = 'https://webinfo.iutmontp.univ-montp2.fr/~bordl/API-PLATFORM-main/API-PLATFORM/public/api'
-const baseUrl2 = 'https://webinfo.iutmontp.univ-montp2.fr/~royov/WebRecette/API-PLATFORM/public/api'
+const baseUrl = 'https://webinfo.iutmontp.univ-montp2.fr/~royov/API-PLATFORM/public/api'
+const baseUrl2 = 'https://webinfo.iutmontp.univ-montp2.fr/~bordl/API-PLATFORM-main/API-PLATFORM/public/api'
 
 function translateResourceFromApi(resource: any): Resource {
-    const {id, nomRessource, qualite, contentUrl} = resource
+    const {nomRessource, qualite, contentUrl} = resource
     return {
-        id,
+        id: resource["@id"],
         name: nomRessource,
         quality: qualite,
         logoPath: contentUrl
@@ -24,6 +24,27 @@ function translateResourceToApi(resource: Resource): any {
     }
 }
 
+
+
+function translateItemFromApi(item: any): Item {
+    const {nomItem, contentUrl, ingredients} = item;
+
+    return {
+        id: item["@id"],
+        name: nomItem,
+        logoPath: contentUrl,
+        ingredients: translateArrayIngredients(ingredients)
+    }
+}
+
+
+function translateArrayIngredients(ingredients: any[]) {
+    return ingredients.map((ingredient) => {
+        if (ingredient.ingredients) return translateItemFromApi(ingredient);
+        else return translateResourceFromApi(ingredient);
+    });
+}
+
 export async function sendRequest(endpoint: string, method: 'GET' | 'POST', payload?: any, useJWT = false){
     let token = {}
     let request = {} as HttpRequest
@@ -32,10 +53,12 @@ export async function sendRequest(endpoint: string, method: 'GET' | 'POST', payl
 
         const authentication = authenticationStore()
 
+        console.log(authentication.JWT)
+
         if(!authentication.isAuthenticated) return
 
         token = {
-            'Authorization': authentication.JWT
+            'Authorization': `Bearer ${authentication.JWT}`
         }
     }
 
@@ -69,6 +92,15 @@ export async function getResources(): Promise<Resource[]> {
 
     return result
 }
+
+export async function getItem(idItem: Number): Promise<Item> {
+    const request = await sendRequest(`items/${idItem}`,"GET", null, true);
+
+    const item = request?.content;
+
+    return translateItemFromApi(item);
+}
+
 
 // export async function registerResource(resource: Resource): Promise<Resource> {
 //     const payload = translateResourceToApi(resource)
