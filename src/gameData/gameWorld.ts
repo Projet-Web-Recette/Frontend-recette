@@ -3,6 +3,21 @@ import type { Conveyer, ConveyerDisplayData, Display, Factory, Miner, Updatable 
 import { gameStore } from "@/stores/gameStore";
 import { ref } from "vue";
 
+export const defaultResource: Resource = {
+    logoPath: 'public/icons/nothing.png',
+    name: 'nothing'
+}
+
+export const defaultItem: Item = {
+    logoPath: 'public/icons/nothing.png',
+    name: 'nothing',
+    id: '',
+    receipe:{
+        id:'',
+        items:[],
+        resources: []
+    }
+}
 
 
 export function createMiner(resource: Resource, coords: {x: number, y: number}){
@@ -38,14 +53,14 @@ export function createMiner(resource: Resource, coords: {x: number, y: number}){
 
     const minerUpdate: Updatable = {
         tick(delta: number) {
-            minerData.quantity.value ++
+            if(minerData.output) minerData.quantity.value ++
         }
     }
 
     return {data: minerData, updatable: minerUpdate}
 }
 
-export function createFactory(output: Item, coords: {x: number, y: number}){
+export function createFactory(output: Item | undefined = undefined, coords: {x: number, y: number}){
     const smelterQuantity = ref(0)
     const smelterInputQuantity = ref(0)
 
@@ -60,7 +75,7 @@ export function createFactory(output: Item, coords: {x: number, y: number}){
 
     let input: Item | Resource | undefined
 
-    if(output.receipe.resources){
+    if(output && output.receipe.resources){
         input = output.receipe.resources[0]
     }
 
@@ -84,7 +99,7 @@ export function createFactory(output: Item, coords: {x: number, y: number}){
 
     const smelterUpdatable: Updatable = {
         tick: () => {
-            if(smelterInputQuantity.value >= 2){
+            if(smelterInputQuantity.value >= 2 && smelterData.output){
                 smelterQuantity.value += 1
                 smelterInputQuantity.value -= 2
             }
@@ -110,7 +125,11 @@ export function createConveyer(from: Miner | Factory, to: Factory) {
 
     const conveyerUpdate: Updatable = {
         tick: () => {
-            if(conveyerData.to.input.name === conveyerData.from.output.name){
+            const {input} = conveyerData.to
+            const {output} = conveyerData.from
+
+            if(!input || !output) return
+            if(input.name === output.name){
                 if(conveyerData.from.quantity.value > 0){
                     const taken = conveyerData.from.take(1)
                     conveyerData.to.give(taken)

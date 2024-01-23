@@ -19,7 +19,7 @@ export interface PositionData {
 export interface Building {
     displayData: Display,
     position: PositionData,
-    output: Resource | Item,
+    output?: Resource | Item,
     rate: number,
     quantity: Ref<number>,
     take: (quantity: number) => number
@@ -30,7 +30,7 @@ export interface Miner extends Building {
 }
 
 export interface Factory extends Building {
-    input: Resource | Item,
+    input?: Resource | Item,
     inQuantity: Ref<number>,
     give: (quantity: number) => number
 }

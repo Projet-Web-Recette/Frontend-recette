@@ -1,5 +1,5 @@
 <template>
-    <div class="draggable" @mousedown.stop="dragMouseDown($event)" :style="{
+    <div class="draggable" @mousedown="dragMouseDown($event)" :style="{
       left: (left - width / 2) + 'px', 
       top: (top - height / 2) + 'px', 
       width: width + 'px',
@@ -32,6 +32,7 @@ function dragMouseDown(e: MouseEvent) {
   if(initPosition.disable()) return
 
   e.preventDefault();
+  e.stopPropagation()
   // get the mouse cursor position at startup:
   document.onmouseup = closeDragElement;
   // call a function whenever the cursor moves:

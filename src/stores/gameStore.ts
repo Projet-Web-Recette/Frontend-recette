@@ -1,4 +1,4 @@
-import { createConveyer, createFactory, createMiner } from "@/gameData/gameWorld";
+import { createConveyer, createFactory, createMiner, defaultResource } from "@/gameData/gameWorld";
 import { BuildingType, InteractionMode, type Building, type Conveyer, type Factory, type Miner, type Updatable } from "@/gameData/types";
 import type { Item, Resource } from "@/types";
 import { defineStore } from "pinia";
@@ -36,6 +36,7 @@ interface State {
     conveyers: Conveyer[],
     updatables: Updatable[],
     selectedMode: InteractionMode,
+    selectedBuild: BuildingType,
     selectedElement?: Factory | Miner,
     selectedFactory: Factory | undefined
 }
@@ -49,6 +50,7 @@ export const gameStore = defineStore('gameStore', {
             conveyers: [],
             updatables: [],
             selectedMode: InteractionMode.INTERACT,
+            selectedBuild: BuildingType.FACTORY,
             selectedElement: undefined,
             selectedFactory: undefined
         }
@@ -64,7 +66,7 @@ export const gameStore = defineStore('gameStore', {
             this.updatables.push(conveyer.updatable)
             this.conveyers.push(conveyer.data)
         },
-        selectItem(data: Factory | Miner, type: BuildingType){
+        selectBuild(data: Factory | Miner, type: BuildingType){
             if(this.selectedMode === InteractionMode.CONVEYER){
               if(!this.selectedElement){
                 this.selectedElement = data
@@ -98,12 +100,12 @@ export const gameStore = defineStore('gameStore', {
             if(input) this.selectedFactory.input = input
           },
           addEntity(type: BuildingType, infos: {
-            output: Resource | Item, 
+            output?: Resource | Item, 
             coords: {x: number, y:number}})
         {
             const {output, coords} = infos
             if(type === BuildingType.MINER){
-                const miner = createMiner(output, coords)
+                const miner = createMiner(output ? output : defaultResource, coords)
                 this.updatables.push(miner.updatable)
                 this.miners.push(miner.data)
                 this.entities.push({data: miner.data, type})

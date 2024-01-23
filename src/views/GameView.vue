@@ -52,11 +52,11 @@ const cooperIngot: Item = {
 }
 
 
-game.addEntity(BuildingType.MINER, {output: iron, coords: {x:0, y:0}})
+game.addEntity(BuildingType.MINER, {output: iron, coords: {x:50, y:50}})
 game.addEntity(BuildingType.MINER, {output: cooper, coords: {x: 300, y: 300}})
 
-game.addEntity(BuildingType.FACTORY, {output: ironIngot, coords: {x: 300, y: 300}})
-game.addEntity(BuildingType.FACTORY, {output: ironIngot, coords: {x: 600, y: 300}})
+game.addEntity(BuildingType.FACTORY, {coords: {x: 300, y: 300}})
+game.addEntity(BuildingType.FACTORY, {coords: {x: 600, y: 300}})
 
 
 const selectBuild = ref<'miner' | 'factory'>()
@@ -66,17 +66,16 @@ function mouseDownHandler(event: MouseEvent){
     if(game.selectedMode === InteractionMode.BUILD){
       // game.addEntity({x: event.offsetX, y: event.offsetY})
     }
+    else if (game.selectedMode === InteractionMode.INTERACT){
+      if(game.selectedFactory){
+        windowOpen.value = true
+      }
+    }
     else{
       console.log(`action selected: ${game.selectedMode}`)
     }
   }
 }
-
-watch(() => game.selectedFactory, (value) => {
-  if(value && game.selectedMode === InteractionMode.INTERACT){
-    windowOpen.value = true
-  }
-})
 
 
 const windowOpen= ref(false)
@@ -107,16 +106,18 @@ const windowOpen= ref(false)
               :width="data.displayData.width" 
               :left="data.position.x" 
               :top="data.position.y"
-              :disable="() => game.selectedMode === InteractionMode.CONVEYER"
+              :disable="() => type === BuildingType.MINER ||
+                        game.selectedMode === InteractionMode.CONVEYER || 
+                        game.selectedMode === InteractionMode.INTERACT"
               @update-pos="({x, y}) => { data.position.x = x; data.position.y = y}">
-      <div @click="game.selectItem(data, type)">
+      <div @click="game.selectBuild(data, type)">
         <factoryDisplay :display="data.displayData">
           <div>
-            <quantityDisplay v-if="type === 'factory'"
+            <quantityDisplay v-if="type === BuildingType.FACTORY && data.input"
               :logo-path="data.input.logoPath" 
               :quantity="data.inQuantity" />
   
-            <quantityDisplay v-if="type === 'miner' || type === 'factory'"
+            <quantityDisplay v-if="data.output && (type === BuildingType.MINER || type === BuildingType.FACTORY)"
               :logo-path="data.output.logoPath" 
               :quantity="data.quantity" />
   
