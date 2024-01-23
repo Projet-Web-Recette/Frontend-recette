@@ -1,14 +1,13 @@
 <script setup lang="ts">
-import { authenticationStore } from '@/stores/authenticationStore';
 import { gameStore } from '@/stores/gameStore';
 import factoryDisplay from '@/components/factoryDisplay.vue'
 import type { Item, Receipe, Resource } from '@/types';
-import { createConvoyer, createFactory, createMiner, launchGame} from '@/gameData/gameWorld';
-import ConvoyerDisplay from '@/components/convoyerDisplay.vue';
+import { createConveyer, createFactory, createMiner, launchGame} from '@/gameData/gameWorld';
+import ConveyerDisplay from '@/components/conveyerDisplay.vue';
 import quantityDisplay from '@/components/quantityDisplay.vue';
 import draggable from '@/components/draggable.vue'
 import { ref, toRaw, watch, type VNodeRef } from 'vue';
-import type { ConvoyerDisplayData, Factory, Miner } from '@/gameData/types';
+import type { ConveyerDisplayData, Factory, Miner } from '@/gameData/types';
 import WindowComponent from '@/components/windowComponent.vue';
 import SelectItem from '@/components/selectItem.vue';
 
@@ -60,14 +59,14 @@ const miner2 = createMiner(cooper, {x: 300, y: 300})
 const smelter1 = createFactory(ironIngot, {x:300, y:300})
 const smelter2 = createFactory(ironIngot, {x:600, y:300})
 
-const convoyer1 = createConvoyer(miner1.data, smelter1.data)
-const convoyer2 = createConvoyer(miner2.data, smelter2.data)
+const conveyer1 = createConveyer(miner1.data, smelter1.data)
+const conveyer2 = createConveyer(miner2.data, smelter2.data)
 
 game.updatables.push(miner1.updatable)
 game.updatables.push(miner2.updatable)
 game.updatables.push(smelter1.updatable)
 game.updatables.push(smelter2.updatable)
-game.updatables.push(convoyer1.updatable)
+game.updatables.push(conveyer1.updatable)
 
 const entities = ref<{type: string, data: any}[]>([
   {type: 'miner', data: miner1.data},
@@ -75,12 +74,12 @@ const entities = ref<{type: string, data: any}[]>([
   {type: 'factory', data: smelter1.data},
   {type: 'factory', data: smelter2.data}
 ])
-const convoyerList = ref<ConvoyerDisplayData[]>([])
+const conveyerList = ref<ConveyerDisplayData[]>([])
 
-convoyerList.value.push(convoyer1.data.displayData)
+conveyerList.value.push(conveyer1.data.displayData)
 
 // game.miners.push(miner1.data)
-// game.convoyers.push(convoyer1.data)
+// game.conveyers.push(conveyer1.data)
 
 
 const gameWindowRef = ref<VNodeRef>()
@@ -111,9 +110,9 @@ function mouseDownHandler(event: MouseEvent){
 }
 
 function placeConveyer(from: Factory | Miner, to: Factory){
-  const conveyer = createConvoyer(from, to)
+  const conveyer = createConveyer(from, to)
   game.updatables.push(conveyer.updatable)
-  convoyerList.value.push(conveyer.data.displayData)
+  conveyerList.value.push(conveyer.data.displayData)
 }
 
 let selectedElement: Factory | Miner | undefined
@@ -201,8 +200,8 @@ const windowOpen= ref(true)
       </div>
     </draggable>
 
-    <ConvoyerDisplay :convoyers="(convoyerList)">
-    </ConvoyerDisplay>
+    <ConveyerDisplay :conveyers="(conveyerList)">
+    </ConveyerDisplay>
     <!-- <factoryDisplay :display="miner2.displayData"></factoryDisplay> -->
   </div>
 </template>

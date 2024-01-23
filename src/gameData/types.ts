@@ -37,13 +37,13 @@ export interface Factory {
     give: (quantity: number) => number
 }
 
-export interface Convoyer {
-    displayData: ConvoyerDisplayData,
+export interface Conveyer {
+    displayData: ConveyerDisplayData,
     from: Miner | Factory,
     to: Factory
 }
 
-export interface ConvoyerDisplayData {
+export interface ConveyerDisplayData {
     x1: Ref<number>,
     y1: Ref<number>,
     x2: Ref<number>,

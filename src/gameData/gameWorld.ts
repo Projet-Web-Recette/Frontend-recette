@@ -1,5 +1,5 @@
 import type { Item, Resource } from "@/types";
-import type { Convoyer, ConvoyerDisplayData, Display, Factory, Miner, Updatable } from "./types";
+import type { Conveyer, ConveyerDisplayData, Display, Factory, Miner, Updatable } from "./types";
 import { gameStore } from "@/stores/gameStore";
 import { ref } from "vue";
 
@@ -94,32 +94,32 @@ export function createFactory(output: Item, coords: {x: number, y: number}){
     return {data: smelterData, updatable: smelterUpdatable}
 }
 
-export function createConvoyer(from: Miner | Factory, to: Factory) {
-    const convoyerDisplayData: ConvoyerDisplayData = {
+export function createConveyer(from: Miner | Factory, to: Factory) {
+    const conveyerDisplayData: ConveyerDisplayData = {
         x1: from.position.x,
         y1: from.position.y,
         x2: to.position.x,
         y2: to.position.y,
     }
 
-    const convoyerData: Convoyer = {
-        displayData: convoyerDisplayData,
+    const conveyerData: Conveyer = {
+        displayData: conveyerDisplayData,
         from,
         to
     }
 
-    const convoyerUpdate: Updatable = {
+    const conveyerUpdate: Updatable = {
         tick: () => {
-            if(convoyerData.to.input.name === convoyerData.from.output.name){
-                if(convoyerData.from.quantity.value > 0){
-                    const taken = convoyerData.from.take(1)
-                    convoyerData.to.give(taken)
+            if(conveyerData.to.input.name === conveyerData.from.output.name){
+                if(conveyerData.from.quantity.value > 0){
+                    const taken = conveyerData.from.take(1)
+                    conveyerData.to.give(taken)
                 }
             }
         }
     }
 
-    return {data: convoyerData, updatable: convoyerUpdate}
+    return {data: conveyerData, updatable: conveyerUpdate}
 }
 
 
