@@ -1,6 +1,7 @@
 <template>
     <div class="window" v-if="visible">
-        <div id="close" @click="close"></div>
+        <div class="alignCross"></div>
+        <img src="/icons/cross.png" id="close" @click="close">
         <div id="windowContent">
             <slot></slot>
         </div>
@@ -36,16 +37,19 @@ function close() {
     position: absolute;
     width: fit-content;
     height: fit-content;
-    left: 0;
+    left: 100px;
+    top: 100px;
     display: flex;
     flex-direction: column;
-    background-color: white;
+    background-color: #868686;
+    color: #EFEFEF;
 }
 
 #close {
-    width: 50px;
-    height: 50px;
-    background-color: red;
+    width: 40px;
+    height: 40px;
+    margin: 5px;
+    margin-left: auto;
 }
 
 #windowContent {

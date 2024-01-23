@@ -1,6 +1,6 @@
 <template>
     <div class="quantityDisplay">
-        <h1 >{{ quantity }}</h1>
+        <h3>{{ quantity }}</h3>
         <img :src="logoPath">
     </div>
 </template>
@@ -14,8 +14,7 @@ defineProps<{quantity: Ref<number>, logoPath: string}>()
 <style>
 .quantityDisplay {
     display: flex; 
-    flex-direction: row; 
-    background-color: white;
+    flex-direction: row;
 }
 
 .quantityDisplay > h1 {

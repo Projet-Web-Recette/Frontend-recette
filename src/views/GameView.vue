@@ -10,6 +10,7 @@ import { ref, toRaw, watch, type VNodeRef } from 'vue';
 import { type ConveyerDisplayData, type Factory, type Miner, InteractionMode, BuildingType } from '@/gameData/types';
 import WindowComponent from '@/components/windowComponent.vue';
 import SelectItem from '@/components/selectItem.vue';
+import IconUI from '@/components/iconUI.vue';
 
 const game = gameStore()
 launchGame()
@@ -94,11 +95,13 @@ const windowOpen= ref(false)
   <div id="ui">
     <div style="background-color: lightgrey;">
       <h1>Mode sélectionné: {{ game.selectedMode }}</h1>
-      <ul>
-        <li v-for="mode in InteractionMode" @click.stop="game.selectMode(mode)">{{ mode }}</li>
-      </ul>
+      <div id="iconDisplay">
+        <IconUI :action-name="InteractionMode.BUILD" icon-path="icons/hammer.png" @icon-selected="game.selectMode(InteractionMode.BUILD)"></IconUI>
+        <IconUI :action-name="InteractionMode.INTERACT" icon-path="icons/click.png" @icon-selected="game.selectMode(InteractionMode.INTERACT)"></IconUI>
+        <IconUI :action-name="InteractionMode.MOVE" icon-path="icons/move.png" @icon-selected="game.selectMode(InteractionMode.MOVE)"></IconUI>
+      </div>
     </div>
-    <div style="background-color: lightgrey;">
+    <div style="background-color: lightgrey;" v-if="game.selectedMode === InteractionMode.BUILD">
       <h1>Building sélectionné: {{ game.selectedBuild }}</h1>
       <ul>
         <li v-for="build in BuildingType" @click="game.selectedBuild = build">{{ build }}</li>
@@ -124,17 +127,22 @@ const windowOpen= ref(false)
               :disable="() => type === BuildingType.MINER || 
                         game.selectedMode !== InteractionMode.MOVE"
               @update-pos="({x, y}) => { data.position.x = x; data.position.y = y}">
-      <div @click="game.selectBuild(data, type)" :style="{backgroundColor: data === game.selectedElement ? 'red' : ''}">
+      <div class="factory" @mousedown="game.selectBuild(data, type)" :class="data === game.selectedElement ? 'buildingSelected' : ''">
         <factoryDisplay :display="data.displayData">
-          <div>
-            <quantityDisplay v-if="type === BuildingType.FACTORY && data.input"
-              :logo-path="data.input.logoPath" 
-              :quantity="data.inQuantity" />
+          <div class="BuildingInfos">
+            <div v-if="type === BuildingType.FACTORY && data.input">
+              <h3>In:</h3>
+              <quantityDisplay
+                :logo-path="data.input.logoPath" 
+                :quantity="data.inQuantity" />
+            </div>
   
-            <quantityDisplay v-if="data.output && (type === BuildingType.MINER || type === BuildingType.FACTORY)"
-              :logo-path="data.output.logoPath" 
-              :quantity="data.quantity" />
-  
+            <div>
+              <h3>Out:</h3>
+              <quantityDisplay v-if="data.output && (type === BuildingType.MINER || type === BuildingType.FACTORY)"
+                :logo-path="data.output.logoPath" 
+                :quantity="data.quantity" />
+            </div>
           </div>
         </factoryDisplay>
       </div>
@@ -154,10 +162,37 @@ const windowOpen= ref(false)
   height: 100vh;
 }
 
+.factory {
+  width: fit-content;
+  height: fit-content;
+}
+
 
 #ui {
   position: absolute;
   left: 100px;
+}
+
+#iconDisplay {
+  display: flex;
+  flex-direction: row;
+}
+
+.BuildingInfos {
+  display: flex;
+  flex-direction: row;
+  background-color: #4b4b4b;
+  color: #EFEFEF;
+  border-radius: 5px;
+}
+
+.BuildingInfos > div {
+  margin: 5px;
+  flex: 1;
+}
+
+.buildingSelected {
+  border: solid #ff5a00 2px;
 }
 
 </style>
