@@ -1,5 +1,5 @@
 <template>
-    <div class="resource">
+    <div class="resource" @click="$emit('onItemClicked', props.item.id)">
         <img :src="item.logoPath">
         <h4>{{ item.name }}</h4>
     </div>
@@ -22,6 +22,11 @@ const props = defineProps<{item: Item}>()
 
 .resource > *{
     margin: auto;
+}
+
+.resource:hover{
+    border: 4px solid green;
+    transform: scale(1.2);
 }
 
 .resource > img {

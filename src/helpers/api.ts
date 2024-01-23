@@ -1,13 +1,14 @@
 import { authenticationStore } from "@/stores/authenticationStore"
 import type { HttpRequest, Item, Resource } from "@/types"
+import { isRuntimeOnly } from "vue"
 
 const baseUrl = 'https://webinfo.iutmontp.univ-montp2.fr/~royov/API-PLATFORM/public/api'
 const baseUrl2 = 'https://webinfo.iutmontp.univ-montp2.fr/~bordl/API-PLATFORM-main/API-PLATFORM/public/api'
 
 function translateResourceFromApi(resource: any): Resource {
-    const {nomRessource, qualite, contentUrl} = resource
+    const {id, nomRessource, qualite, contentUrl} = resource
     return {
-        id: resource["@id"],
+        id: id ? id : resource["@id"],
         name: nomRessource,
         quality: qualite,
         logoPath: contentUrl
@@ -25,15 +26,14 @@ function translateResourceToApi(resource: Resource): any {
 }
 
 
-
 function translateItemFromApi(item: any): Item {
-    const {nomItem, contentUrl, ingredients} = item;
-
+    const {id, nomItem, contentUrl, ingredients} = item;
+    
     return {
-        id: item["@id"],
+        id: id ? id : item["@id"],
         name: nomItem,
         logoPath: contentUrl,
-        ingredients: translateArrayIngredients(ingredients)
+        ingredients: ingredients ? translateArrayIngredients(ingredients) : []
     }
 }
 
@@ -101,32 +101,20 @@ export async function getItem(idItem: Number): Promise<Item> {
     return translateItemFromApi(item);
 }
 
+export async function getAllItems(): Promise<Item[]> {
+    const request = await sendRequest('items', 'GET', null, true);
 
-// export async function registerResource(resource: Resource): Promise<Resource> {
-//     const payload = translateResourceToApi(resource)
-//     sendRequest('ressources', 'POST', payload, true)
+    const items = request?.content["hydra:member"];
 
-//     const response = await fetch(`${baseUrl}/ressources`, {
-//         method: 'POST',
-//         headers: {
-//             'Content-Type': 'application/json'
-//         },
-//         body: JSON.stringify({
-//             nomResource: resource.name,
-//             qualite: resource.quality,
-//             file: resource.logoPath,
-//             foreuse: ""
-//         })
-//     })
-//     const result = await response.json()
-//     return result
-// }
+    
 
+    return items.map((item:any) => translateItemFromApi(item))
+}
 
+export async function getAllRecipesFromItem(idItem: string) {
+    const request = await sendRequest(`items/${idItem}/recettes`, "GET", null, true);
 
-// export async function getItems() {
-//     const authentication = useAuthenticationStore()
-//     if(authentication.isAuthenticated){
-//         return sendRequest('items', 'GET', {}, true)
-//     }
-// }
+    const item = request?.content;
+
+    return item.ingredientsOf;
+}

@@ -1,5 +1,6 @@
 import './assets/main.css'
 import 'mdb-vue-ui-kit/css/mdb.min.css';
+import './assets/indexTailwind.css';
 
 import { createApp } from 'vue'
 import { createPinia } from 'pinia'
