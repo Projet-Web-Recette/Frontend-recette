@@ -58,9 +58,26 @@ export const gameStore = defineStore('gameStore', {
             this.selectedElement = undefined
             this.selectedFactory = undefined
         },
+        disconnectConveyer(id: string){
+            const conveyer = this.entities.get(id)
+            if(conveyer && conveyer.type === BuildingType.CONVEYER){
+                const { from, to } = conveyer.data
+                debugger
+                from.connectedConveyers.pop(id)
+                to.connectedConveyers.pop(id)
+
+                this.entities.delete(id)
+                this.updatables.delete(id)
+            }
+
+            delete conveyer?.data
+        },
         placeConveyer(from: Building, to: Factory){
             const uuid = v4()
             const conveyer = createConveyer(toRaw(from), toRaw(to))
+
+            from.connectedConveyers.push(uuid)
+            to.connectedConveyers.push(uuid)
             
             this.updatables.set(uuid, conveyer.updatable)
             this.entities.set(uuid, {type: BuildingType.CONVEYER, data: conveyer.data})

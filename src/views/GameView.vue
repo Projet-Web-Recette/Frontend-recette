@@ -74,6 +74,16 @@ function mouseDownHandler(event: MouseEvent){
   }
 }
 
+function disconnectConveyersClicked() {
+  if(!game.selectedElement) return
+  const conveyersToDisconnect = toRaw(game.selectedElement.connectedConveyers)
+  console.log(conveyersToDisconnect)
+  conveyersToDisconnect.map((id: string) => {
+      game.disconnectConveyer(id)
+    })
+  game.selectedElement.connectedConveyers = []
+}
+
 
 const windowOpen= ref(false)
 
@@ -97,6 +107,9 @@ const windowOpen= ref(false)
 
 
   <WindowComponent v-model="windowOpen">
+    <div style="background-color: orange;" @click="disconnectConveyersClicked">
+      <h2>Disconnect conveyers</h2>
+    </div>
     <SelectItem :item-list="[ironIngot, cooperIngot]" @item-selected="(item: Item) => { if(game.selectedFactory) game.changeSelectedFactoryReceipe(item)}"></SelectItem>
   </WindowComponent>
 

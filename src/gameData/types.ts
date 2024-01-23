@@ -23,7 +23,7 @@ export interface Building {
     rate: number,
     quantity: Ref<number>,
     take: (quantity: number) => number,
-    disconnectConveyer: () => void
+    connectedConveyers: Array<string>
 }
 
 export interface Miner extends Building {

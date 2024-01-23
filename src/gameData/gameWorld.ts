@@ -48,7 +48,8 @@ export function createMiner(resource: Resource, coords: {x: number, y: number}){
             } else {
                 return minerQuantity.value > 0 ? minerQuantity.value : 0
             }
-        }
+        },
+        connectedConveyers: []
     }
 
     const minerUpdate: Updatable = {
@@ -95,6 +96,7 @@ export function createFactory(output: Item | undefined = undefined, coords: {x: 
             return 0
         },
         take: () => 0,
+        connectedConveyers: []
     }
 
     const smelterUpdatable: Updatable = {
