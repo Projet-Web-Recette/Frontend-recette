@@ -63,16 +63,17 @@ function mouseDownHandler(event: MouseEvent){
     if(game.selectedMode === InteractionMode.BUILD){
       game.addEntity(game.selectedBuild, {coords:{x: event.offsetX, y: event.offsetY}})
     }
-    else if (game.selectedMode === InteractionMode.INTERACT){
-      if(game.selectedFactory){
-        windowOpen.value = true
-      }
-    }
     else{
       console.log(`action selected: ${game.selectedMode}`)
     }
   }
 }
+
+watch(() => game.selectedElement, (value) => {
+  if(value && game.selectedMode === InteractionMode.INTERACT){
+    windowOpen.value = true
+  }
+})
 
 function disconnectConveyersClicked() {
   if(!game.selectedElement) return
@@ -124,7 +125,7 @@ const windowOpen= ref(false)
                         game.selectedMode === InteractionMode.CONVEYER || 
                         game.selectedMode === InteractionMode.INTERACT"
               @update-pos="({x, y}) => { data.position.x = x; data.position.y = y}">
-      <div @click="game.selectBuild(data, type)">
+      <div @click="game.selectBuild(data, type)" :style="{backgroundColor: data === game.selectedElement ? 'red' : ''}">
         <factoryDisplay :display="data.displayData">
           <div>
             <quantityDisplay v-if="type === BuildingType.FACTORY && data.input"

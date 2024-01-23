@@ -62,7 +62,6 @@ export const gameStore = defineStore('gameStore', {
             const conveyer = this.entities.get(id)
             if(conveyer && conveyer.type === BuildingType.CONVEYER){
                 const { from, to } = conveyer.data
-                debugger
                 from.connectedConveyers.pop(id)
                 to.connectedConveyers.pop(id)
 
