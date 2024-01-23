@@ -11,7 +11,6 @@ import { type ConveyerDisplayData, type Factory, type Miner, InteractionMode, Bu
 import WindowComponent from '@/components/windowComponent.vue';
 import SelectItem from '@/components/selectItem.vue';
 
-
 const game = gameStore()
 launchGame()
 
@@ -55,16 +54,14 @@ const cooperIngot: Item = {
 game.addEntity(BuildingType.MINER, {output: iron, coords: {x:50, y:50}})
 game.addEntity(BuildingType.MINER, {output: cooper, coords: {x: 300, y: 300}})
 
-game.addEntity(BuildingType.FACTORY, {coords: {x: 300, y: 300}})
+game.addEntity(BuildingType.FACTORY, {coords: {x: 100, y: 500}})
 game.addEntity(BuildingType.FACTORY, {coords: {x: 600, y: 300}})
 
-
-const selectBuild = ref<'miner' | 'factory'>()
 
 function mouseDownHandler(event: MouseEvent){
   if(event.button === 0){
     if(game.selectedMode === InteractionMode.BUILD){
-      // game.addEntity({x: event.offsetX, y: event.offsetY})
+      game.addEntity(game.selectedBuild, {coords:{x: event.offsetX, y: event.offsetY}})
     }
     else if (game.selectedMode === InteractionMode.INTERACT){
       if(game.selectedFactory){
@@ -90,8 +87,12 @@ const windowOpen= ref(false)
         <li v-for="mode in InteractionMode" @click.stop="game.selectMode(mode)">{{ mode }}</li>
       </ul>
     </div>
-
-    <h1 @click="windowOpen = true" v-if="!windowOpen">Menu</h1>
+    <div style="background-color: lightgrey;">
+      <h1>Building sélectionné: {{ game.selectedBuild }}</h1>
+      <ul>
+        <li v-for="build in BuildingType" @click="game.selectedBuild = build">{{ build }}</li>
+      </ul>
+    </div>
   </div>
 
 
@@ -101,7 +102,7 @@ const windowOpen= ref(false)
 
   <div class="gameWindow" @mousedown="mouseDownHandler($event)">
 
-    <draggable v-for="({type, data}, index) in game.entities" :key="index"
+    <draggable v-for="({type, data}, index) in [...game.entities.values()].filter(({type}) => type !== BuildingType.CONVEYER)" :key="index"
               :height="data.displayData.height" 
               :width="data.displayData.width" 
               :left="data.position.x" 
@@ -126,7 +127,7 @@ const windowOpen= ref(false)
       </div>
     </draggable>
 
-    <ConveyerDisplay :conveyers="game.conveyers.map((conveyer) => conveyer.displayData)">
+    <ConveyerDisplay :conveyers="[...game.entities.values()].filter(({type}) => type === BuildingType.CONVEYER).map((conveyer) => conveyer.data.displayData)">
     </ConveyerDisplay>
     <!-- <factoryDisplay :display="miner2.displayData"></factoryDisplay> -->
   </div>

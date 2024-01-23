@@ -3,6 +3,7 @@ import { BuildingType, InteractionMode, type Building, type Conveyer, type Facto
 import type { Item, Resource } from "@/types";
 import { defineStore } from "pinia";
 import { toRaw } from "vue";
+import { v4 } from 'uuid'
 
 // attempts to avoid having this much types errors with pinia
 
@@ -31,10 +32,8 @@ import { toRaw } from "vue";
 
 
 interface State {
-    entities: Array<{type: BuildingType, data: any}>,
-    miners: Miner[],
-    conveyers: Conveyer[],
-    updatables: Updatable[],
+    entities: Map<string,{type: BuildingType, data: any}>,
+    updatables: Map<string,Updatable>,
     selectedMode: InteractionMode,
     selectedBuild: BuildingType,
     selectedElement?: Factory | Miner,
@@ -45,10 +44,8 @@ interface State {
 export const gameStore = defineStore('gameStore', {
     state: (): State => {
         return{
-            entities: [],
-            miners: [],
-            conveyers: [],
-            updatables: [],
+            entities: new Map,
+            updatables: new Map(),
             selectedMode: InteractionMode.INTERACT,
             selectedBuild: BuildingType.FACTORY,
             selectedElement: undefined,
@@ -62,9 +59,11 @@ export const gameStore = defineStore('gameStore', {
             this.selectedFactory = undefined
         },
         placeConveyer(from: Building, to: Factory){
+            const uuid = v4()
             const conveyer = createConveyer(toRaw(from), toRaw(to))
-            this.updatables.push(conveyer.updatable)
-            this.conveyers.push(conveyer.data)
+            
+            this.updatables.set(uuid, conveyer.updatable)
+            this.entities.set(uuid, {type: BuildingType.CONVEYER, data: conveyer.data})
         },
         selectBuild(data: Factory | Miner, type: BuildingType){
             if(this.selectedMode === InteractionMode.CONVEYER){
@@ -104,15 +103,16 @@ export const gameStore = defineStore('gameStore', {
             coords: {x: number, y:number}})
         {
             const {output, coords} = infos
+            const uuid = v4()
             if(type === BuildingType.MINER){
                 const miner = createMiner(output ? output : defaultResource, coords)
-                this.updatables.push(miner.updatable)
-                this.miners.push(miner.data)
-                this.entities.push({data: miner.data, type})
+                this.updatables.set(uuid, miner.updatable)
+                
+                this.entities.set(uuid, {data: miner.data, type})
             } else if (type === BuildingType.FACTORY){
                 const factory = createFactory(output as Item, coords)
-                this.updatables.push(factory.updatable)
-                this.entities.push({data: factory.data, type})
+                this.updatables.set(uuid, factory.updatable)
+                this.entities.set(uuid, {data: factory.data, type})
             }
           }
           

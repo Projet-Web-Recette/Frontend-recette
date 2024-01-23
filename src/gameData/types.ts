@@ -22,7 +22,8 @@ export interface Building {
     output?: Resource | Item,
     rate: number,
     quantity: Ref<number>,
-    take: (quantity: number) => number
+    take: (quantity: number) => number,
+    disconnectConveyer: () => void
 }
 
 export interface Miner extends Building {
@@ -51,7 +52,8 @@ export interface ConveyerDisplayData {
 
 export enum BuildingType {
     MINER = 'miner',
-    FACTORY = 'factory'
+    FACTORY = 'factory',
+    CONVEYER = 'conveyer'
 }
 
 export enum InteractionMode {
