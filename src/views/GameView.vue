@@ -109,16 +109,7 @@ const windowOpen= ref(false)
     </div>
   </div>
 
-
-  <WindowComponent v-model="windowOpen">
-    <div style="background-color: orange;" @click="disconnectConveyersClicked">
-      <h2>Disconnect conveyers</h2>
-    </div>
-    <SelectItem :item-list="[ironIngot, cooperIngot]" @item-selected="(item: Item) => { if(game.selectedFactory) game.changeSelectedFactoryReceipe(item)}"></SelectItem>
-  </WindowComponent>
-
   <div class="gameWindow" @mousedown="mouseDownHandler($event)">
-
     <draggable v-for="({type, data}, index) in [...game.entities.values()].filter(({type}) => type !== BuildingType.CONVEYER)" :key="index"
               :height="data.displayData.height" 
               :width="data.displayData.width" 
@@ -150,8 +141,16 @@ const windowOpen= ref(false)
 
     <ConveyerDisplay :conveyers="[...game.entities.values()].filter(({type}) => type === BuildingType.CONVEYER).map((conveyer) => conveyer.data.displayData)">
     </ConveyerDisplay>
-    <!-- <factoryDisplay :display="miner2.displayData"></factoryDisplay> -->
   </div>
+
+  <draggable :disable="() => false" :height="0" :left="100" :top="100" :width="0">
+    <WindowComponent v-model="windowOpen">
+      <div style="background-color: orange;" @click="disconnectConveyersClicked">
+        <h2>Disconnect conveyers</h2>
+      </div>
+      <SelectItem :item-list="[ironIngot, cooperIngot]" @item-selected="(item: Item) => { if(game.selectedFactory) game.changeSelectedFactoryReceipe(item)}"></SelectItem>
+    </WindowComponent>
+  </draggable>
 </template>
 
 <style>

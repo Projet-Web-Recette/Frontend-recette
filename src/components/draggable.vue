@@ -2,7 +2,7 @@
     <div class="draggable" @mousedown="dragMouseDown($event)" :style="{
       left: (left - width / 2) + 'px', 
       top: (top - height / 2) + 'px', 
-      width: width + 'px',
+      width: width !== 0 ? width + 'px' : 'fit-content',
       height: height + 'px'}"
     >
       <slot></slot>
