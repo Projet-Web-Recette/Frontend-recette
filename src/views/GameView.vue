@@ -7,7 +7,7 @@ import ConveyerDisplay from '@/components/conveyerDisplay.vue';
 import quantityDisplay from '@/components/quantityDisplay.vue';
 import draggable from '@/components/draggable.vue'
 import { ref, toRaw, watch, type VNodeRef } from 'vue';
-import type { ConveyerDisplayData, Factory, Miner } from '@/gameData/types';
+import { type ConveyerDisplayData, type Factory, type Miner, InteractionMode } from '@/gameData/types';
 import WindowComponent from '@/components/windowComponent.vue';
 import SelectItem from '@/components/selectItem.vue';
 
@@ -78,13 +78,7 @@ const conveyerList = ref<ConveyerDisplayData[]>([])
 
 conveyerList.value.push(conveyer1.data.displayData)
 
-// game.miners.push(miner1.data)
-// game.conveyers.push(conveyer1.data)
-
-
-const gameWindowRef = ref<VNodeRef>()
-
-const selectedMode = ref<'conveyer' | 'place' | 'interact'>()
+const selectedMode = ref<InteractionMode>()
 const selectBuild = ref<'miner' | 'factory'>()
 
 watch(() => selectedMode.value, (value) => {
@@ -100,7 +94,7 @@ function addEntity(event: MouseEvent){
 
 function mouseDownHandler(event: MouseEvent){
   if(event.button === 0){
-    if(selectedMode.value === 'place'){
+    if(selectedMode.value === InteractionMode.BUILD){
       addEntity(event)
     }
     else{
@@ -161,9 +155,7 @@ const windowOpen= ref(true)
     <div style="background-color: lightgrey;">
       <h1>Mode sélectionné: {{ selectedMode }}</h1>
       <ul>
-        <li @click.stop="() => selectedMode = 'place'">Placer</li>
-        <li @click.stop="() => selectedMode = 'conveyer'">Conveyer</li>
-        <li @click.stop="() => selectedMode = 'interact'">Interact</li>
+        <li v-for="mode in InteractionMode" @click.stop="selectedMode = mode">{{ mode }}</li>
       </ul>
     </div>
 
@@ -172,10 +164,10 @@ const windowOpen= ref(true)
 
 
   <WindowComponent v-model="selectResourceWindow">
-    <SelectItem :item-list="[ironIngot, cooperIngot]" @item-selected="(item: Item) => changeFactoryReceipe(selectedFactory, item)"></SelectItem>
+    <SelectItem :item-list="[ironIngot, cooperIngot]" @item-selected="(item: Item) => { if(selectedFactory) changeFactoryReceipe(selectedFactory, item)}"></SelectItem>
   </WindowComponent>
 
-  <div class="gameWindow" @mousedown="mouseDownHandler($event)" v-if="entities" :ref="gameWindowRef">
+  <div class="gameWindow" @mousedown="mouseDownHandler($event)" v-if="entities">
 
     <draggable v-for="({type, data}, index) in entities" :key="index"
               :height="data.displayData.height" 

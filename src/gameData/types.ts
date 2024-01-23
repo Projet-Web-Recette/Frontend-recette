@@ -16,30 +16,28 @@ export interface PositionData {
     y: Ref<number>
 }
 
-export interface Miner {
+export interface Building {
     displayData: Display,
     position: PositionData,
-    output: Resource,
+    output: Resource | Item,
     rate: number,
     quantity: Ref<number>,
     take: (quantity: number) => number
 }
 
-export interface Factory {
-    displayData: Display,
-    position: PositionData,
-    input: Resource | Item,
+export interface Miner extends Building {
     output: Resource,
-    rate: number,
+}
+
+export interface Factory extends Building {
+    input: Resource | Item,
     inQuantity: Ref<number>,
-    quantity: Ref<number>,
-    take: (quantity: number) => number
     give: (quantity: number) => number
 }
 
 export interface Conveyer {
     displayData: ConveyerDisplayData,
-    from: Miner | Factory,
+    from: Building,
     to: Factory
 }
 
@@ -48,4 +46,16 @@ export interface ConveyerDisplayData {
     y1: Ref<number>,
     x2: Ref<number>,
     y2: Ref<number>
+}
+
+
+export enum BuildingType {
+    MINER = 'miner',
+    FACTORY = 'factory'
+}
+
+export enum InteractionMode {
+    BUILD = 'build',
+    CONVEYER = 'conveyer',
+    INTERACT = 'interact'
 }
