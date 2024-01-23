@@ -11,7 +11,13 @@
 
 <script setup lang="ts">
 import { ref } from 'vue';
-const initPosition = defineProps<{left: number, top: number, width: number, height: number, disable: () => boolean | false}>()
+const initPosition = defineProps<{
+  left: number,
+  top: number, 
+  width: number, 
+  height: number, 
+  disable: () => boolean | false
+}>()
 
 const top = ref(initPosition.top)
 const left = ref(initPosition.left)

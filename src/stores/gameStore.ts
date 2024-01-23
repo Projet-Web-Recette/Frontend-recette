@@ -1,8 +1,8 @@
 import { createConveyer, createFactory, createMiner, defaultResource } from "@/gameData/gameWorld";
-import { BuildingType, InteractionMode, type Building, type Conveyer, type Factory, type Miner, type Updatable } from "@/gameData/types";
+import { BuildingType, InteractionMode, type Building, type Conveyer, type Factory, type Miner, type PositionData, type Updatable } from "@/gameData/types";
 import type { Item, Resource } from "@/types";
 import { defineStore } from "pinia";
-import { toRaw } from "vue";
+import { ref, toRaw } from "vue";
 import { v4 } from 'uuid'
 
 // attempts to avoid having this much types errors with pinia
@@ -37,7 +37,8 @@ interface State {
     selectedMode: InteractionMode,
     selectedBuild: BuildingType,
     selectedElement?: Factory | Miner,
-    selectedFactory: Factory | undefined
+    selectedFactory: Factory | undefined,
+    cameraLocation: PositionData
 }
 
 
@@ -49,7 +50,8 @@ export const gameStore = defineStore('gameStore', {
             selectedMode: InteractionMode.INTERACT,
             selectedBuild: BuildingType.FACTORY,
             selectedElement: undefined,
-            selectedFactory: undefined
+            selectedFactory: undefined,
+            cameraLocation: {x: ref(0), y: ref(0)}
         }
     },
     actions: {

@@ -59,15 +59,32 @@ game.addEntity(BuildingType.FACTORY, {coords: {x: 100, y: 500}})
 game.addEntity(BuildingType.FACTORY, {coords: {x: 600, y: 300}})
 
 
+
+let lastCamPos = {x: 0, y: 0}
 function mouseDownHandler(event: MouseEvent){
   if(event.button === 0){
     if(game.selectedMode === InteractionMode.BUILD && game.selectedBuild !== BuildingType.CONVEYER){
       game.addEntity(game.selectedBuild, {coords:{x: event.offsetX, y: event.offsetY}})
     }
+    else if(game.selectedMode === InteractionMode.CAMERA){
+      game.selectedElement = undefined
+      lastCamPos = {x: event.screenX, y: event.screenY}
+      document.onmousemove = moveCamera
+      document.onmouseup = () => document.onmousemove = null
+    }
     else{
       console.log(`action selected: ${game.selectedMode}`)
     }
   }
+}
+
+function moveCamera(event: MouseEvent){
+  const mouseMotion = {x: event.screenX - lastCamPos.x, y: event.screenY - lastCamPos.y}
+
+  game.cameraLocation.x += mouseMotion.x
+  game.cameraLocation.y += mouseMotion.y
+
+  lastCamPos = {x: event.screenX, y: event.screenY}
 }
 
 watch(() => game.selectedElement, (value) => {
@@ -99,6 +116,7 @@ const windowOpen= ref(false)
         <IconUI :action-name="InteractionMode.BUILD" icon-path="icons/hammer.png" @icon-selected="game.selectMode(InteractionMode.BUILD)"></IconUI>
         <IconUI :action-name="InteractionMode.INTERACT" icon-path="icons/click.png" @icon-selected="game.selectMode(InteractionMode.INTERACT)"></IconUI>
         <IconUI :action-name="InteractionMode.MOVE" icon-path="icons/move.png" @icon-selected="game.selectMode(InteractionMode.MOVE)"></IconUI>
+        <IconUI :action-name="InteractionMode.CAMERA" icon-path="icons/camera.png" @icon-selected="game.selectMode(InteractionMode.CAMERA)"></IconUI>
       </div>
     </div>
     <div style="background-color: lightgrey;" v-if="game.selectedMode === InteractionMode.BUILD">
@@ -110,37 +128,39 @@ const windowOpen= ref(false)
   </div>
 
   <div class="gameWindow" @mousedown="mouseDownHandler($event)">
-    <draggable v-for="({type, data}, index) in [...game.entities.values()].filter(({type}) => type !== BuildingType.CONVEYER)" :key="index"
-              :height="data.displayData.height" 
-              :width="data.displayData.width" 
-              :left="data.position.x" 
-              :top="data.position.y"
-              :disable="() => type === BuildingType.MINER || 
-                        game.selectedMode !== InteractionMode.MOVE"
-              @update-pos="({x, y}) => { data.position.x = x; data.position.y = y}">
-      <div class="factory" @mousedown="game.selectBuild(data, type)" :class="data === game.selectedElement ? 'buildingSelected' : ''">
-        <factoryDisplay :display="data.displayData">
-          <div class="BuildingInfos">
-            <div v-if="type === BuildingType.FACTORY && data.input">
-              <h3>In:</h3>
-              <quantityDisplay
-                :logo-path="data.input.logoPath" 
-                :quantity="data.inQuantity" />
+    <div class="camera" :style="{ left: game.cameraLocation.x + 'px', top:game.cameraLocation.y + 'px' }">
+      <draggable v-for="({type, data}, index) in [...game.entities.values()].filter(({type}) => type !== BuildingType.CONVEYER)" :key="index"
+                :height="data.displayData.height" 
+                :width="data.displayData.width" 
+                :left="data.position.x"
+                :top="data.position.y"
+                :disable="() => type === BuildingType.MINER || 
+                          game.selectedMode !== InteractionMode.MOVE"
+                @update-pos="({x, y}) => { data.position.x = x; data.position.y = y}">
+        <div class="factory" @mousedown="() => { if(game.selectedMode !== InteractionMode.CAMERA) game.selectBuild(data, type)}" :class="data === game.selectedElement ? 'buildingSelected' : ''">
+          <factoryDisplay :display="data.displayData">
+            <div class="BuildingInfos">
+              <div v-if="type === BuildingType.FACTORY && data.input">
+                <h3>In:</h3>
+                <quantityDisplay
+                  :logo-path="data.input.logoPath" 
+                  :quantity="data.inQuantity" />
+              </div>
+    
+              <div>
+                <h3>Out:</h3>
+                <quantityDisplay v-if="data.output && (type === BuildingType.MINER || type === BuildingType.FACTORY)"
+                  :logo-path="data.output.logoPath" 
+                  :quantity="data.quantity" />
+              </div>
             </div>
+          </factoryDisplay>
+        </div>
+      </draggable>
   
-            <div>
-              <h3>Out:</h3>
-              <quantityDisplay v-if="data.output && (type === BuildingType.MINER || type === BuildingType.FACTORY)"
-                :logo-path="data.output.logoPath" 
-                :quantity="data.quantity" />
-            </div>
-          </div>
-        </factoryDisplay>
-      </div>
-    </draggable>
-
-    <ConveyerDisplay :conveyers="[...game.entities.values()].filter(({type}) => type === BuildingType.CONVEYER).map((conveyer) => conveyer.data.displayData)">
-    </ConveyerDisplay>
+      <ConveyerDisplay :conveyers="[...game.entities.values()].filter(({type}) => type === BuildingType.CONVEYER).map((conveyer) => conveyer.data.displayData)">
+      </ConveyerDisplay>
+    </div>
   </div>
 
   <draggable :disable="() => false" :height="0" :left="100" :top="100" :width="0">
@@ -159,6 +179,12 @@ const windowOpen= ref(false)
   overflow: hidden;
   width: 100vh;
   height: 100vh;
+}
+
+.camera {
+  position: absolute;
+  width: 100%;
+  height: 100%;
 }
 
 .factory {
