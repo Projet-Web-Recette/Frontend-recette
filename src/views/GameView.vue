@@ -7,7 +7,7 @@ import ConveyerDisplay from '@/components/conveyerDisplay.vue';
 import quantityDisplay from '@/components/quantityDisplay.vue';
 import draggable from '@/components/draggable.vue'
 import { ref, toRaw, watch, type VNodeRef } from 'vue';
-import { type ConveyerDisplayData, type Factory, type Miner, InteractionMode } from '@/gameData/types';
+import { type ConveyerDisplayData, type Factory, type Miner, InteractionMode, BuildingType } from '@/gameData/types';
 import WindowComponent from '@/components/windowComponent.vue';
 import SelectItem from '@/components/selectItem.vue';
 
@@ -52,110 +52,43 @@ const cooperIngot: Item = {
 }
 
 
-const miner1 = createMiner(iron, {x: 0, y: 0})
-const miner2 = createMiner(cooper, {x: 300, y: 300})
+game.addEntity(BuildingType.MINER, {output: iron, coords: {x:0, y:0}})
+game.addEntity(BuildingType.MINER, {output: cooper, coords: {x: 300, y: 300}})
+
+game.addEntity(BuildingType.FACTORY, {output: ironIngot, coords: {x: 300, y: 300}})
+game.addEntity(BuildingType.FACTORY, {output: ironIngot, coords: {x: 600, y: 300}})
 
 
-const smelter1 = createFactory(ironIngot, {x:300, y:300})
-const smelter2 = createFactory(ironIngot, {x:600, y:300})
-
-const conveyer1 = createConveyer(miner1.data, smelter1.data)
-const conveyer2 = createConveyer(miner2.data, smelter2.data)
-
-game.updatables.push(miner1.updatable)
-game.updatables.push(miner2.updatable)
-game.updatables.push(smelter1.updatable)
-game.updatables.push(smelter2.updatable)
-game.updatables.push(conveyer1.updatable)
-
-const entities = ref<{type: string, data: any}[]>([
-  {type: 'miner', data: miner1.data},
-  {type: 'miner', data: miner2.data},
-  {type: 'factory', data: smelter1.data},
-  {type: 'factory', data: smelter2.data}
-])
-const conveyerList = ref<ConveyerDisplayData[]>([])
-
-conveyerList.value.push(conveyer1.data.displayData)
-
-const selectedMode = ref<InteractionMode>()
 const selectBuild = ref<'miner' | 'factory'>()
-
-watch(() => selectedMode.value, (value) => {
-  selectedElement = undefined
-  selectedFactory = undefined
-})
-
-function addEntity(event: MouseEvent){
-  const miner = createMiner(iron, {x: event.offsetX, y: event.offsetY})
-  game.updatables.push(miner.updatable)
-  entities.value.push({type: 'miner', data: miner.data})
-}
 
 function mouseDownHandler(event: MouseEvent){
   if(event.button === 0){
-    if(selectedMode.value === InteractionMode.BUILD){
-      addEntity(event)
+    if(game.selectedMode === InteractionMode.BUILD){
+      // game.addEntity({x: event.offsetX, y: event.offsetY})
     }
     else{
-      console.log(`action selected: ${selectedMode.value}`)
+      console.log(`action selected: ${game.selectedMode}`)
     }
   }
 }
 
-function placeConveyer(from: Factory | Miner, to: Factory){
-  const conveyer = createConveyer(from, to)
-  game.updatables.push(conveyer.updatable)
-  conveyerList.value.push(conveyer.data.displayData)
-}
-
-let selectedElement: Factory | Miner | undefined
-let selectedFactory: Factory | undefined
-
-function selectItem(data: Factory | Miner, type: string){
-  if(selectedMode.value === 'conveyer'){
-    if(!selectedElement){
-      selectedElement = data
-    } else {
-      if(type === 'factory'){
-        placeConveyer(toRaw(selectedElement), toRaw(data) as Factory)
-      }
-      selectedElement = undefined
-    }
-  } else {
-    selectedElement = data
-    if(type === 'factory') selectedFactory = data as Factory
-    selectResourceWindow.value = true
+watch(() => game.selectedFactory, (value) => {
+  if(value && game.selectedMode === InteractionMode.INTERACT){
+    windowOpen.value = true
   }
-}
-
-function changeFactoryReceipe(factory: Factory, item: Item){
-  factory.output = item
-
-  let input: Item | Resource | undefined
-
-  if(item.receipe.resources){
-    input = item.receipe.resources[0]
-  } else if(item.receipe.items) {
-    input = item.receipe.items[0]
-  }
-
-  if(input) factory.input	= input
-}
-
-const selectResourceWindow = ref(false)
+})
 
 
-const windowOpen= ref(true)
+const windowOpen= ref(false)
 
 </script>
 
 <template>
   <div id="ui">
     <div style="background-color: lightgrey;">
-      <h1>Mode sélectionné: {{ selectedMode }}</h1>
+      <h1>Mode sélectionné: {{ game.selectedMode }}</h1>
       <ul>
-        <li v-for="mode in InteractionMode" @click.stop="selectedMode = mode">{{ mode }}</li>
+        <li v-for="mode in InteractionMode" @click.stop="game.selectMode(mode)">{{ mode }}</li>
       </ul>
     </div>
 
@@ -163,20 +96,20 @@ const windowOpen= ref(true)
   </div>
 
 
-  <WindowComponent v-model="selectResourceWindow">
-    <SelectItem :item-list="[ironIngot, cooperIngot]" @item-selected="(item: Item) => { if(selectedFactory) changeFactoryReceipe(selectedFactory, item)}"></SelectItem>
+  <WindowComponent v-model="windowOpen">
+    <SelectItem :item-list="[ironIngot, cooperIngot]" @item-selected="(item: Item) => { if(game.selectedFactory) game.changeSelectedFactoryReceipe(item)}"></SelectItem>
   </WindowComponent>
 
-  <div class="gameWindow" @mousedown="mouseDownHandler($event)" v-if="entities">
+  <div class="gameWindow" @mousedown="mouseDownHandler($event)">
 
-    <draggable v-for="({type, data}, index) in entities" :key="index"
+    <draggable v-for="({type, data}, index) in game.entities" :key="index"
               :height="data.displayData.height" 
               :width="data.displayData.width" 
               :left="data.position.x" 
               :top="data.position.y"
-              :disable="() => selectedMode === 'conveyer'"
+              :disable="() => game.selectedMode === InteractionMode.CONVEYER"
               @update-pos="({x, y}) => { data.position.x = x; data.position.y = y}">
-      <div @click="selectItem(data, type)">
+      <div @click="game.selectItem(data, type)">
         <factoryDisplay :display="data.displayData">
           <div>
             <quantityDisplay v-if="type === 'factory'"
@@ -192,7 +125,7 @@ const windowOpen= ref(true)
       </div>
     </draggable>
 
-    <ConveyerDisplay :conveyers="(conveyerList)">
+    <ConveyerDisplay :conveyers="game.conveyers.map((conveyer) => conveyer.displayData)">
     </ConveyerDisplay>
     <!-- <factoryDisplay :display="miner2.displayData"></factoryDisplay> -->
   </div>
