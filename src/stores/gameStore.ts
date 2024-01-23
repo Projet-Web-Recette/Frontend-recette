@@ -82,7 +82,7 @@ export const gameStore = defineStore('gameStore', {
             this.entities.set(uuid, {type: BuildingType.CONVEYER, data: conveyer.data})
         },
         selectBuild(data: Factory | Miner, type: BuildingType){
-            if(this.selectedMode === InteractionMode.CONVEYER){
+            if(this.selectedMode === InteractionMode.BUILD && this.selectedBuild === BuildingType.CONVEYER){
               if(!this.selectedElement){
                 this.selectedElement = data
               } else {

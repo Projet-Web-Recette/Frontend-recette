@@ -58,6 +58,6 @@ export enum BuildingType {
 
 export enum InteractionMode {
     BUILD = 'build',
-    CONVEYER = 'conveyer',
-    INTERACT = 'interact'
+    INTERACT = 'interact',
+    MOVE = 'move'
 }

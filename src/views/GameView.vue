@@ -60,7 +60,7 @@ game.addEntity(BuildingType.FACTORY, {coords: {x: 600, y: 300}})
 
 function mouseDownHandler(event: MouseEvent){
   if(event.button === 0){
-    if(game.selectedMode === InteractionMode.BUILD){
+    if(game.selectedMode === InteractionMode.BUILD && game.selectedBuild !== BuildingType.CONVEYER){
       game.addEntity(game.selectedBuild, {coords:{x: event.offsetX, y: event.offsetY}})
     }
     else{
@@ -121,9 +121,8 @@ const windowOpen= ref(false)
               :width="data.displayData.width" 
               :left="data.position.x" 
               :top="data.position.y"
-              :disable="() => type === BuildingType.MINER ||
-                        game.selectedMode === InteractionMode.CONVEYER || 
-                        game.selectedMode === InteractionMode.INTERACT"
+              :disable="() => type === BuildingType.MINER || 
+                        game.selectedMode !== InteractionMode.MOVE"
               @update-pos="({x, y}) => { data.position.x = x; data.position.y = y}">
       <div @click="game.selectBuild(data, type)" :style="{backgroundColor: data === game.selectedElement ? 'red' : ''}">
         <factoryDisplay :display="data.displayData">
