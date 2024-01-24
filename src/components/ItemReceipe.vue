@@ -28,11 +28,13 @@ let numberItems = 0;
 onMounted(async () => {
   const { item } = props
   if (item) {
-    const { ingredients, machine } = item;
+    const { ingredients, machine, quantityIngredients } = item;
 
     numberOfStage = countNumberStage(ingredients);
 
     horizontalSpacing += numberOfDoubleItems * 10;
+
+
 
     item.id += generateUniqueId();
     machine.id += generateUniqueId();
@@ -55,42 +57,58 @@ onMounted(async () => {
       position: { x: 500, y: 300 }
     });
 
+  
+
 
     elements.value.push({ id: `${item.id}${machine.id}`, label: item.quantityProduced, source: item.id, target: machine.id, markerStart: MarkerType.ArrowClosed });
 
 
 
-    displayTreeStage(ingredients, machine.id, 1, 500, 50);
+    displayTreeStage(ingredients, quantityIngredients, machine.id, 1, 500, 1);
 
     vueFlow.onPaneReady((instance) => instance.fitView());
   }
 });
 
+/**
+ * @description Génère un id aléatoire
+ */
 function generateUniqueId() {
   return '_' + Math.random().toString(36).substring(2, 9);
 }
 
-
-function displayTreeStage(ingredients: any[], idItem: string, stage: number, parentX: number, reducerStageSpacing: number) {
+/**
+ * @description Affiche l'arbre d'ingrédient et de machine associés 
+ * @param ingredients 
+ * @param idItem 
+ * @param stage 
+ * @param parentX 
+ * @param reducerStageSpacing 
+ */
+function displayTreeStage(ingredients: any[], quantityIngredients: any[], idItem: string, stage: number, parentX: number, reducerStageSpacing: number) {
 
   let index = 0;
   if (ingredients.length > 1) index = -1;
 
+  
 
-  for (let ingredient of ingredients) {
+  for (let i = 0; i < ingredients.length; i++) {
+
+
+    let ingredient = ingredients[i];
+    let quantiteIngredient = quantityIngredients[i];
 
     let type = ingredient.ingredients ? "item" : "resource";
 
     ingredient.id += generateUniqueId();
 
-    const x = parentX + index * ((horizontalSpacing - reducerStageSpacing) * (numberOfStage - stage));
+    const x = parentX + index * ((horizontalSpacing - 1.2 * reducerStageSpacing) * (numberOfStage - stage));
     const y = stage * verticalSpacing;
 
     const pos = {
       x: x,
       y: y
     }
-
 
     elements.value.push({
       id: ingredient.id,
@@ -100,11 +118,11 @@ function displayTreeStage(ingredients: any[], idItem: string, stage: number, par
       position: pos,
     });
 
-    elements.value.push({ id: `${idItem}${ingredient.id}`, source: idItem, target: ingredient.id, markerStart: MarkerType.ArrowClosed });
+  
+    elements.value.push({ id: `${idItem}${ingredient.id}`, label: `${quantiteIngredient.quantite}`, source: idItem, target: ingredient.id, markerStart: MarkerType.ArrowClosed });
 
 
     if (type === "item") {
-
       const machine = ingredient.machine;
 
       machine.id += generateUniqueId();
@@ -120,15 +138,25 @@ function displayTreeStage(ingredients: any[], idItem: string, stage: number, par
       elements.value.push({ id: `${ingredient.id}${machine.id}`, label: ingredient.quantityProduced, source: ingredient.id, target: machine.id, markerStart: MarkerType.ArrowClosed });
 
 
-      displayTreeStage(ingredient.ingredients, machine.id, stage + 1, x, reducerStageSpacing + reducerStageSpacing);
+      displayTreeStage(ingredient.ingredients, quantiteIngredient.recette.quantitesIngredients, machine.id, stage + 1, x, reducerStageSpacing + 20 * stage);
     }
+
+
 
 
     index = 1;
   }
 
+
+
+
+
 }
 
+/**
+ * @description compte le nombre d'étage de l'arbre d'ingrédients
+ * @param ingredients 
+ */
 function countNumberStage(ingredients: any[]): number {
   if (!ingredients || ingredients.length === 0) {
     return 0;

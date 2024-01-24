@@ -9,7 +9,6 @@
 import type { Item } from '@/types';
 
 const props = defineProps<{item: Item}>()
-console.log(props.item);
 </script>
 
 <style scoped>

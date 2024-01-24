@@ -27,7 +27,7 @@ function translateResourceToApi(resource: Resource): any {
 
 
 function translateItemFromApi(item: any): Item {
-    const { id, nomItem, contentUrl, ingredients, quantityProduced, machine } = item;
+    const { id, nomItem, contentUrl, ingredients, quantityProduced, machine, quantitesIngredients } = item;
 
 
     let machineTranslate:Machine = undefined;
@@ -46,6 +46,7 @@ function translateItemFromApi(item: any): Item {
         logoPath: contentUrl,
         quantityProduced: quantityProduced,
         machine: machineTranslate,
+        quantityIngredients: quantitesIngredients,
         ingredients: ingredients ? translateArrayIngredients(ingredients) : []
     }
 }

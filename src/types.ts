@@ -4,7 +4,8 @@ export interface Item {
     logoPath: string,
     quantityProduced: string,
     machine: Machine,
-    ingredients: any[]
+    ingredients: any[],
+    quantityIngredients: any[]
 }
 
 export interface Receipe {

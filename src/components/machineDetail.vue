@@ -35,8 +35,8 @@ const props = defineProps<{machine: Machine}>()
 }
 
 .resource > h4 {
-    color: orange;
-    background-color: rgb(181, 180, 180);
+    color: red;
+    background-color: rgb(208, 206, 206);
     width: 100%;
     text-align: center;
 }
