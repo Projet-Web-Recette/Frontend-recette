@@ -103,7 +103,7 @@ export const gameStore = defineStore('gameStore', {
             }
         },
         changeSelectedFactoryReceipe(item: Item){
-            if(!this.selectedFactory) return
+            if(!this.selectedFactory || this.selectedFactory.output === item) return
             this.selectedFactory.output = item
             let newInput: Item | Resource | undefined
           
@@ -112,10 +112,13 @@ export const gameStore = defineStore('gameStore', {
             } else if(item.receipe.items) {
               newInput = item.receipe.items[0]
             }
+
+            this.selectedFactory.inQuantity = 0
+            this.selectedFactory.quantity = 0
           
             if(newInput) this.selectedFactory.input = newInput
-          },
-          addEntity(type: BuildingType, infos: {
+        },
+        addEntity(type: BuildingType, infos: {
             output?: Resource | Item, 
             coords: {x: number, y:number}})
         {
