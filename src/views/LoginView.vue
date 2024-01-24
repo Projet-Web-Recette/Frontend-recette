@@ -1,8 +1,8 @@
 <template>
-  <div class="loginFormContainer">
+  <div class="flex flex-col items-center justify-center bg-gray-main p-8 border-2 border-black-main shadow-black-main rounded-md">
     <MDBTabs v-model="form7ActiveTab">
       <!-- Tabs navs -->
-      <MDBTabNav pills justify tabsClasses="mb-3" class="buttonsLoginForm">
+      <MDBTabNav pills justify tabsClasses="mb-3 p-2">
         <MDBTabItem tabId="form7-login" href="form7-login">Log in</MDBTabItem>
         <MDBTabItem tabId="form7-register" href="form7-register">Register</MDBTabItem>
       </MDBTabNav>
@@ -33,7 +33,9 @@
             <!-- 2 column grid layout for inline styling -->
 
             <!-- Submit button -->
-            <MDBBtn color="primary" block class="mb-4" @click="loginSubmit"> Sign in</MDBBtn>
+            <MDBBtn color="white" block
+                    class="bg-orange-main text-black-main border-black-main border-2 rounded-md"
+                    @click="loginSubmit">Sign in</MDBBtn>
 
           </form>
         </MDBTabPane>
@@ -77,7 +79,9 @@
             />
 
             <!-- Submit button -->
-            <MDBBtn color="primary" block class="mb-3" @click="registerSubmit">
+            <MDBBtn color="white" block
+                    class="bg-orange-main text-black-main border-black-main border-2 rounded-md"
+                    @click="registerSubmit">
               Sign in
             </MDBBtn>
           </form>

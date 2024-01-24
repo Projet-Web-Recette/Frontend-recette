@@ -2,14 +2,80 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <link rel="icon" href="/favicon.ico">
+    <link rel="icon" href="./src/assets/logo.png">
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet" />
-    <link href="https://fonts.googleapis.com/css?family=Roboto:300,400,500,700,900&display=swap" rel="stylesheet" />
+    <link href="src/assets/css/main.css" rel="stylesheet" />
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined"/>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Vite App</title>
+    <title>SatisCraftory</title>
 </head>
-<body>
-<div id="app"></div>
-<script type="module" src="/src/main.ts"></script>
+<body class="w-full h-full">
+    <header>
+        <!-- Top right corner burger menu that opens a dropdown over body -->
+        <button id="burger-button" class="fixed top-0 right-0 material-symbols-outlined hover:text-orange-main transition-all duration-200
+        text-white-main p-4 select-none z-10">
+            menu
+        </button>
+
+        <!-- Navbar menu that goes over body -->
+        <nav class="flex flex-col justify-center items-center gap-8 hidden fixed top-0 left-0 w-full h-full bg-gray-main flex justify-center items-center">
+            <div class="flex flex-row justify-center items-center gap-2">
+                <img src="./src/assets/logo.png" alt="logo" class="w-32 h-32">
+                <p class="text-6xl text-orange-main satisfont select-none">atisCraftory</p>
+            </div>
+
+            <div class="grid grid-cols-1 gap-4">
+                <a href="" class="flex flex-row items-center gap-3 text-4xl text-white-main satisfont select-none transition-all duration-200">
+                    <span class="material-symbols-outlined text-4xl text-orange-main">home</span>
+                    Home
+                </a>
+
+                <a href="/recipes" class="flex flex-row items-center gap-3 text-4xl text-white-main satisfont select-none transition-all duration-200">
+                    <span class="material-symbols-outlined text-4xl text-orange-main">skillet</span>
+                    Recipes
+                </a>
+
+                <a href="/" class="flex flex-row items-center gap-3 text-4xl text-white-main satisfont select-none transition-all duration-200">
+                    <span class="material-symbols-outlined text-4xl text-orange-main">joystick</span>
+                    Playground
+                </a>
+
+                <a href="/login" class="flex flex-row items-center gap-3 text-4xl text-white-main satisfont select-none transition-all duration-200">
+                    <span class="material-symbols-outlined text-4xl text-orange-main">login</span>
+                    Login
+                </a>
+            </div>
+        </nav>
+    </header>
+
+    <main class="section flex justify-center items-center">
+        <div id="app">
+        </div>
+    </main>
+
+    <footer>
+        <!-- Flash messages -->
+    </footer>
 </body>
+<script type="module" src="/src/main.ts"></script>
+<script>
+    const burgerButton = document.getElementById("burger-button");
+    const nav = document.querySelector("nav");
+    const main = document.querySelector("main");
+
+    burgerButton.addEventListener("click", () => {
+        burgerButton.classList.toggle("rotate-90");
+
+        // Toggle the nav and main elements (show/hide)
+        nav.classList.toggle("hidden");
+        main.classList.toggle("hidden");
+
+        // Change the burger button text to a cross
+        if (burgerButton.innerText === "menu") {
+            burgerButton.innerText = "close";
+        } else {
+            burgerButton.innerText = "menu";
+        }
+    });
+</script>
 </html>
