@@ -1,12 +1,12 @@
 <template>
     <div class="sidebar" :class="isOpened ? 'open' : ''" :style="cssVars">
         <div class="logo-details" style="margin: 6px 14px 0 14px">
-            <img v-if="menuLogo" :src="menuLogo" alt="menu-logo" class="menu-logo icon">
-            <i v-else class="bx icon" :class="menuIcon" />
             <div class="logo_name">
                 {{ menuTitle }}
             </div>
-            <i class="bx" :class="isOpened ? 'bx-menu-alt-right' : 'bx-menu'" id="btn" @click="isOpened = !isOpened" />
+
+            <i class="material-symbols-outlined" id="btn" @click="isOpened = !isOpened">{{ isOpened ? "arrow_back" :
+                "density_medium" }}</i>
         </div>
 
         <div style="
@@ -20,11 +20,11 @@
                 <ul class="nav-list" style="overflow: visible">
                     <li v-for="(menuItem, index) in menuItems" :key="index" :id="'links_' + index">
                         <router-link v-if="isUsedVueRouter" :to="menuItem.link">
-                            <i class="bx" :class="menuItem.icon || 'bx-square-rounded'" />
+                            <i class="material-symbols-outlined">{{ menuItem.icon }}</i>
                             <span class="links_name">{{ menuItem.name }}</span>
                         </router-link>
-                        <a v-else @click.stop.prevent="$emit('menuItemClcked', menuItem.link)" :href="menuItem.link">
-                            <i class="bx" :class="menuItem.icon || 'bx-square-rounded'" />
+                        <a v-else @click.stop.prevent="$emit('menuItemClicked', menuItem.link)" :href="menuItem.link">
+                            <i class="material-symbols-outlined">{{ menuItem.icon }}</i>
                             <span class="links_name">{{ menuItem.name }}</span>
                         </a>
                         <span :data-target="'links_' + index" class="tooltip">{{
@@ -32,30 +32,76 @@
                         }}</span>
                     </li>
                     <li id="links_search" v-if="isSearch" @click="isOpened = true">
-                        <i class="bx bx-search" />
+
+                        <i class="material-symbols-outlined search">{{ menuIcon }}</i>
                         <input type="text" :placeholder="searchPlaceholder"
                             @input="$emit('search-input-emit', $event.target.value)">
+
+
                         <span data-target="links_search" class="tooltip">{{
                             searchTooltip
-                        }}</span>
+                        }}
+                        </span>
                     </li>
                 </ul>
-                
-                <div v-if="isOpened" class="grid grid-cols-4 gap-4 mt-5">
-                    <ItemIconVue @onItemClicked="$emit('on-item-emit', $event)" v-for="(item, index) in items" :key="index" :item="item"></ItemIconVue>
+
+
+                <div v-if="isCreating && isOpened">
+                    <MDBAccordion v-model="activeItem">
+
+                        <MDBAccordionItem headerTitle="Ressources" collapseId="collapseOne">
+                            <div class="grid grid-cols-4 gap-4">
+                                <RessourceIconVue @onRessourceClicked="$emit('on-ressource-emit', $event)" v-for="(ressource, index) in ressources" :key="index" :ressource="ressource"></RessourceIconVue>
+                            </div>
+                        </MDBAccordionItem>
+
+                        <MDBAccordionItem headerTitle="Items" collapseId="collapseTwo">
+                            <div class="grid grid-cols-4 gap-4">
+                                <ItemIconVue @onItemClicked="$emit('on-item-emit', $event)" v-for="(item, index) in items"
+                                    :key="index" :item="item"></ItemIconVue>
+                            </div>
+                        </MDBAccordionItem>
+                        <MDBAccordionItem headerTitle="Machines" collapseId="collapseThree">
+                            <div class="grid grid-cols-4 gap-4">
+                                <MachineIconVue @onMachineClicked="$emit('on-machine-emit', $event)" v-for="(machine, index) in machines" :key="index" :machine="machine"></MachineIconVue>
+                            </div>
+                        </MDBAccordionItem>
+
+                    </MDBAccordion>
+
+                </div>
+                <div v-if="isOpened && !isCreating" class="grid grid-cols-4 gap-4">
+                    <ItemIconVue @onItemClicked="$emit('on-item-emit', $event)" v-for="(item, index) in items" :key="index"
+                        :item="item"></ItemIconVue>
                 </div>
             </div>
         </div>
     </div>
 </template>
+
+<script setup lang="ts">
+import { MDBAccordion, MDBAccordionItem } from "mdb-vue-ui-kit";
+import { ref } from "vue";
+
+const activeItem = ref('collapseOne');
+
+</script>
   
 <script lang="ts">
 import ItemIconVue from './ItemIcon.vue';
+import MachineIconVue from "./MachineIcon.vue";
+import RessourceIconVue from "./RessourceIcon.vue";
+
+
 
 export default {
     name: 'VueSideBar',
     props: {
         //! Menu settings
+        isCreating: {
+            type: Boolean,
+            default: false
+        },
         isMenuOpen: {
             type: Boolean,
             default: true,
@@ -74,7 +120,7 @@ export default {
         },
         menuIcon: {
             type: String,
-            default: 'bx-book',
+            default: 'search'
         },
         isPaddingLeft: {
             type: Boolean,
@@ -93,17 +139,24 @@ export default {
             type: Array,
             default: () => [
                 {
-                    link: '#',
-                    name: 'Home',
-                    tooltip: 'Home',
-                    icon: 'bx-home',
+                    link: 'createItem',
+                    name: 'Créer un item',
+                    tooltip: 'Créer un item',
+                    icon: 'add',
                 },
             ],
         },
         items: {
             type: Array,
             required: true,
-            
+        },
+        machines: {
+            type: Array,
+            default: []
+        },
+        ressources: {
+            type: Array,
+            default: []
         },
         //! Search
         isSearch: {
@@ -402,22 +455,22 @@ body {
     width: 100%;
 }
 
-.sidebar .bx-search {
+.sidebar .search {
     position: absolute;
     top: 50%;
-    left: 0;
+    left: ;
     transform: translateY(-50%);
     font-size: 22px;
     background: var(--secondary-color);
     color: var(--icons-color);
 }
 
-.sidebar.open .bx-search:hover {
+.sidebar.open .search:hover {
     background: var(--secondary-color);
     color: var(--icons-color);
 }
 
-.sidebar .bx-search:hover {
+.sidebar .search:hover {
     background: var(--menu-items-hover-color);
     color: var(--bg-color);
 }
@@ -629,6 +682,10 @@ body {
     .sidebar li .tooltip {
         display: none;
     }
+}
+
+.collapse {
+    visibility: visible !important;
 }
 </style>
   

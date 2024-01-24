@@ -21,7 +21,7 @@ function translateResourceToApi(resource: Resource): any {
         id,
         nomRessource: name,
         qualite: quality,
-        file: logoPath
+        contentUrl: logoPath
     }
 }
 
@@ -57,6 +57,15 @@ function translateArrayIngredients(ingredients: any[]) {
         if (ingredient.ingredients) return translateItemFromApi(ingredient);
         else return translateResourceFromApi(ingredient);
     });
+}
+
+function translateMachineFromApi(machine: any): Machine {
+    const {id, nom, contentUrl} = machine;
+    return {
+        id,
+        name: nom,
+        logoPath: contentUrl
+    }
 }
 
 export async function sendRequest(endpoint: string, method: 'GET' | 'POST', payload?: any, useJWT = false) {
@@ -95,16 +104,13 @@ export async function sendRequest(endpoint: string, method: 'GET' | 'POST', payl
 
 
 export async function getResources(): Promise<Resource[]> {
-    const request = await sendRequest('ressources', 'GET')
+    const request = await sendRequest('ressources', 'GET', null, true);
 
-    const resources = request?.content
 
-    const result = resources['hydra:member'].map((resource: any) => {
-        const result = translateResourceFromApi(resource)
-        return result
-    })
+    const ressources = request?.content["hydra:member"];
 
-    return result
+
+    return ressources.map((ressource:any) => translateResourceFromApi(ressource));
 }
 
 export async function getItem(idItem: Number): Promise<Item> {
@@ -128,7 +134,21 @@ export async function getAllRecipesFromItem(idItem: string) {
 
     const item = request?.content;
 
-
-
     return item.ingredientsOf;
+}
+
+export async function getAllMachines(): Promise<Machine[]>{
+    const request = await sendRequest(`machines`, "GET", null, true);
+
+    const machines = request?.content["hydra:member"];
+
+    return machines.map((machine: any) => translateMachineFromApi(machine))
+}
+
+export async function getMachine(idMachine: Number): Promise<Machine> {
+    const request = await sendRequest(`machines/${idMachine}`, 'GET', null, true);
+
+    const machine = request?.content;
+
+    return translateMachineFromApi(machine);
 }
