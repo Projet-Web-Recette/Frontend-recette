@@ -191,17 +191,14 @@ export function createConveyer(from: Building, to: Factory | Merger) {
 
     const conveyerLogic = generateDeltaLogic(conveyerData.rate)
 
-    let timePassed = 0
     const conveyerUpdate: Updatable = {
         tick: (delta) => {
             const {input} = conveyerData.to
-            const {output} = conveyerData.from
-
-            conveyerLogic.tick(delta)
-
-            timePassed += delta
-
+            const {output} = conveyerData.from        
+    
             if(!input || !output) return
+            
+            conveyerLogic.tick(delta)
             if(input.name === output.name && conveyerLogic.rateRespected()){
                 conveyerLogic.consumeOneRate()
                 if(conveyerData.from.quantity.value > 0){

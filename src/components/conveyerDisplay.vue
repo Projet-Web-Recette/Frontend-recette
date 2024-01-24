@@ -28,7 +28,7 @@ defineProps<{conveyers: {x1: number, x2: number, y1: number, y2: number}[]}>()
 
 <style>
 .conveyers {
-    width: 100%;
-    height: 100%;
+    width: 2000px;
+    height: 2000px;
 }
 </style>
