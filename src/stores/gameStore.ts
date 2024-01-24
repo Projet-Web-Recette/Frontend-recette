@@ -13,7 +13,8 @@ interface State {
     selectedElement?: Factory | Miner | Merger,
     selectedElementType?: BuildingType,
     selectedFactory: Factory | undefined,
-    cameraLocation: PositionData
+    cameraLocation: PositionData,
+    playerInventory: Map<string, {item: Item, quantity: number}>
 }
 
 
@@ -27,7 +28,8 @@ export const gameStore = defineStore('gameStore', {
             selectedElement: undefined,
             selectedElementType: undefined,
             selectedFactory: undefined,
-            cameraLocation: {x: ref(0), y: ref(0)}
+            cameraLocation: {x: ref(0), y: ref(0)},
+            playerInventory: new Map()
         }
     },
     actions: {
@@ -60,6 +62,10 @@ export const gameStore = defineStore('gameStore', {
         },
         changeSelectedFactoryReceipe(item: Item){
             if(!this.selectedFactory || this.selectedFactory.output === item) return
+            
+            if(this.selectedFactory.output)
+                this.storeItem(this.selectedFactory.output as Item, this.selectedFactory.quantity)
+            
             this.selectedFactory.output = item
             let newInput: Item | Resource | undefined
           
@@ -137,6 +143,28 @@ export const gameStore = defineStore('gameStore', {
             this.selectedElement = undefined
             this.selectedElementType = undefined
             this.selectedFactory = undefined
+          },
+          storeItem(item: Item, quantity: number){
+            const infos = this.playerInventory.get(item.id)
+            if(infos){
+                infos.quantity += quantity
+                this.playerInventory.set(item.id, infos)
+            } else {
+                this.playerInventory.set(item.id, {item, quantity})
+            }
+          },
+          canTakeItemQuantity(item: Item, quantity: number){
+            const infos = this.playerInventory.get(item.id)
+            return infos && infos.quantity >= quantity
+          },
+          takeItemQuantity(item: Item, quantity: number) {
+            const infos = this.playerInventory.get(item.id)
+            if(infos && infos.quantity >= quantity){
+                infos.quantity -= quantity
+                this.playerInventory.set(item.id, infos)
+            } else {
+                throw Error(`can not take this item (${item.name}) or this quantity (${quantity})`)
+            }
           }
           
     }

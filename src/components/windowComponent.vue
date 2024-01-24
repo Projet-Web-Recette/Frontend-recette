@@ -1,5 +1,5 @@
 <template>
-    <div class="window" v-if="visible">
+    <div class="window" v-if="visible" :style="{left, top, right, bottom}">
         <div class="alignCross"></div>
         <img src="/icons/cross.png" id="close" @click="close">
         <div id="windowContent">
@@ -10,6 +10,13 @@
 
 <script setup lang="ts">
 import { defineModel } from 'vue';
+
+const props = defineProps<{
+    left?: string,
+    right?: string,
+    top?: string,
+    bottom?: string    
+}>()
 
 
 const visible = defineModel({
@@ -37,8 +44,6 @@ function close() {
     position: absolute;
     width: fit-content;
     height: fit-content;
-    left: 100px;
-    top: 100px;
     display: flex;
     flex-direction: column;
     background-color: #868686;

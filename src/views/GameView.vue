@@ -11,6 +11,7 @@ import { InteractionMode, BuildingType } from '@/gameData/types';
 import WindowComponent from '@/components/windowComponent.vue';
 import SelectItem from '@/components/selectItem.vue';
 import IconUI from '@/components/iconUI.vue';
+import type windowComponentVue from '@/components/windowComponent.vue';
 
 const game = gameStore()
 launchGame()
@@ -105,6 +106,7 @@ function disconnectConveyersClicked() {
 
 
 const windowOpen= ref(false)
+const inventoryWindowOpen = ref(true)
 
 const hasOutput = [BuildingType.FACTORY, BuildingType.MINER, BuildingType.MERGER, BuildingType.SPLITTER]
 
@@ -166,7 +168,7 @@ const hasOutput = [BuildingType.FACTORY, BuildingType.MINER, BuildingType.MERGER
   </div>
 
   <draggable :disable="() => false" :height="0" :left="100" :top="100" :width="0">
-    <WindowComponent v-model="windowOpen">
+    <WindowComponent v-model="windowOpen" left="10px" top="10px">
       <div style="background-color: orange;" @click="disconnectConveyersClicked">
         <h2>Disconnect conveyers</h2>
       </div>
@@ -179,6 +181,17 @@ const hasOutput = [BuildingType.FACTORY, BuildingType.MINER, BuildingType.MERGER
       <SelectItem v-if="game.selectedElementType === BuildingType.MERGER || game.selectedElementType === BuildingType.SPLITTER" :ingredient-list="[iron, cooper]" @ingredient-selected="(resource: Resource) => { if(game.selectedElementType === BuildingType.MERGER || game.selectedElementType === BuildingType.SPLITTER) game.changeSelectedLogisticItem(resource)}"></SelectItem>
     </WindowComponent>
   </draggable>
+
+  <WindowComponent v-model="inventoryWindowOpen" right="10px" top="10px">
+    <div style="width: 400px; height: 100%;">
+
+    </div>
+    <ul>
+      <li v-for="{item, quantity} in game.playerInventory.values()">
+        {{ item.name }} : {{ quantity }}
+      </li>
+    </ul>
+  </WindowComponent>
 </template>
 
 <style>
