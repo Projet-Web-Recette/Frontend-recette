@@ -4,6 +4,7 @@ import { VueFlow, useVueFlow, MarkerType } from '@vue-flow/core'
 import { onMounted, ref } from 'vue';
 import ResourceDetail from './ResourceDetail.vue';
 import ItemDetail from './itemDetail.vue';
+import MachineDetail from './machineDetail.vue'
 
 const vueFlow = useVueFlow();
 
@@ -27,13 +28,14 @@ let numberItems = 0;
 onMounted(async () => {
   const { item } = props
   if (item) {
-    const { ingredients } = item;
+    const { ingredients, machine } = item;
 
     numberOfStage = countNumberStage(ingredients);
 
     horizontalSpacing += numberOfDoubleItems*10;
 
     item.id += generateUniqueId();
+    machine.id += generateUniqueId();
 
     elements.value.push({
       id: item.id,
@@ -42,6 +44,19 @@ onMounted(async () => {
       data: item,
       position: { x: 500, y: 0 },
     });
+
+    console.log(machine)
+
+    elements.value.push({
+      id: machine.id,
+      label: machine.name,
+      type: 'machine',
+      data: machine,
+      position: {x:500, y:300}
+    });
+
+    
+
 
     displayTreeStage(ingredients, item.id, 1, 500, 50);
 
@@ -131,6 +146,9 @@ function countNumberStage(ingredients: any[]): number {
     </template>
     <template #node-item="{ data }">
       <ItemDetail :item="data" @onItemClicked="$emit('on-item-selected-for-recipe', $event)"></ItemDetail>
+    </template>
+    <template #node-machine="{ data }">
+      <MachineDetail :machine="data"></MachineDetail>
     </template>
   </VueFlow>
 </template>

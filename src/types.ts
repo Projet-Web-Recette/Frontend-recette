@@ -2,6 +2,8 @@ export interface Item {
     id: string,
     name: string,
     logoPath: string,
+    quantityProduced: string,
+    machine: Machine,
     ingredients: any[]
 }
 
@@ -19,6 +21,13 @@ export interface Resource {
     quality?: 'pur' | 'normal' | 'impur',
     logoPath: string
 }
+
+export interface Machine {
+    id?: string,
+    name: string,
+    logoPath: string
+}
+
 
 export interface LoginInformations {
     login: string,

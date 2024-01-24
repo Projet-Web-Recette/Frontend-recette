@@ -16,7 +16,6 @@ const props = defineProps<{item: Item}>()
     border-color: black;
     border-width: 2px;
     border-style: solid;
-    width: fit-content;
     border-radius: 10%;
     background-color: lightgray;
     overflow: hidden;
@@ -39,5 +38,9 @@ const props = defineProps<{item: Item}>()
     background-color: white;
     width: 100%;
     text-align: center;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 45%;
 }
 </style>

@@ -1,15 +1,15 @@
 <template>
-    <div class="resource" @click="$emit('onItemClicked', props.item.id)">
-        <img :src="item.logoPath">
-        <h4>{{ item.name }}</h4>
+    <div class="resource">
+        <img :src="machine.logoPath">
+        <h4>{{ machine.name }}</h4>
     </div>
 </template>
 
 <script setup lang="ts">
-import type { Item } from '@/types';
+import type { Machine } from '@/types';
 
-const props = defineProps<{item: Item}>()
-console.log(props.item);
+const props = defineProps<{machine: Machine}>()
+
 </script>
 
 <style scoped>
