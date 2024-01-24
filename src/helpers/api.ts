@@ -29,14 +29,17 @@ function translateResourceToApi(resource: Resource): any {
 function translateItemFromApi(item: any): Item {
     const { id, nomItem, contentUrl, ingredients, quantityProduced, machine } = item;
 
-    console.log(machine)
 
-    const machineTranslate: Machine = {
-        id: machine.id,
-        name: machine.nom,
-        logoPath: machine.contentUrl
-    }
+    let machineTranslate:Machine = undefined;
 
+    if (machine) {
+        machineTranslate = {
+            id: machine.id,
+            name: machine.nom,
+            logoPath: machine.contentUrl
+        }
+    } 
+    
     return {
         id: id ? id : item["@id"],
         name: nomItem,

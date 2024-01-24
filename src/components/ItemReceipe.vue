@@ -16,7 +16,7 @@ const elements = ref<any>([]);
 
 let horizontalSpacing = 150; // Espacement horizontal entre les nœuds
 
-const verticalSpacing = 300; // Espacement vertical entre les niveaux
+const verticalSpacing = 600; // Espacement vertical entre les niveaux
 
 let numberOfStage = 0;
 
@@ -32,7 +32,7 @@ onMounted(async () => {
 
     numberOfStage = countNumberStage(ingredients);
 
-    horizontalSpacing += numberOfDoubleItems*10;
+    horizontalSpacing += numberOfDoubleItems * 10;
 
     item.id += generateUniqueId();
     machine.id += generateUniqueId();
@@ -45,20 +45,22 @@ onMounted(async () => {
       position: { x: 500, y: 0 },
     });
 
-    console.log(machine)
+
 
     elements.value.push({
       id: machine.id,
       label: machine.name,
       type: 'machine',
       data: machine,
-      position: {x:500, y:300}
+      position: { x: 500, y: 300 }
     });
 
-    
+
+    elements.value.push({ id: `${item.id}${machine.id}`, label: item.quantityProduced, source: item.id, target: machine.id, markerStart: MarkerType.ArrowClosed });
 
 
-    displayTreeStage(ingredients, item.id, 1, 500, 50);
+
+    displayTreeStage(ingredients, machine.id, 1, 500, 50);
 
     vueFlow.onPaneReady((instance) => instance.fitView());
   }
@@ -73,15 +75,15 @@ function displayTreeStage(ingredients: any[], idItem: string, stage: number, par
 
   let index = 0;
   if (ingredients.length > 1) index = -1;
-  
-  
+
+
   for (let ingredient of ingredients) {
 
     let type = ingredient.ingredients ? "item" : "resource";
 
     ingredient.id += generateUniqueId();
 
-    const x = parentX + index * ((horizontalSpacing-reducerStageSpacing)*(numberOfStage-stage));
+    const x = parentX + index * ((horizontalSpacing - reducerStageSpacing) * (numberOfStage - stage));
     const y = stage * verticalSpacing;
 
     const pos = {
@@ -98,17 +100,33 @@ function displayTreeStage(ingredients: any[], idItem: string, stage: number, par
       position: pos,
     });
 
+    elements.value.push({ id: `${idItem}${ingredient.id}`, source: idItem, target: ingredient.id, markerStart: MarkerType.ArrowClosed });
 
-    elements.value.push({ id: `${idItem}${ingredient.id}`, source: idItem, target: ingredient.id, markerStart: MarkerType.ArrowClosed});
 
     if (type === "item") {
-      displayTreeStage(ingredient.ingredients, ingredient.id, stage+1, x, reducerStageSpacing+reducerStageSpacing);
+
+      const machine = ingredient.machine;
+
+      machine.id += generateUniqueId();
+
+      elements.value.push({
+        id: machine.id,
+        label: machine.name,
+        type: 'machine',
+        data: machine,
+        position: { x: x, y: y + 300 }
+      });
+
+      elements.value.push({ id: `${ingredient.id}${machine.id}`, label: ingredient.quantityProduced, source: ingredient.id, target: machine.id, markerStart: MarkerType.ArrowClosed });
+
+
+      displayTreeStage(ingredient.ingredients, machine.id, stage + 1, x, reducerStageSpacing + reducerStageSpacing);
     }
 
-    
+
     index = 1;
   }
-  
+
 }
 
 function countNumberStage(ingredients: any[]): number {

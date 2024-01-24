@@ -1,7 +1,7 @@
 <template>
     <div class="resource">
         <img :src="machine.logoPath">
-        <h4>{{ machine.name }}</h4>
+        <h4>{{ props.machine.name }}</h4>
     </div>
 </template>
 
@@ -18,7 +18,7 @@ const props = defineProps<{machine: Machine}>()
     border-width: 2px;
     border-style: solid;
     width: fit-content;
-    background-color: lightgray;
+    background-color: rgb(103, 99, 99);
 }
 
 .resource > *{
@@ -36,7 +36,7 @@ const props = defineProps<{machine: Machine}>()
 
 .resource > h4 {
     color: orange;
-    background-color: gray;
+    background-color: rgb(181, 180, 180);
     width: 100%;
     text-align: center;
 }
