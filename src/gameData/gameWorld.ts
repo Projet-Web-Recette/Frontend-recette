@@ -265,12 +265,14 @@ export function createConveyer(from: Building, to: Factory | Merger) {
                 return
             }
 
-            conveyerLogic.tick(delta)
-            if(input.name === output.name && conveyerLogic.rateRespected()){
-                conveyerLogic.consumeOneRate()
-                if(conveyerData.from.quantity.value > 0){
-                    const taken = conveyerData.from.take(1)
-                    conveyerData.to.give(taken)
+            if(input.name === output.name){
+                conveyerLogic.tick(delta)
+                if(conveyerLogic.rateRespected()){
+                    conveyerLogic.consumeOneRate()
+                    if(conveyerData.from.quantity.value > 0){
+                        const taken = conveyerData.from.take(1)
+                        conveyerData.to.give(taken)
+                    }
                 }
             }
         }

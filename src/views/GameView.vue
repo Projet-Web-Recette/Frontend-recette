@@ -106,7 +106,7 @@ function disconnectConveyersClicked() {
 
 
 const windowOpen= ref(false)
-const inventoryWindowOpen = ref(true)
+const inventoryWindowOpen = ref(false)
 
 const hasOutput = [BuildingType.FACTORY, BuildingType.MINER, BuildingType.MERGER, BuildingType.SPLITTER]
 
@@ -121,6 +121,7 @@ const hasOutput = [BuildingType.FACTORY, BuildingType.MINER, BuildingType.MERGER
         <IconUI :action-name="InteractionMode.INTERACT" icon-path="icons/click.png" @icon-selected="game.selectMode(InteractionMode.INTERACT)"></IconUI>
         <IconUI :action-name="InteractionMode.MOVE" icon-path="icons/move.png" @icon-selected="game.selectMode(InteractionMode.MOVE)"></IconUI>
         <IconUI :action-name="InteractionMode.CAMERA" icon-path="icons/camera.png" @icon-selected="game.selectMode(InteractionMode.CAMERA)"></IconUI>
+        <IconUI action-name="Stock" icon-path="icons/box.png" @icon-selected="inventoryWindowOpen = true"></IconUI>
       </div>
     </div>
     <div style="background-color: lightgrey;" v-if="game.selectedMode === InteractionMode.BUILD">
