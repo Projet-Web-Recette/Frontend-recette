@@ -23,7 +23,12 @@ export interface Building {
     output?: Resource | Item,
     quantity: Ref<number>,
     take: (quantity: number) => number,
-    connectedConveyers: Array<string>
+    outputConveyerUid: Array<string>,
+    inputConveyerUid: Array<string>, // doesn't apply interface segregation
+}
+
+interface ConveyerConnection{
+    id: string, sens: 'in' | 'out'
 }
 
 export interface Miner extends Building {

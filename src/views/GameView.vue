@@ -96,12 +96,13 @@ watch(() => game.selectedElement, (value) => {
 
 function disconnectConveyersClicked() {
   if(!game.selectedElement) return
-  const conveyersToDisconnect = toRaw(game.selectedElement.connectedConveyers)
-  console.log(conveyersToDisconnect)
+  const {selectedElement} = game
+  const conveyersToDisconnect = toRaw(selectedElement.inputConveyerUid.concat(selectedElement.outputConveyerUid))
   conveyersToDisconnect.map((id: string) => {
       game.disconnectConveyer(id)
     })
-  game.selectedElement.connectedConveyers = []
+  game.selectedElement.inputConveyerUid = []
+  game.selectedElement.outputConveyerUid = []
 }
 
 

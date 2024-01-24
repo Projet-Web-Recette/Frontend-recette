@@ -41,8 +41,8 @@ export const gameStore = defineStore('gameStore', {
             const conveyer = this.entities.get(id)
             if(conveyer && conveyer.type === BuildingType.CONVEYER){
                 const { from, to } = conveyer.data
-                from.connectedConveyers.pop(id)
-                to.connectedConveyers.pop(id)
+                from.outputConveyerUid.pop(id)
+                to.inputConveyerUid.pop(id)
 
                 this.entities.delete(id)
                 this.updatables.delete(id)
@@ -54,8 +54,8 @@ export const gameStore = defineStore('gameStore', {
             const uuid = v4()
             const conveyer = createConveyer(toRaw(from), toRaw(to))
 
-            from.connectedConveyers.push(uuid)
-            to.connectedConveyers.push(uuid)
+            from.outputConveyerUid.push(uuid)
+            to.inputConveyerUid.push(uuid)
             
             this.updatables.set(uuid, conveyer.updatable)
             this.entities.set(uuid, {type: BuildingType.CONVEYER, data: conveyer.data})

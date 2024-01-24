@@ -51,7 +51,8 @@ export function createMiner(resource: Resource, coords: {x: number, y: number}){
                 return max
             }
         },
-        connectedConveyers: []
+        inputConveyerUid: [],
+        outputConveyerUid: []
     }
 
     const minerLogic = generateDeltaLogic(minerData.rate)
@@ -114,7 +115,8 @@ export function createFactory(output: Item | undefined = undefined, coords: {x: 
                 return max
             }
         },
-        connectedConveyers: []
+        inputConveyerUid: [],
+        outputConveyerUid: []
     }
 
     const factoryLogic = generateDeltaLogic(smelterData.rate)
@@ -178,7 +180,8 @@ export function createMerger(output: Item | undefined = undefined, coords: {x: n
                 return max
             }
         },
-        connectedConveyers: []
+        outputConveyerUid: [],
+        inputConveyerUid: []
     }
     return {data: mergerData}
 }
@@ -219,9 +222,9 @@ export function createSplitter(output: Item | undefined = undefined, coords: {x:
         take(takenQuantity) {
             if(this.disableConveyer && this.enableConveyer)
             {
-                this.disableConveyer(this.connectedConveyers[enabledConveyer])
-                enabledConveyer = (enabledConveyer + 1) % (this.connectedConveyers.length - 1 )
-                this.enableConveyer(this.connectedConveyers[enabledConveyer])
+                this.disableConveyer(this.outputConveyerUid[enabledConveyer])
+                enabledConveyer = (enabledConveyer + 1) % (this.outputConveyerUid.length)
+                this.enableConveyer(this.outputConveyerUid[enabledConveyer])
             }
 
             if(quantity.value > takenQuantity){
@@ -233,7 +236,8 @@ export function createSplitter(output: Item | undefined = undefined, coords: {x:
                 return max
             }
         },
-        connectedConveyers: []
+        outputConveyerUid:[],
+        inputConveyerUid: []
     }
     return {data: splitterData}
 }

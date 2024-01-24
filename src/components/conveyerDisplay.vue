@@ -19,7 +19,6 @@
 </template>
 
 <script setup lang="ts">
-import type { ConveyerDisplayData } from '@/gameData/types';
 
 defineProps<{conveyers: {x1: number, x2: number, y1: number, y2: number}[]}>()
 
