@@ -39,22 +39,31 @@ export function createMiner(resource: Resource, coords: {x: number, y: number}){
             y
         },
         output: resource,
-        rate: 20,
+        rate: 120,
         quantity: minerQuantity,
         take: (quantity: number) => {
             if(minerQuantity.value > quantity){
                 minerQuantity.value -= quantity;
                 return quantity
             } else {
-                return minerQuantity.value > 0 ? minerQuantity.value : 0
+                const max = minerQuantity.value > 0 ? minerQuantity.value : 0
+                minerQuantity.value -= max 
+                return max
             }
         },
         connectedConveyers: []
     }
 
+    const minerLogic = generateDeltaLogic(minerData.rate)
+
     const minerUpdate: Updatable = {
         tick(delta: number) {
-            if(minerData.output) minerData.quantity.value ++
+            minerLogic.tick(delta)
+
+            if(minerData.output && minerLogic.rateRespected()){
+                minerLogic.consumeOneRate()
+                minerData.quantity.value ++
+            }    
         }
     }
 
@@ -90,7 +99,7 @@ export function createFactory(output: Item | undefined = undefined, coords: {x: 
         output,
         quantity: smelterQuantity,
         inQuantity: smelterInputQuantity,
-        rate: 10,
+        rate: 20,
         give: (newQuantity: number) => {
             smelterInputQuantity.value += newQuantity
             return 0
@@ -99,11 +108,19 @@ export function createFactory(output: Item | undefined = undefined, coords: {x: 
         connectedConveyers: []
     }
 
+    const factoryLogic = generateDeltaLogic(smelterData.rate)
+
     const smelterUpdatable: Updatable = {
-        tick: () => {
+        tick: (delta) => {
             if(smelterInputQuantity.value >= 2 && smelterData.output){
-                smelterQuantity.value += 1
-                smelterInputQuantity.value -= 2
+                factoryLogic.tick(delta)
+
+                if(factoryLogic.rateRespected()){
+                    factoryLogic.consumeAllRate()
+                    smelterQuantity.value += 1
+                    smelterInputQuantity.value -= 2
+                }
+
             }
         }
     }
@@ -122,16 +139,25 @@ export function createConveyer(from: Miner | Factory, to: Factory) {
     const conveyerData: Conveyer = {
         displayData: conveyerDisplayData,
         from,
-        to
+        to,
+        rate: 60
     }
 
+    const conveyerLogic = generateDeltaLogic(conveyerData.rate)
+
+    let timePassed = 0
     const conveyerUpdate: Updatable = {
-        tick: () => {
+        tick: (delta) => {
             const {input} = conveyerData.to
             const {output} = conveyerData.from
 
+            conveyerLogic.tick(delta)
+
+            timePassed += delta
+
             if(!input || !output) return
-            if(input.name === output.name){
+            if(input.name === output.name && conveyerLogic.rateRespected()){
+                conveyerLogic.consumeOneRate()
                 if(conveyerData.from.quantity.value > 0){
                     const taken = conveyerData.from.take(1)
                     conveyerData.to.give(taken)
@@ -141,6 +167,27 @@ export function createConveyer(from: Miner | Factory, to: Factory) {
     }
 
     return {data: conveyerData, updatable: conveyerUpdate}
+}
+
+function generateDeltaLogic(rate: number){
+    let timePassed = 0
+    const tickToTake = 60 / rate * 1000
+    const rateRespected = () => timePassed > tickToTake
+    
+    function tick(delta: number){
+        timePassed += delta
+    }
+
+    const consumeOneRate = () => {
+        timePassed -= tickToTake; 
+        timePassed = timePassed < 0 ? 0 : timePassed
+    }
+
+    const consumeAllRate = () => {
+        timePassed = 0
+    }
+
+    return {rateRespected, tick, consumeOneRate, consumeAllRate}
 }
 
 
@@ -155,6 +202,8 @@ function tick(){
     lastTime = Date.now()
 }
 
+export const tickRate = 60
+
 export function launchGame() {
-    setInterval(tick, 1000)
+    setInterval(tick, 1000 / 60)
 }

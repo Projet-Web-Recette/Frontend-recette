@@ -8,6 +8,7 @@ export interface Display {
 }
 
 export interface Updatable {
+    timePassed?: number,
     tick: (delta: number) => void
 }
 
@@ -39,7 +40,8 @@ export interface Factory extends Building {
 export interface Conveyer {
     displayData: ConveyerDisplayData,
     from: Building,
-    to: Factory
+    to: Factory,
+    rate: number
 }
 
 export interface ConveyerDisplayData {
