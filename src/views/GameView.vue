@@ -11,7 +11,7 @@ import { InteractionMode, BuildingType } from '@/gameData/types';
 import WindowComponent from '@/components/windowComponent.vue';
 import SelectItem from '@/components/selectItem.vue';
 import IconUI from '@/components/iconUI.vue';
-import type windowComponentVue from '@/components/windowComponent.vue';
+import InventoryItem from '@/components/invetoryItem.vue';
 
 const game = gameStore()
 launchGame()
@@ -115,13 +115,12 @@ const hasOutput = [BuildingType.FACTORY, BuildingType.MINER, BuildingType.MERGER
 
 <template>
   <div id="ui">
-    <div style="background-color: lightgrey;">
-      <h1>Mode sélectionné: {{ game.selectedMode }}</h1>
+    <div>
       <div id="iconDisplay">
-        <IconUI :action-name="InteractionMode.BUILD" icon-path="icons/hammer.png" @icon-selected="game.selectMode(InteractionMode.BUILD)"></IconUI>
-        <IconUI :action-name="InteractionMode.INTERACT" icon-path="icons/click.png" @icon-selected="game.selectMode(InteractionMode.INTERACT)"></IconUI>
-        <IconUI :action-name="InteractionMode.MOVE" icon-path="icons/move.png" @icon-selected="game.selectMode(InteractionMode.MOVE)"></IconUI>
-        <IconUI :action-name="InteractionMode.CAMERA" icon-path="icons/camera.png" @icon-selected="game.selectMode(InteractionMode.CAMERA)"></IconUI>
+        <IconUI :action-name="InteractionMode.BUILD" icon-path="icons/hammer.png" @icon-selected="game.selectMode(InteractionMode.BUILD)" :class="game.selectedMode === InteractionMode.BUILD ? 'iconSelected' : ''"></IconUI>
+        <IconUI :action-name="InteractionMode.INTERACT" icon-path="icons/click.png" @icon-selected="game.selectMode(InteractionMode.INTERACT)" :class="game.selectedMode === InteractionMode.INTERACT ? 'iconSelected' : ''"></IconUI>
+        <IconUI :action-name="InteractionMode.MOVE" icon-path="icons/move.png" @icon-selected="game.selectMode(InteractionMode.MOVE)" :class="game.selectedMode === InteractionMode.MOVE ? 'iconSelected' : ''"></IconUI>
+        <IconUI :action-name="InteractionMode.CAMERA" icon-path="icons/camera.png" @icon-selected="game.selectMode(InteractionMode.CAMERA)" :class="game.selectedMode === InteractionMode.CAMERA ? 'iconSelected' : ''"></IconUI>
         <IconUI action-name="Stock" icon-path="icons/box.png" @icon-selected="inventoryWindowOpen = true"></IconUI>
       </div>
     </div>
@@ -185,14 +184,9 @@ const hasOutput = [BuildingType.FACTORY, BuildingType.MINER, BuildingType.MERGER
   </draggable>
 
   <WindowComponent v-model="inventoryWindowOpen" right="10px" top="10px">
-    <div style="width: 400px; height: 100%;">
-
+    <div class="inventory">
+      <InventoryItem v-for="{item, quantity} in game.playerInventory.values()" :item="item" :quantity="quantity" />
     </div>
-    <ul>
-      <li v-for="{item, quantity} in game.playerInventory.values()">
-        {{ item.name }} : {{ quantity }}
-      </li>
-    </ul>
   </WindowComponent>
 </template>
 
@@ -226,6 +220,10 @@ const hasOutput = [BuildingType.FACTORY, BuildingType.MINER, BuildingType.MERGER
   flex-direction: row;
 }
 
+.iconSelected {
+  background-color: #707070;
+}
+
 .BuildingInfos {
   display: flex;
   flex-direction: row;
@@ -248,6 +246,15 @@ const hasOutput = [BuildingType.FACTORY, BuildingType.MINER, BuildingType.MERGER
 
 .buildingSelected {
   border: solid #ff5a00 2px;
+}
+
+.inventory {
+  width: 400px; 
+  height: 100%;
+  margin: 5px;
+  border-radius: 5px;
+  display: flex;
+  flex-direction: row;
 }
 
 </style>
