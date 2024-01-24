@@ -147,14 +147,14 @@ const hasOutput = [BuildingType.FACTORY, BuildingType.MINER, BuildingType.MERGER
           <factoryDisplay :display="data.displayData">
             <div class="BuildingInfos">
               <div v-if="(type === BuildingType.FACTORY) && data.input">
-                <h3>In:</h3>
+                <p>In:</p>
                 <quantityDisplay
                   :logo-path="data.input.logoPath" 
                   :quantity="data.inQuantity" />
               </div>
     
               <div>
-                <h3>Out{{ type === BuildingType.MERGER ? ' (merger) ' : type === BuildingType.SPLITTER ? ' (splitter)' : '' }}:</h3>
+                <p>{{ type === BuildingType.MERGER ? ' (merger) ' : type === BuildingType.SPLITTER ? ' (splitter)' : '' }} Out:</p>
                 <quantityDisplay v-if="data.output && hasOutput.includes(type)"
                   :logo-path="data.output.logoPath" 
                   :quantity="data.quantity" />
@@ -235,8 +235,15 @@ const hasOutput = [BuildingType.FACTORY, BuildingType.MINER, BuildingType.MERGER
 }
 
 .BuildingInfos > div {
-  margin: 5px;
+  margin: 3px;
+  padding: 2px;
+  border-radius: 5px;
   flex: 1;
+  background-color: #707070;
+}
+
+.BuildingInfos > div > p {
+  margin-bottom: 2px;
 }
 
 .buildingSelected {

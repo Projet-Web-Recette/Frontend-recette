@@ -28,7 +28,7 @@ export function createMiner(resource: Resource, coords: {x: number, y: number}){
 
     const displayData = {
         width: 100,
-        height: 200,
+        height: 100,
         src: "https://static.wikia.nocookie.net/satisfactory_gamepedia_en/images/c/cf/Miner_Mk.1.png"
     }
 
@@ -81,7 +81,7 @@ export function createFactory(output: Item | undefined = undefined, coords: {x: 
     const displayData: Display = {
         src: "https://static.wikia.nocookie.net/satisfactory_gamepedia_en/images/4/45/Smelter.png",
         width: 100,
-        height: 200,
+        height: 100,
     }
 
     let input: Item | Resource | undefined
@@ -147,8 +147,8 @@ export function createMerger(output: Item | undefined = undefined, coords: {x: n
 
     const displayData: Display = {
         src: "https://static.wikia.nocookie.net/satisfactory_gamepedia_en/images/a/aa/Conveyor_Merger.png",
-        width: 100,
-        height: 100,
+        width: 50,
+        height: 50,
     }
 
     let input: Item | Resource | undefined
@@ -194,8 +194,8 @@ export function createSplitter(output: Item | undefined = undefined, coords: {x:
 
     const displayData: Display = {
         src: "https://static.wikia.nocookie.net/satisfactory_gamepedia_en/images/4/41/Conveyor_Splitter.png",
-        width: 100,
-        height: 100,
+        width: 50,
+        height: 50,
     }
 
     let input: Item | Resource | undefined

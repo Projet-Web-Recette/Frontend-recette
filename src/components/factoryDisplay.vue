@@ -1,6 +1,6 @@
 <template>
     <div>
-        <img :src="display.src">
+        <img :src="display.src" :style="{width: display.width + 'px', height: display.height + 'px'}">
         <slot></slot>
     </div>
 </template>
