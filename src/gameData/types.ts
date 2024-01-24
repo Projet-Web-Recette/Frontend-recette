@@ -21,26 +21,32 @@ export interface Building {
     displayData: Display,
     position: PositionData,
     output?: Resource | Item,
-    rate: number,
     quantity: Ref<number>,
     take: (quantity: number) => number,
     connectedConveyers: Array<string>
 }
 
 export interface Miner extends Building {
+    rate: number,
     output: Resource,
 }
 
 export interface Factory extends Building {
+    rate: number,
     input?: Resource | Item,
     inQuantity: Ref<number>,
+    give: (quantity: number) => number
+}
+
+export interface Merger extends Building {
+    input?: Resource | Item,
     give: (quantity: number) => number
 }
 
 export interface Conveyer {
     displayData: ConveyerDisplayData,
     from: Building,
-    to: Factory,
+    to: Factory | Merger,
     rate: number
 }
 
@@ -55,7 +61,8 @@ export interface ConveyerDisplayData {
 export enum BuildingType {
     MINER = 'miner',
     FACTORY = 'factory',
-    CONVEYER = 'conveyer'
+    CONVEYER = 'conveyer',
+    MERGER = 'merger'
 }
 
 export enum InteractionMode {

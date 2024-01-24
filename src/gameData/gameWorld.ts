@@ -1,5 +1,5 @@
 import type { Item, Resource } from "@/types";
-import type { Conveyer, ConveyerDisplayData, Display, Factory, Miner, Updatable } from "./types";
+import type { Building, Conveyer, ConveyerDisplayData, Display, Factory, Merger, Miner, Updatable } from "./types";
 import { gameStore } from "@/stores/gameStore";
 import { ref } from "vue";
 
@@ -128,7 +128,53 @@ export function createFactory(output: Item | undefined = undefined, coords: {x: 
     return {data: smelterData, updatable: smelterUpdatable}
 }
 
-export function createConveyer(from: Miner | Factory, to: Factory) {
+export function createMerger(output: Item | undefined = undefined, coords: {x: number, y: number}){
+    const quantity = ref(0)
+
+    const x = ref(coords.x)
+    const y = ref(coords.y)
+
+    const displayData: Display = {
+        src: "https://static.wikia.nocookie.net/satisfactory_gamepedia_en/images/a/aa/Conveyor_Merger.png",
+        width: 100,
+        height: 100,
+    }
+
+    let input: Item | Resource | undefined
+
+    if(output){
+        input = output
+    }
+
+    const mergerData: Merger = {
+        displayData,
+        position: {
+            x,
+            y
+        },
+        input,
+        output,
+        quantity: quantity,
+        give: (newQuantity: number) => {
+            quantity.value += newQuantity
+            return 0
+        },
+        take: (takenQuantity) => {
+            if(quantity.value > takenQuantity){
+                quantity.value -= takenQuantity;
+                return takenQuantity
+            } else {
+                const max = quantity.value > 0 ? quantity.value : 0
+                quantity.value -= max 
+                return max
+            }
+        },
+        connectedConveyers: []
+    }
+    return {data: mergerData}
+}
+
+export function createConveyer(from: Building, to: Factory | Merger) {
     const conveyerDisplayData: ConveyerDisplayData = {
         x1: from.position.x,
         y1: from.position.y,

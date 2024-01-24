@@ -1,20 +1,20 @@
 <template>
     <div class="itemSelector">
-        <div v-for="item in itemList" @click="emit('itemSelected', item)">
-            <img :src="item.logoPath">
-            <p>{{ item.name }}</p>
+        <div v-for="ingredient in ingredientList" @click="emit('ingredientSelected', ingredient)">
+            <img :src="ingredient.logoPath">
+            <p>{{ ingredient.name }}</p>
         </div>
     </div>
 </template>
 
-<script setup lang="ts">
-import type { Item } from '@/types';
+<script setup lang="ts" generic="T extends Resource | Item">
+import type { Item, Resource } from '@/types';
 
-const props = defineProps<{itemList: Item[]}>()
+const props = defineProps<{ingredientList: Array<T>}>()
 
 
 const emit = defineEmits<{
-  (e: 'itemSelected', item: Item): void
+  (e: 'ingredientSelected', ingredient: T): void
 }>()
 
 </script>

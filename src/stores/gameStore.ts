@@ -1,42 +1,17 @@
-import { createConveyer, createFactory, createMiner, defaultResource } from "@/gameData/gameWorld";
-import { BuildingType, InteractionMode, type Building, type Conveyer, type Factory, type Miner, type PositionData, type Updatable } from "@/gameData/types";
+import { createConveyer, createFactory, createMerger, createMiner, defaultResource } from "@/gameData/gameWorld";
+import { BuildingType, InteractionMode, type Building, type Conveyer, type Factory, type Merger, type Miner, type PositionData, type Updatable } from "@/gameData/types";
 import type { Item, Resource } from "@/types";
 import { defineStore } from "pinia";
 import { ref, toRaw } from "vue";
 import { v4 } from 'uuid'
-
-// attempts to avoid having this much types errors with pinia
-
-// function buildingDeepDesctructuring(building: Building){
-//     return {
-//         ...building,
-//         displayData: {...building.displayData}, 
-//         position: {...building.position},
-//         output: {...building.output},
-//     }
-// }
-
-// function deepConveyerDestructuring(conveyer: Conveyer){
-//     const {from, to, displayData} = conveyer
-
-//     return {
-//         ...conveyer,
-//         displayData: {...displayData},
-//         from: {...buildingDeepDesctructuring(from)},
-//         to: {
-//             ...to, 
-//             ...buildingDeepDesctructuring(to)
-//         }
-//     }
-// }
-
 
 interface State {
     entities: Map<string,{type: BuildingType, data: any}>,
     updatables: Map<string,Updatable>,
     selectedMode: InteractionMode,
     selectedBuild: BuildingType,
-    selectedElement?: Factory | Miner,
+    selectedElement?: Factory | Miner | Merger,
+    selectedElementType?: BuildingType,
     selectedFactory: Factory | undefined,
     cameraLocation: PositionData
 }
@@ -50,6 +25,7 @@ export const gameStore = defineStore('gameStore', {
             selectedMode: InteractionMode.INTERACT,
             selectedBuild: BuildingType.FACTORY,
             selectedElement: undefined,
+            selectedElementType: undefined,
             selectedFactory: undefined,
             cameraLocation: {x: ref(0), y: ref(0)}
         }
@@ -57,8 +33,7 @@ export const gameStore = defineStore('gameStore', {
     actions: {
         selectMode(mode: InteractionMode){          
             this.selectedMode = mode 
-            this.selectedElement = undefined
-            this.selectedFactory = undefined
+            this.resetSelectedElement()
         },
         disconnectConveyer(id: string){
             const conveyer = this.entities.get(id)
@@ -73,7 +48,7 @@ export const gameStore = defineStore('gameStore', {
 
             delete conveyer?.data
         },
-        placeConveyer(from: Building, to: Factory){
+        placeConveyer(from: Building, to: Factory | Merger){
             const uuid = v4()
             const conveyer = createConveyer(toRaw(from), toRaw(to))
 
@@ -82,25 +57,6 @@ export const gameStore = defineStore('gameStore', {
             
             this.updatables.set(uuid, conveyer.updatable)
             this.entities.set(uuid, {type: BuildingType.CONVEYER, data: conveyer.data})
-        },
-        selectBuild(data: Factory | Miner, type: BuildingType){
-            if(this.selectedMode === InteractionMode.BUILD && this.selectedBuild === BuildingType.CONVEYER){
-              if(!this.selectedElement){
-                this.selectedElement = data
-              } else {
-                if(type === BuildingType.FACTORY){
-                    const element = this.selectedElement as Building
-                    this.placeConveyer(element, data as Factory)
-                }
-                this.selectedElement = undefined
-              }
-            } else {
-                this.selectedElement = data
-                if(type === BuildingType.FACTORY) 
-                {
-                    this.selectedFactory = data as Factory
-                }
-            }
         },
         changeSelectedFactoryReceipe(item: Item){
             if(!this.selectedFactory || this.selectedFactory.output === item) return
@@ -118,6 +74,12 @@ export const gameStore = defineStore('gameStore', {
           
             if(newInput) this.selectedFactory.input = newInput
         },
+        changeSelectedMerger(element: Item | Resource){
+            if(this.selectedElementType === BuildingType.MERGER && this.selectedElement){
+                this.selectedElement.output = element
+                this.selectedElement.input = element
+            }
+        },
         addEntity(type: BuildingType, infos: {
             output?: Resource | Item, 
             coords: {x: number, y:number}})
@@ -133,7 +95,30 @@ export const gameStore = defineStore('gameStore', {
                 const factory = createFactory(output as Item, coords)
                 this.updatables.set(uuid, factory.updatable)
                 this.entities.set(uuid, {data: factory.data, type})
+            } else if (type === BuildingType.MERGER){
+                const merger = createMerger(undefined, coords)
+                this.entities.set(uuid, {data: merger.data, type})
             }
+          },
+          selectElement(element: Building, type: BuildingType){
+            if(this.selectedMode === InteractionMode.BUILD && this.selectedBuild === BuildingType.CONVEYER && this.selectedElement){
+                if(type === BuildingType.FACTORY || type === BuildingType.MERGER){
+                    this.placeConveyer(this.selectedElement, element)
+                }
+                this.resetSelectedElement()
+            } else {
+                this.selectedElement = element
+                this.selectedElementType = type
+                if(type === BuildingType.FACTORY){
+                    this.selectedFactory = element
+                }
+            }
+
+          },
+          resetSelectedElement(){
+            this.selectedElement = undefined
+            this.selectedElementType = undefined
+            this.selectedFactory = undefined
           }
           
     }

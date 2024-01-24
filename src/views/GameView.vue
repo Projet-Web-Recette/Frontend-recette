@@ -2,12 +2,12 @@
 import { gameStore } from '@/stores/gameStore';
 import factoryDisplay from '@/components/factoryDisplay.vue'
 import type { Item, Receipe, Resource } from '@/types';
-import { createConveyer, createFactory, createMiner, launchGame} from '@/gameData/gameWorld';
+import { launchGame} from '@/gameData/gameWorld';
 import ConveyerDisplay from '@/components/conveyerDisplay.vue';
 import quantityDisplay from '@/components/quantityDisplay.vue';
 import draggable from '@/components/draggable.vue'
 import { ref, toRaw, watch, type VNodeRef } from 'vue';
-import { type ConveyerDisplayData, type Factory, type Miner, InteractionMode, BuildingType } from '@/gameData/types';
+import { InteractionMode, BuildingType } from '@/gameData/types';
 import WindowComponent from '@/components/windowComponent.vue';
 import SelectItem from '@/components/selectItem.vue';
 import IconUI from '@/components/iconUI.vue';
@@ -67,7 +67,7 @@ function mouseDownHandler(event: MouseEvent){
       game.addEntity(game.selectedBuild, {coords:{x: event.offsetX, y: event.offsetY}})
     }
     else if(game.selectedMode === InteractionMode.CAMERA){
-      game.selectedElement = undefined
+      game.resetSelectedElement()
       lastCamPos = {x: event.screenX, y: event.screenY}
       document.onmousemove = moveCamera
       document.onmouseup = () => document.onmousemove = null
@@ -137,10 +137,10 @@ const windowOpen= ref(false)
                 :disable="() => type === BuildingType.MINER || 
                           game.selectedMode !== InteractionMode.MOVE"
                 @update-pos="({x, y}) => { data.position.x = x; data.position.y = y}">
-        <div class="factory" @mousedown="() => { if(game.selectedMode !== InteractionMode.CAMERA) game.selectBuild(data, type)}" :class="data === game.selectedElement ? 'buildingSelected' : ''">
+        <div class="factory" @mousedown="game.selectElement(data, type)" :class="data === game.selectedElement ? 'buildingSelected' : ''">
           <factoryDisplay :display="data.displayData">
             <div class="BuildingInfos">
-              <div v-if="type === BuildingType.FACTORY && data.input">
+              <div v-if="(type === BuildingType.FACTORY) && data.input">
                 <h3>In:</h3>
                 <quantityDisplay
                   :logo-path="data.input.logoPath" 
@@ -148,8 +148,8 @@ const windowOpen= ref(false)
               </div>
     
               <div>
-                <h3>Out:</h3>
-                <quantityDisplay v-if="data.output && (type === BuildingType.MINER || type === BuildingType.FACTORY)"
+                <h3>Out{{ type === BuildingType.MERGER ? ' (merger) ' : '' }}:</h3>
+                <quantityDisplay v-if="data.output && (type === BuildingType.MINER || type === BuildingType.FACTORY || type === BuildingType.MERGER)"
                   :logo-path="data.output.logoPath" 
                   :quantity="data.quantity" />
               </div>
@@ -168,7 +168,13 @@ const windowOpen= ref(false)
       <div style="background-color: orange;" @click="disconnectConveyersClicked">
         <h2>Disconnect conveyers</h2>
       </div>
-      <SelectItem :item-list="[ironIngot, cooperIngot]" @item-selected="(item: Item) => { if(game.selectedFactory) game.changeSelectedFactoryReceipe(item)}"></SelectItem>
+      <SelectItem :ingredient-list="[ironIngot, cooperIngot]" @ingredient-selected="(item: Item) => { 
+        if(game.selectedFactory) {
+          game.changeSelectedFactoryReceipe(item)
+        } else if (game.selectedElementType === BuildingType.MERGER) {
+          game.changeSelectedMerger(item)
+        }}"></SelectItem>
+      <SelectItem v-if="game.selectedElementType === BuildingType.MERGER" :ingredient-list="[iron, cooper]" @ingredient-selected="(resource: Resource) => { if(game.selectedElementType === BuildingType.MERGER) game.changeSelectedMerger(resource)}"></SelectItem>
     </WindowComponent>
   </draggable>
 </template>
