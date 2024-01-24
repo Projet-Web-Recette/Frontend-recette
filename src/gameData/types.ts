@@ -43,11 +43,19 @@ export interface Merger extends Building {
     give: (quantity: number) => number
 }
 
+export interface Splitter extends Building {
+    input?: Resource | Item,
+    give: (quantity: number) => number,
+    disableConveyer?: (id: string) => void,
+    enableConveyer?: (id: string) => void
+}
+
 export interface Conveyer {
     displayData: ConveyerDisplayData,
     from: Building,
     to: Factory | Merger,
-    rate: number
+    rate: number,
+    isEnabled: boolean
 }
 
 export interface ConveyerDisplayData {
@@ -62,7 +70,8 @@ export enum BuildingType {
     MINER = 'miner',
     FACTORY = 'factory',
     CONVEYER = 'conveyer',
-    MERGER = 'merger'
+    MERGER = 'merger',
+    SPLITTER = 'splitter'
 }
 
 export enum InteractionMode {

@@ -106,6 +106,8 @@ function disconnectConveyersClicked() {
 
 const windowOpen= ref(false)
 
+const hasOutput = [BuildingType.FACTORY, BuildingType.MINER, BuildingType.MERGER, BuildingType.SPLITTER]
+
 </script>
 
 <template>
@@ -148,8 +150,8 @@ const windowOpen= ref(false)
               </div>
     
               <div>
-                <h3>Out{{ type === BuildingType.MERGER ? ' (merger) ' : '' }}:</h3>
-                <quantityDisplay v-if="data.output && (type === BuildingType.MINER || type === BuildingType.FACTORY || type === BuildingType.MERGER)"
+                <h3>Out{{ type === BuildingType.MERGER ? ' (merger) ' : type === BuildingType.SPLITTER ? ' (splitter)' : '' }}:</h3>
+                <quantityDisplay v-if="data.output && hasOutput.includes(type)"
                   :logo-path="data.output.logoPath" 
                   :quantity="data.quantity" />
               </div>
@@ -171,10 +173,10 @@ const windowOpen= ref(false)
       <SelectItem :ingredient-list="[ironIngot, cooperIngot]" @ingredient-selected="(item: Item) => { 
         if(game.selectedFactory) {
           game.changeSelectedFactoryReceipe(item)
-        } else if (game.selectedElementType === BuildingType.MERGER) {
-          game.changeSelectedMerger(item)
+        } else if (game.selectedElementType === BuildingType.MERGER || game.selectedElementType === BuildingType.SPLITTER) {
+          game.changeSelectedLogisticItem(item)
         }}"></SelectItem>
-      <SelectItem v-if="game.selectedElementType === BuildingType.MERGER" :ingredient-list="[iron, cooper]" @ingredient-selected="(resource: Resource) => { if(game.selectedElementType === BuildingType.MERGER) game.changeSelectedMerger(resource)}"></SelectItem>
+      <SelectItem v-if="game.selectedElementType === BuildingType.MERGER || game.selectedElementType === BuildingType.SPLITTER" :ingredient-list="[iron, cooper]" @ingredient-selected="(resource: Resource) => { if(game.selectedElementType === BuildingType.MERGER || game.selectedElementType === BuildingType.SPLITTER) game.changeSelectedLogisticItem(resource)}"></SelectItem>
     </WindowComponent>
   </draggable>
 </template>

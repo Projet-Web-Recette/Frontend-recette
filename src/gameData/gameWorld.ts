@@ -1,5 +1,5 @@
 import type { Item, Resource } from "@/types";
-import type { Building, Conveyer, ConveyerDisplayData, Display, Factory, Merger, Miner, Updatable } from "./types";
+import type { Building, Conveyer, ConveyerDisplayData, Display, Factory, Merger, Miner, Splitter, Updatable } from "./types";
 import { gameStore } from "@/stores/gameStore";
 import { ref } from "vue";
 
@@ -183,6 +183,61 @@ export function createMerger(output: Item | undefined = undefined, coords: {x: n
     return {data: mergerData}
 }
 
+export function createSplitter(output: Item | undefined = undefined, coords: {x: number, y: number}){
+    const quantity = ref(0)
+
+    const x = ref(coords.x)
+    const y = ref(coords.y)
+
+    const displayData: Display = {
+        src: "https://static.wikia.nocookie.net/satisfactory_gamepedia_en/images/4/41/Conveyor_Splitter.png",
+        width: 100,
+        height: 100,
+    }
+
+    let input: Item | Resource | undefined
+
+    if(output){
+        input = output
+    }
+
+    let enabledConveyer = 0
+
+    const splitterData: Splitter = {
+        displayData,
+        position: {
+            x,
+            y
+        },
+        input,
+        output,
+        quantity,
+        give: (newQuantity: number) => {
+            quantity.value += newQuantity
+            return 0
+        },
+        take(takenQuantity) {
+            if(this.disableConveyer && this.enableConveyer)
+            {
+                this.disableConveyer(this.connectedConveyers[enabledConveyer])
+                enabledConveyer = (enabledConveyer + 1) % (this.connectedConveyers.length - 1 )
+                this.enableConveyer(this.connectedConveyers[enabledConveyer])
+            }
+
+            if(quantity.value > takenQuantity){
+                quantity.value -= takenQuantity;
+                return takenQuantity
+            } else {
+                const max = quantity.value > 0 ? quantity.value : 0
+                quantity.value -= max 
+                return max
+            }
+        },
+        connectedConveyers: []
+    }
+    return {data: splitterData}
+}
+
 export function createConveyer(from: Building, to: Factory | Merger) {
     const conveyerDisplayData: ConveyerDisplayData = {
         x1: from.position.x,
@@ -195,7 +250,8 @@ export function createConveyer(from: Building, to: Factory | Merger) {
         displayData: conveyerDisplayData,
         from,
         to,
-        rate: 60
+        rate: 60,
+        isEnabled: true
     }
 
     const conveyerLogic = generateDeltaLogic(conveyerData.rate)
@@ -205,7 +261,7 @@ export function createConveyer(from: Building, to: Factory | Merger) {
             const {output} = conveyerData.from
             const {input} = conveyerData.to
     
-            if(!input || !output){
+            if(!input || !output || !conveyerData.isEnabled){
                 return
             }
 

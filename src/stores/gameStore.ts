@@ -1,4 +1,4 @@
-import { createConveyer, createFactory, createMerger, createMiner, defaultResource } from "@/gameData/gameWorld";
+import { createConveyer, createFactory, createMerger, createMiner, createSplitter, defaultResource } from "@/gameData/gameWorld";
 import { BuildingType, InteractionMode, type Building, type Conveyer, type Factory, type Merger, type Miner, type PositionData, type Updatable } from "@/gameData/types";
 import type { Item, Resource } from "@/types";
 import { defineStore } from "pinia";
@@ -74,8 +74,12 @@ export const gameStore = defineStore('gameStore', {
           
             if(newInput) this.selectedFactory.input = newInput
         },
-        changeSelectedMerger(element: Item | Resource){
-            if(this.selectedElementType === BuildingType.MERGER && this.selectedElement){
+        changeSelectedLogisticItem(element: Item | Resource){
+            if(
+                (   this.selectedElementType === BuildingType.MERGER || 
+                    this.selectedElementType === BuildingType.SPLITTER ) && 
+                this.selectedElement
+                ){
                 this.selectedElement.output = element
                 this.selectedElement.input = element
             }
@@ -98,11 +102,25 @@ export const gameStore = defineStore('gameStore', {
             } else if (type === BuildingType.MERGER){
                 const merger = createMerger(undefined, coords)
                 this.entities.set(uuid, {data: merger.data, type})
+            } else if (type === BuildingType.SPLITTER){
+                const splitter = createSplitter(undefined, coords)
+
+                const changeConveyerState = (id: string, status: boolean) => {
+                    const infos = this.entities.get(id)
+                    if(infos && infos.type === BuildingType.CONVEYER){
+                        infos.data.isEnabled = status
+                    }
+                }
+                splitter.data.disableConveyer = (id) => changeConveyerState(id, false)
+                splitter.data.enableConveyer = (id) => changeConveyerState(id, true)
+
+                this.entities.set(uuid, {data: splitter.data, type: BuildingType.SPLITTER})
+
             }
           },
           selectElement(element: Building, type: BuildingType){
             if(this.selectedMode === InteractionMode.BUILD && this.selectedBuild === BuildingType.CONVEYER && this.selectedElement){
-                if(type === BuildingType.FACTORY || type === BuildingType.MERGER){
+                if(type === BuildingType.FACTORY || type === BuildingType.MERGER || type === BuildingType.SPLITTER){
                     this.placeConveyer(this.selectedElement, element)
                 }
                 this.resetSelectedElement()
