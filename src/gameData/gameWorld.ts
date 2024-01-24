@@ -104,7 +104,16 @@ export function createFactory(output: Item | undefined = undefined, coords: {x: 
             smelterInputQuantity.value += newQuantity
             return 0
         },
-        take: () => 0,
+        take: (quantity: number) => {
+            if(smelterQuantity.value > quantity){
+                smelterQuantity.value -= quantity;
+                return quantity
+            } else {
+                const max = smelterQuantity.value > 0 ? smelterQuantity.value : 0
+                smelterQuantity.value -= max 
+                return max
+            }
+        },
         connectedConveyers: []
     }
 
@@ -154,7 +163,7 @@ export function createMerger(output: Item | undefined = undefined, coords: {x: n
         },
         input,
         output,
-        quantity: quantity,
+        quantity,
         give: (newQuantity: number) => {
             quantity.value += newQuantity
             return 0
@@ -193,11 +202,13 @@ export function createConveyer(from: Building, to: Factory | Merger) {
 
     const conveyerUpdate: Updatable = {
         tick: (delta) => {
+            const {output} = conveyerData.from
             const {input} = conveyerData.to
-            const {output} = conveyerData.from        
     
-            if(!input || !output) return
-            
+            if(!input || !output){
+                return
+            }
+
             conveyerLogic.tick(delta)
             if(input.name === output.name && conveyerLogic.rateRespected()){
                 conveyerLogic.consumeOneRate()
