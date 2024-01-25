@@ -1,14 +1,15 @@
 <template>
-    <div class="resource" @click="$emit('onItemClicked', props.item.id)">
-        <img :src="item.logoPath">
-        <h4>{{ item.name }}</h4>
+    <div class="resource">
+        <img :src="machine.logoPath">
+        <h4>{{ props.machine.name }}</h4>
     </div>
 </template>
 
 <script setup lang="ts">
-import type { Item } from '@/types';
+import type { Machine } from '@/types';
 
-const props = defineProps<{item: Item}>()
+const props = defineProps<{machine: Machine}>()
+
 </script>
 
 <style scoped>
@@ -17,7 +18,7 @@ const props = defineProps<{item: Item}>()
     border-width: 2px;
     border-style: solid;
     width: fit-content;
-    background-color: lightgray;
+    background-color: rgb(103, 99, 99);
 }
 
 .resource > *{
@@ -34,8 +35,8 @@ const props = defineProps<{item: Item}>()
 }
 
 .resource > h4 {
-    color: orange;
-    background-color: gray;
+    color: red;
+    background-color: rgb(208, 206, 206);
     width: 100%;
     text-align: center;
 }
