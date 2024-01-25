@@ -10,7 +10,6 @@ function translateResourceFromApi(resource: any): Resource {
     return {
         id: id ? id : resource["@id"],
         name: nomRessource,
-        quality: qualite,
         logoPath: contentUrl
     }
 }
@@ -145,10 +144,18 @@ export async function getAllMachines(): Promise<Machine[]>{
     return machines.map((machine: any) => translateMachineFromApi(machine))
 }
 
-export async function getMachine(idMachine: Number): Promise<Machine> {
+export async function getMachine(idMachine: string): Promise<Machine> {
     const request = await sendRequest(`machines/${idMachine}`, 'GET', null, true);
 
     const machine = request?.content;
 
     return translateMachineFromApi(machine);
+}
+
+export async function getRessource(idRessource: string): Promise<Resource> {
+    const request = await sendRequest(`ressources/${idRessource}`, "GET", null, true);
+
+    const ressource = request?.content;
+
+    return translateResourceFromApi(ressource);
 }

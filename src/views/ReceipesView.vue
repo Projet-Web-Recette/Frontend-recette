@@ -14,14 +14,14 @@
 <script setup lang="ts">
 import ItemReceipeVue from '@/components/ItemReceipe.vue';
 import CreateItem from '@/components/createItem.vue';
-import type { Item, Machine, Resource } from '@/types';
-import { getItem, getAllItems, getAllRecipesFromItem, getAllMachines, getResources, getMachine } from '@/helpers/api';
+import type { Item, Machine, Resource, Node } from '@/types';
+import { getItem, getAllItems, getAllRecipesFromItem, getAllMachines, getResources, getMachine, getRessource } from '@/helpers/api';
 import { onMounted, ref } from 'vue';
 import VueSideBar from "../components/Sidebar.vue";
 
 let itemsApi: Item[] = [];
 let machinesApi: Machine[] = [];
-let ressourcesApi: Ressource[] = [];
+let ressourcesApi: Resource[] = [];
 
 const isCreatingItem = ref<Boolean>(false);
 
@@ -34,55 +34,58 @@ const keyRender = ref<string>('');
 
 const itemReceipe = ref<Item>();
 
-const addNode = ref<{
-    id:string;
-    type:string
-}>();
+const addNode = ref<Node>();
 
 
 onMounted(async () => {
 
     itemsApi = await getAllItems();
-
     machinesApi = await getAllMachines();
-
     ressourcesApi = await getResources();
 
     items.value = itemsApi;
-
     machines.value = machinesApi;
-
     ressources.value = ressourcesApi;
 
 });
 
-async function itemSelected(idItem: number) {
+async function itemSelected(idItem: string) {
     const item = await getItem(idItem);
     keyRender.value = item.name;
     itemReceipe.value = item;
 
     addNode.value = {
         id: idItem,
-        type: "item"
+        type: "item",
+        name: item.name,
+        logoPath: item.logoPath,
+        isCreating: true
     }
 
 }
 
-async function machineSelected(idMachine: number) {
+async function machineSelected(idMachine: string) {
     const machine = await getMachine(idMachine);
-    keyRender.value = machine.name;
-
 
     addNode.value = {
         id: `${idMachine}`,
-        type: "machine"
+        type: "machine",
+        name: machine.name,
+        logoPath: machine.logoPath,
+        isCreating: true
     }
 }
 
-async function ressourceSelected(idRessource: number) {
+async function ressourceSelected(idRessource: string) {
+
+    const ressource = await getRessource(idRessource);
+
     addNode.value = {
         id: `${idRessource}`,
-        type: "ressource"
+        type: "ressource",
+        name: ressource.name,
+        logoPath: ressource.logoPath,
+        isCreating: true
     }
 }
 
