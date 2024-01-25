@@ -114,57 +114,65 @@ const hasOutput = [BuildingType.FACTORY, BuildingType.MINER, BuildingType.MERGER
 </script>
 
 <template>
-  <div id="ui">
-    <div>
-      <div id="iconDisplay">
-        <IconUI :action-name="InteractionMode.BUILD" icon-path="icons/hammer.png" @icon-selected="game.selectMode(InteractionMode.BUILD)" :class="game.selectedMode === InteractionMode.BUILD ? 'iconSelected' : ''"></IconUI>
-        <IconUI :action-name="InteractionMode.INTERACT" icon-path="icons/click.png" @icon-selected="game.selectMode(InteractionMode.INTERACT)" :class="game.selectedMode === InteractionMode.INTERACT ? 'iconSelected' : ''"></IconUI>
-        <IconUI :action-name="InteractionMode.MOVE" icon-path="icons/move.png" @icon-selected="game.selectMode(InteractionMode.MOVE)" :class="game.selectedMode === InteractionMode.MOVE ? 'iconSelected' : ''"></IconUI>
-        <IconUI :action-name="InteractionMode.CAMERA" icon-path="icons/camera.png" @icon-selected="game.selectMode(InteractionMode.CAMERA)" :class="game.selectedMode === InteractionMode.CAMERA ? 'iconSelected' : ''"></IconUI>
-        <IconUI action-name="Stock" icon-path="icons/box.png" @icon-selected="inventoryWindowOpen = true"></IconUI>
-      </div>
-    </div>
-    <div style="background-color: lightgrey;" v-if="game.selectedMode === InteractionMode.BUILD">
-      <h1>Building sélectionné: {{ game.selectedBuild }}</h1>
-      <ul>
-        <li v-for="build in BuildingType" @click="game.selectedBuild = build">{{ build }}</li>
-      </ul>
-    </div>
-  </div>
-
-  <div class="gameWindow" @mousedown="mouseDownHandler($event)">
-    <div class="camera" :style="{ left: game.cameraLocation.x + 'px', top:game.cameraLocation.y + 'px' }">
-      <draggable v-for="({type, data}, index) in [...game.entities.values()].filter(({type}) => type !== BuildingType.CONVEYER)" :key="index"
-                :height="data.displayData.height" 
-                :width="data.displayData.width" 
-                :left="data.position.x"
-                :top="data.position.y"
-                :disable="() => type === BuildingType.MINER || 
-                          game.selectedMode !== InteractionMode.MOVE"
-                @update-pos="({x, y}) => { data.position.x = x; data.position.y = y}">
-        <div class="factory" @mousedown="game.selectElement(data, type)" :class="data === game.selectedElement ? 'buildingSelected' : ''">
-          <factoryDisplay :display="data.displayData">
-            <div class="BuildingInfos">
-              <div v-if="(type === BuildingType.FACTORY) && data.input">
-                <p>In:</p>
-                <quantityDisplay
-                  :logo-path="data.input.logoPath" 
-                  :quantity="data.inQuantity" />
+  <div id="gameWindow">
+    <div class="gameViewport" @mousedown="mouseDownHandler($event)">
+      <div class="camera" :style="{ left: game.cameraLocation.x + 'px', top:game.cameraLocation.y + 'px', width: (1700-game.cameraLocation.x) + 'px' }">
+        <draggable v-for="({type, data}, index) in [...game.entities.values()].filter(({type}) => type !== BuildingType.CONVEYER)" :key="index"
+                  :height="data.displayData.height" 
+                  :width="data.displayData.width" 
+                  :left="data.position.x"
+                  :top="data.position.y"
+                  :disable="() => type === BuildingType.MINER || 
+                            game.selectedMode !== InteractionMode.MOVE"
+                  @update-pos="({x, y}) => { data.position.x = x; data.position.y = y}">
+          <div class="factory" @mousedown="game.selectElement(data, type)" :class="data === game.selectedElement ? 'buildingSelected' : ''">
+            <factoryDisplay :display="data.displayData">
+              <div class="BuildingInfos">
+                <div v-if="(type === BuildingType.FACTORY) && data.input">
+                  <p>In:</p>
+                  <quantityDisplay
+                    :logo-path="data.input.logoPath" 
+                    :quantity="data.inQuantity" />
+                </div>
+      
+                <div>
+                  <p>{{ type === BuildingType.MERGER ? ' (merger) ' : type === BuildingType.SPLITTER ? ' (splitter)' : '' }} Out:</p>
+                  <quantityDisplay v-if="data.output && hasOutput.includes(type)"
+                    :logo-path="data.output.logoPath" 
+                    :quantity="data.quantity" />
+                </div>
               </div>
+            </factoryDisplay>
+          </div>
+        </draggable>
     
-              <div>
-                <p>{{ type === BuildingType.MERGER ? ' (merger) ' : type === BuildingType.SPLITTER ? ' (splitter)' : '' }} Out:</p>
-                <quantityDisplay v-if="data.output && hasOutput.includes(type)"
-                  :logo-path="data.output.logoPath" 
-                  :quantity="data.quantity" />
-              </div>
-            </div>
-          </factoryDisplay>
-        </div>
-      </draggable>
+        <ConveyerDisplay :conveyers="[...game.entities.values()].filter(({type}) => type === BuildingType.CONVEYER).map((conveyer) => conveyer.data.displayData)">
+        </ConveyerDisplay>
+      </div>
   
-      <ConveyerDisplay :conveyers="[...game.entities.values()].filter(({type}) => type === BuildingType.CONVEYER).map((conveyer) => conveyer.data.displayData)">
-      </ConveyerDisplay>
+      <WindowComponent v-model="inventoryWindowOpen" right="100px" top="0px" title="Inventory">
+        <div class="inventory">
+          <InventoryItem v-for="{item, quantity} in game.playerInventory.values()" :item="item" :quantity="quantity" />
+        </div>
+      </WindowComponent>
+  
+      <div id="ui">
+        <div>
+          <div id="iconDisplay">
+            <IconUI :action-name="InteractionMode.BUILD" icon-path="icons/hammer.png" @icon-selected="game.selectMode(InteractionMode.BUILD)" :class="game.selectedMode === InteractionMode.BUILD ? 'iconSelected' : ''"></IconUI>
+            <IconUI :action-name="InteractionMode.INTERACT" icon-path="icons/click.png" @icon-selected="game.selectMode(InteractionMode.INTERACT)" :class="game.selectedMode === InteractionMode.INTERACT ? 'iconSelected' : ''"></IconUI>
+            <IconUI :action-name="InteractionMode.MOVE" icon-path="icons/move.png" @icon-selected="game.selectMode(InteractionMode.MOVE)" :class="game.selectedMode === InteractionMode.MOVE ? 'iconSelected' : ''"></IconUI>
+            <IconUI :action-name="InteractionMode.CAMERA" icon-path="icons/camera.png" @icon-selected="game.selectMode(InteractionMode.CAMERA)" :class="game.selectedMode === InteractionMode.CAMERA ? 'iconSelected' : ''"></IconUI>
+            <IconUI action-name="Stock" icon-path="icons/box.png" @icon-selected="inventoryWindowOpen = true"></IconUI>
+          </div>
+          <div style="background-color: lightgrey;" v-if="game.selectedMode === InteractionMode.BUILD">
+            <h1>Building sélectionné: {{ game.selectedBuild }}</h1>
+            <ul>
+              <li v-for="build in BuildingType" @click="game.selectedBuild = build">{{ build }}</li>
+            </ul>
+          </div>
+        </div>
+      </div>
     </div>
   </div>
 
@@ -185,25 +193,25 @@ const hasOutput = [BuildingType.FACTORY, BuildingType.MINER, BuildingType.MERGER
     </WindowComponent>
   </draggable>
 
-  <WindowComponent v-model="inventoryWindowOpen" right="10px" top="10px" title="Inventory">
-    <div class="inventory">
-      <InventoryItem v-for="{item, quantity} in game.playerInventory.values()" :item="item" :quantity="quantity" />
-    </div>
-  </WindowComponent>
+
 </template>
 
 <style>
-.gameWindow {
-  position: relative;
+#gameWindow {
   overflow: hidden;
-  width: 100vh;
+  width: 100%;
+  height: 100%;
+}
+
+.gameViewport {
+  position: relative;
+  width: 100vw;
   height: 100vh;
 }
 
 .camera {
-  position: absolute;
-  width: 100%;
-  height: 100%;
+  background-image: url("/src/assets/satysfactory_high.jpg");
+  position: relative;
 }
 
 .factory {
@@ -215,6 +223,7 @@ const hasOutput = [BuildingType.FACTORY, BuildingType.MINER, BuildingType.MERGER
 #ui {
   position: absolute;
   left: 100px;
+  top: 0px;
 }
 
 #iconDisplay {

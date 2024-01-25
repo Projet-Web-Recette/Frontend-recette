@@ -49,6 +49,7 @@ function close() {
     position: absolute;
     width: fit-content;
     height: fit-content;
+    min-height: 50px;
     display: flex;
     flex-direction: column;
     background-color: #868686;
