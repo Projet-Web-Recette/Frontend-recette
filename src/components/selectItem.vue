@@ -28,6 +28,7 @@ const emit = defineEmits<{
 
 .itemSelector > * {
     margin: 5px;
+    cursor: pointer;
 }
 
 .itemSelector img {

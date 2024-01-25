@@ -169,21 +169,23 @@ const hasOutput = [BuildingType.FACTORY, BuildingType.MINER, BuildingType.MERGER
   </div>
 
   <draggable :disable="() => false" :height="0" :left="100" :top="100" :width="0">
-    <WindowComponent v-model="windowOpen" left="10px" top="10px">
-      <div style="background-color: orange;" @click="disconnectConveyersClicked">
-        <h2>Disconnect conveyers</h2>
+    <WindowComponent v-model="windowOpen" left="10px" top="10px" title="Select output">
+      <div style="min-width: 400px;">
+        <div style="background-color: orange; cursor: pointer;width: fit-content;padding: 2px; margin: 5px;" @click="disconnectConveyersClicked">
+          <h3>Disconnect conveyers</h3>
+        </div>
+        <SelectItem :ingredient-list="[ironIngot, cooperIngot]" @ingredient-selected="(item: Item) => { 
+          if(game.selectedFactory) {
+            game.changeSelectedFactoryReceipe(item)
+          } else if (game.selectedElementType === BuildingType.MERGER || game.selectedElementType === BuildingType.SPLITTER) {
+            game.changeSelectedLogisticItem(item)
+          }}"></SelectItem>
+        <SelectItem v-if="game.selectedElementType === BuildingType.MERGER || game.selectedElementType === BuildingType.SPLITTER" :ingredient-list="[iron, cooper]" @ingredient-selected="(resource: Resource) => { if(game.selectedElementType === BuildingType.MERGER || game.selectedElementType === BuildingType.SPLITTER) game.changeSelectedLogisticItem(resource)}"></SelectItem>
       </div>
-      <SelectItem :ingredient-list="[ironIngot, cooperIngot]" @ingredient-selected="(item: Item) => { 
-        if(game.selectedFactory) {
-          game.changeSelectedFactoryReceipe(item)
-        } else if (game.selectedElementType === BuildingType.MERGER || game.selectedElementType === BuildingType.SPLITTER) {
-          game.changeSelectedLogisticItem(item)
-        }}"></SelectItem>
-      <SelectItem v-if="game.selectedElementType === BuildingType.MERGER || game.selectedElementType === BuildingType.SPLITTER" :ingredient-list="[iron, cooper]" @ingredient-selected="(resource: Resource) => { if(game.selectedElementType === BuildingType.MERGER || game.selectedElementType === BuildingType.SPLITTER) game.changeSelectedLogisticItem(resource)}"></SelectItem>
     </WindowComponent>
   </draggable>
 
-  <WindowComponent v-model="inventoryWindowOpen" right="10px" top="10px">
+  <WindowComponent v-model="inventoryWindowOpen" right="10px" top="10px" title="Inventory">
     <div class="inventory">
       <InventoryItem v-for="{item, quantity} in game.playerInventory.values()" :item="item" :quantity="quantity" />
     </div>
