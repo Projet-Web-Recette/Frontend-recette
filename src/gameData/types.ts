@@ -1,4 +1,4 @@
-import type { Item, Resource } from "@/types"
+import type { Item, Machine, Resource } from "@/types"
 import type { Ref } from "vue"
 
 export interface Display {
@@ -15,6 +15,11 @@ export interface Updatable {
 export interface PositionData {
     x: Ref<number>,
     y: Ref<number>
+}
+
+export interface CraftByBuidling {
+    machine: Machine,
+    items: Item[]
 }
 
 export interface Building {
@@ -72,8 +77,7 @@ export interface ConveyerDisplayData {
 
 
 export enum BuildingType {
-    MINER = 'miner',
-    FACTORY = 'factory',
+    MACHINE = 'machine',
     CONVEYER = 'conveyer',
     MERGER = 'merger',
     SPLITTER = 'splitter'

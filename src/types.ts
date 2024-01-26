@@ -5,7 +5,7 @@ export interface Item {
     quantityProduced: string,
     machine: Machine,
     ingredients: any[],
-    quantityIngredients: any[]
+    quantityIngredients: {receipe: Resource | Item, quantity: number}[]
 }
 
 export interface Receipe {

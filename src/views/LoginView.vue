@@ -130,7 +130,18 @@ async function loginSubmit() {
   }
 }
 
-function registerSubmit() {
+async function registerSubmit() {
+  const authentication = authenticationStore()
+
+  if(form7RegisterPassword.value === form7RegisterPasswordRepeat.value){
+    await authentication.register(
+      form7RegisterUsername.value,
+      form7RegisterPassword.value,
+      form7RegisterEmail.value,
+      () => {console.error('register not working')}
+    )
+  }
+
 
 }
 

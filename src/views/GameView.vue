@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { gameStore } from '@/stores/gameStore';
 import factoryDisplay from '@/components/factoryDisplay.vue'
-import type { Item, Receipe, Resource } from '@/types';
+import type { Item, Machine, Receipe, Resource } from '@/types';
 import { launchGame} from '@/gameData/gameWorld';
 import ConveyerDisplay from '@/components/conveyerDisplay.vue';
 import quantityDisplay from '@/components/quantityDisplay.vue';
@@ -14,6 +14,9 @@ import IconUI from '@/components/iconUI.vue';
 import InventoryItem from '@/components/invetoryItem.vue';
 
 const game = gameStore()
+
+game.loadSave()
+
 launchGame()
 
 const iron: Resource = {
@@ -28,36 +31,37 @@ const cooper: Resource = {
     logoPath: 'https://static.wikia.nocookie.net/satisfactory_gamepedia_en/images/7/78/Copper_Ore.png'
 }
 
-const ironIngotReceipe: Receipe = {
-    id: 'rcp1',
-    resources: [iron]
+const smelter: Machine = {
+  logoPath: "https://static.wikia.nocookie.net/satisfactory_gamepedia_en/images/4/45/Smelter.png",
+  name: "fonderie"
 }
 
 const ironIngot: Item = {
     id: 'itm1',
     logoPath: "https://static.wikia.nocookie.net/satisfactory_gamepedia_en/images/0/0a/Iron_Ingot.png",
     name: "Lingot de fer",
-    receipe: ironIngotReceipe
-}
-
-const cooperIngotReceipe: Receipe = {
-    id: 'rcp2',
-    resources: [cooper]
+    ingredients: [iron],
+    quantityIngredients: [2],
+    machine: smelter,
+    quantityProduced: '0' 
 }
 
 const cooperIngot: Item = {
     id: 'itm2',
     logoPath: "https://static.wikia.nocookie.net/satisfactory_gamepedia_en/images/0/00/Copper_Ingot.png",
     name: "Lingot de cuivre",
-    receipe: cooperIngotReceipe
+    ingredients: [cooper],
+    quantityIngredients: [1],
+    machine: smelter,
+    quantityProduced: '0'
 }
 
 
-game.addEntity(BuildingType.MINER, {output: iron, coords: {x:50, y:50}})
-game.addEntity(BuildingType.MINER, {output: cooper, coords: {x: 300, y: 300}})
+// game.addEntity(BuildingType.MINER, {output: iron, coords: {x:50, y:50}})
+// game.addEntity(BuildingType.MINER, {output: cooper, coords: {x: 300, y: 300}})
 
-game.addEntity(BuildingType.FACTORY, {coords: {x: 100, y: 500}})
-game.addEntity(BuildingType.FACTORY, {coords: {x: 600, y: 300}})
+// game.addEntity(BuildingType.FACTORY, {coords: {x: 100, y: 500}})
+// game.addEntity(BuildingType.FACTORY, {coords: {x: 600, y: 300}})
 
 
 
@@ -166,10 +170,14 @@ const hasOutput = [BuildingType.FACTORY, BuildingType.MINER, BuildingType.MERGER
             <IconUI action-name="Stock" icon-path="icons/box.png" @icon-selected="inventoryWindowOpen = true"></IconUI>
           </div>
           <div style="background-color: lightgrey;" v-if="game.selectedMode === InteractionMode.BUILD">
-            <h1>Building sélectionné: {{ game.selectedBuild }}</h1>
-            <ul>
-              <li v-for="build in BuildingType" @click="game.selectedBuild = build">{{ build }}</li>
-            </ul>
+            <h1>Building sélectionné: {{ game.selectedBuild === BuildingType.MACHINE ? game.selectedMachineBuild?.name : game.selectedBuild }}</h1>
+            <div v-for="{machine} in game.craftsbyBuildings" @click="() => {
+                game.selectedBuild = BuildingType.MACHINE
+                game.selectMachine(machine)
+              }">
+              <img :src="machine.logoPath" style="height: 80px;" />
+              <p>{{ machine.name }}</p>
+            </div>
           </div>
         </div>
       </div>

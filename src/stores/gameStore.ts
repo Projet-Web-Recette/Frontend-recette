@@ -1,20 +1,23 @@
 import { createConveyer, createFactory, createMerger, createMiner, createSplitter, defaultResource } from "@/gameData/gameWorld";
-import { BuildingType, InteractionMode, type Building, type Conveyer, type Factory, type Merger, type Miner, type PositionData, type Updatable } from "@/gameData/types";
-import type { Item, Resource } from "@/types";
+import { BuildingType, InteractionMode, type Building, type Conveyer, type CraftByBuidling, type Factory, type Merger, type Miner, type PositionData, type Updatable } from "@/gameData/types";
+import type { Item, Machine, Resource } from "@/types";
 import { defineStore } from "pinia";
 import { ref, toRaw } from "vue";
 import { v4 } from 'uuid'
+import { getAllMachines, getItemsByMachine, getMachine } from "@/helpers/api";
 
 interface State {
     entities: Map<string,{type: BuildingType, data: any}>,
     updatables: Map<string,Updatable>,
     selectedMode: InteractionMode,
     selectedBuild: BuildingType,
+    selectedMachineBuild?: Machine,
     selectedElement?: Factory | Miner | Merger,
     selectedElementType?: BuildingType,
     selectedFactory: Factory | undefined,
     cameraLocation: PositionData,
-    playerInventory: Map<string, {item: Item, quantity: number}>
+    playerInventory: Map<string, {item: Item, quantity: number}>,
+    craftsbyBuildings: CraftByBuidling[]
 }
 
 
@@ -24,18 +27,35 @@ export const gameStore = defineStore('gameStore', {
             entities: new Map,
             updatables: new Map(),
             selectedMode: InteractionMode.INTERACT,
-            selectedBuild: BuildingType.FACTORY,
+            selectedBuild: BuildingType.CONVEYER,
+            selectedMachineBuild: undefined,
             selectedElement: undefined,
             selectedElementType: undefined,
             selectedFactory: undefined,
             cameraLocation: {x: ref(0), y: ref(0)},
-            playerInventory: new Map()
+            playerInventory: new Map(),
+            craftsbyBuildings: []
         }
     },
     actions: {
+        async loadSave(){
+            const machines = await getAllMachines()
+
+            this.craftsbyBuildings = await Promise.all(machines.map(async (machine) => {
+                if(machine.id)
+                {
+                    const items = await getItemsByMachine(machine.id)
+                    
+                    return {items, machine }
+                }
+            }))
+        },
         selectMode(mode: InteractionMode){          
             this.selectedMode = mode 
             this.resetSelectedElement()
+        },
+        selectMachine(machine: Machine){
+            this.selectedMachineBuild = machine
         },
         disconnectConveyer(id: string){
             const conveyer = this.entities.get(id)

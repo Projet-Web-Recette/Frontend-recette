@@ -60,7 +60,12 @@ function translateArrayIngredients(ingredients: any[]) {
 }
 
 function translateMachineFromApi(machine: any): Machine {
-    const {id, nom, contentUrl} = machine;
+    const {id, nom, contentUrl, quantitesIngredients} = machine;
+    if(quantitesIngredients){
+        quantitesIngredients.map((infos) => {
+            debugger
+        })
+    }
     return {
         id,
         name: nom,
@@ -151,4 +156,12 @@ export async function getMachine(idMachine: Number): Promise<Machine> {
     const machine = request?.content;
 
     return translateMachineFromApi(machine);
+}
+
+export async function getItemsByMachine(idMachine: string): Promise<Item[]> {
+    const request = await sendRequest(`machines/${idMachine}/items`, 'GET', null, true);
+
+    const items = request?.content["hydra:member"];
+    
+    return items.map((item: any) => translateItemFromApi(item))
 }
