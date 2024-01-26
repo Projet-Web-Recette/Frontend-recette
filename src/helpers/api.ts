@@ -38,7 +38,7 @@ function translateItemFromApi(item: any): Item {
             name: machine.nom,
             logoPath: machine.contentUrl
         }
-    } 
+    }
     
     return {
         id: id ? id : item["@id"],
@@ -46,7 +46,14 @@ function translateItemFromApi(item: any): Item {
         logoPath: contentUrl,
         quantityProduced: quantityProduced,
         machine: machineTranslate,
-        quantityIngredients: quantitesIngredients,
+        quantityIngredients: quantitesIngredients.map(({quantite, recette}) => {
+            let ingredient
+            if(recette.nomRessource){
+                ingredient = translateResourceFromApi(recette)
+            } else {
+                ingredient = translateItemFromApi(recette)
+            }
+            return {quantity: quantite, receipe: ingredient}}),
         ingredients: ingredients ? translateArrayIngredients(ingredients) : []
     }
 }
@@ -60,12 +67,7 @@ function translateArrayIngredients(ingredients: any[]) {
 }
 
 function translateMachineFromApi(machine: any): Machine {
-    const {id, nom, contentUrl, quantitesIngredients} = machine;
-    if(quantitesIngredients){
-        quantitesIngredients.map((infos) => {
-            debugger
-        })
-    }
+    const {id, nom, contentUrl} = machine;
     return {
         id,
         name: nom,
@@ -159,7 +161,7 @@ export async function getMachine(idMachine: Number): Promise<Machine> {
 }
 
 export async function getItemsByMachine(idMachine: string): Promise<Item[]> {
-    const request = await sendRequest(`machines/${idMachine}/items`, 'GET', null, true);
+    const request = await sendRequest(`machines/${idMachine}/items?type=Items`, 'GET', null, true);
 
     const items = request?.content["hydra:member"];
     

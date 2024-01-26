@@ -17,45 +17,39 @@ export interface PositionData {
     y: Ref<number>
 }
 
-export interface CraftByBuidling {
+export interface BuildingGeneral {
     machine: Machine,
-    items: Item[]
+    items: Item[],
+    numberOfInputs: number
 }
 
 export interface Building {
+    buildingGeneral: BuildingGeneral,
     displayData: Display,
     position: PositionData,
+
+    rate: number,
     output?: Resource | Item,
-    quantity: Ref<number>,
+    outQuantity: Ref<number>,
     take: (quantity: number) => number,
     outputConveyerUid: Array<string>,
+    
+    inputs: Input[]
+    give?: (ingredient: Item |Resource, quantity: number) => number
     inputConveyerUid: Array<string>, // doesn't apply interface segregation
 }
 
-interface ConveyerConnection{
-    id: string, sens: 'in' | 'out'
-}
-
-export interface Miner extends Building {
-    rate: number,
-    output: Resource,
-}
-
-export interface Factory extends Building {
-    rate: number,
-    input?: Resource | Item,
-    inQuantity: Ref<number>,
-    give: (quantity: number) => number
+export interface Input {
+    ingredient?: Item | Resource,
+    quantity: Ref<number>
 }
 
 export interface Merger extends Building {
-    input?: Resource | Item,
-    give: (quantity: number) => number
+    input?: Resource | Item
 }
 
 export interface Splitter extends Building {
     input?: Resource | Item,
-    give: (quantity: number) => number,
     disableConveyer?: (id: string) => void,
     enableConveyer?: (id: string) => void
 }
@@ -63,7 +57,7 @@ export interface Splitter extends Building {
 export interface Conveyer {
     displayData: ConveyerDisplayData,
     from: Building,
-    to: Factory | Merger,
+    to: Building,
     rate: number,
     isEnabled: boolean
 }

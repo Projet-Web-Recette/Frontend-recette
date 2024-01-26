@@ -7,7 +7,7 @@ import ConveyerDisplay from '@/components/conveyerDisplay.vue';
 import quantityDisplay from '@/components/quantityDisplay.vue';
 import draggable from '@/components/draggable.vue'
 import { ref, toRaw, watch, type VNodeRef } from 'vue';
-import { InteractionMode, BuildingType } from '@/gameData/types';
+import { InteractionMode, BuildingType, type Building } from '@/gameData/types';
 import WindowComponent from '@/components/windowComponent.vue';
 import SelectItem from '@/components/selectItem.vue';
 import IconUI from '@/components/iconUI.vue';
@@ -18,51 +18,6 @@ const game = gameStore()
 game.loadSave()
 
 launchGame()
-
-const iron: Resource = {
-    id: 'rsc2',
-    name: 'Fer',
-    logoPath: 'https://static.wikia.nocookie.net/satisfactory_gamepedia_en/images/8/87/Iron_Ore.png'
-}
-
-const cooper: Resource = {
-    id: 'rsc1',
-    name: 'cuivre',
-    logoPath: 'https://static.wikia.nocookie.net/satisfactory_gamepedia_en/images/7/78/Copper_Ore.png'
-}
-
-const smelter: Machine = {
-  logoPath: "https://static.wikia.nocookie.net/satisfactory_gamepedia_en/images/4/45/Smelter.png",
-  name: "fonderie"
-}
-
-const ironIngot: Item = {
-    id: 'itm1',
-    logoPath: "https://static.wikia.nocookie.net/satisfactory_gamepedia_en/images/0/0a/Iron_Ingot.png",
-    name: "Lingot de fer",
-    ingredients: [iron],
-    quantityIngredients: [2],
-    machine: smelter,
-    quantityProduced: '0' 
-}
-
-const cooperIngot: Item = {
-    id: 'itm2',
-    logoPath: "https://static.wikia.nocookie.net/satisfactory_gamepedia_en/images/0/00/Copper_Ingot.png",
-    name: "Lingot de cuivre",
-    ingredients: [cooper],
-    quantityIngredients: [1],
-    machine: smelter,
-    quantityProduced: '0'
-}
-
-
-// game.addEntity(BuildingType.MINER, {output: iron, coords: {x:50, y:50}})
-// game.addEntity(BuildingType.MINER, {output: cooper, coords: {x: 300, y: 300}})
-
-// game.addEntity(BuildingType.FACTORY, {coords: {x: 100, y: 500}})
-// game.addEntity(BuildingType.FACTORY, {coords: {x: 600, y: 300}})
-
 
 
 let lastCamPos = {x: 0, y: 0}
@@ -113,7 +68,15 @@ function disconnectConveyersClicked() {
 const windowOpen= ref(false)
 const inventoryWindowOpen = ref(false)
 
-const hasOutput = [BuildingType.FACTORY, BuildingType.MINER, BuildingType.MERGER, BuildingType.SPLITTER]
+const hasOutput = [BuildingType.MERGER, BuildingType.SPLITTER]
+
+
+function canDisplayInput(machineId: string, data: Building){
+  const bg = game.buildingGeneral.get(machineId)
+  const {inputs} = data
+  const response = bg && bg.numberOfInputs > 0 && inputs && inputs.length > 0 && inputs[0].ingredient
+  return response
+}
 
 </script>
 
@@ -121,7 +84,7 @@ const hasOutput = [BuildingType.FACTORY, BuildingType.MINER, BuildingType.MERGER
   <div id="gameWindow">
     <div class="gameViewport" @mousedown="mouseDownHandler($event)">
       <div class="camera" :style="{ left: game.cameraLocation.x + 'px', top:game.cameraLocation.y + 'px', width: (1700-game.cameraLocation.x) + 'px' }">
-        <draggable v-for="({type, data}, index) in [...game.entities.values()].filter(({type}) => type !== BuildingType.CONVEYER)" :key="index"
+        <draggable v-for="({type, data, machineId}, index) in [...game.entities.values()].filter(({type}) => type !== BuildingType.CONVEYER)" :key="index"
                   :height="data.displayData.height" 
                   :width="data.displayData.width" 
                   :left="data.position.x"
@@ -132,16 +95,16 @@ const hasOutput = [BuildingType.FACTORY, BuildingType.MINER, BuildingType.MERGER
           <div class="factory" @mousedown="game.selectElement(data, type)" :class="data === game.selectedElement ? 'buildingSelected' : ''">
             <factoryDisplay :display="data.displayData">
               <div class="BuildingInfos">
-                <div v-if="(type === BuildingType.FACTORY) && data.input">
+                <div v-if="canDisplayInput(machineId + '', data)">
                   <p>In:</p>
-                  <quantityDisplay
-                    :logo-path="data.input.logoPath" 
-                    :quantity="data.inQuantity" />
+                  <quantityDisplay v-for="input in data.inputs"
+                    :logo-path="input.ingredient.logoPath" 
+                    :quantity="input.ingredient.inQuantity" />
                 </div>
       
                 <div>
                   <p>{{ type === BuildingType.MERGER ? ' (merger) ' : type === BuildingType.SPLITTER ? ' (splitter)' : '' }} Out:</p>
-                  <quantityDisplay v-if="data.output && hasOutput.includes(type)"
+                  <quantityDisplay v-if="data.output"
                     :logo-path="data.output.logoPath" 
                     :quantity="data.quantity" />
                 </div>
@@ -171,7 +134,7 @@ const hasOutput = [BuildingType.FACTORY, BuildingType.MINER, BuildingType.MERGER
           </div>
           <div style="background-color: lightgrey;" v-if="game.selectedMode === InteractionMode.BUILD">
             <h1>Building sélectionné: {{ game.selectedBuild === BuildingType.MACHINE ? game.selectedMachineBuild?.name : game.selectedBuild }}</h1>
-            <div v-for="{machine} in game.craftsbyBuildings" @click="() => {
+            <div v-for="{machine} in game.buildingGeneral.values()" @click="() => {
                 game.selectedBuild = BuildingType.MACHINE
                 game.selectMachine(machine)
               }">
@@ -190,9 +153,9 @@ const hasOutput = [BuildingType.FACTORY, BuildingType.MINER, BuildingType.MERGER
         <div style="background-color: orange; cursor: pointer;width: fit-content;padding: 2px; margin: 5px;" @click="disconnectConveyersClicked">
           <h3>Disconnect conveyers</h3>
         </div>
-        <SelectItem :ingredient-list="[ironIngot, cooperIngot]" @ingredient-selected="(item: Item) => { 
-          if(game.selectedFactory) {
-            game.changeSelectedFactoryReceipe(item)
+        <SelectItem :ingredient-list="game.getItemListSelectedBuild()" @ingredient-selected="(item: Item) => { 
+          if(game.selectedElement) {
+            game.changeSelectedBuildingOutput(item)
           } else if (game.selectedElementType === BuildingType.MERGER || game.selectedElementType === BuildingType.SPLITTER) {
             game.changeSelectedLogisticItem(item)
           }}"></SelectItem>

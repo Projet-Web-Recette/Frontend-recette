@@ -1,23 +1,24 @@
-import { createConveyer, createFactory, createMerger, createMiner, createSplitter, defaultResource } from "@/gameData/gameWorld";
-import { BuildingType, InteractionMode, type Building, type Conveyer, type CraftByBuidling, type Factory, type Merger, type Miner, type PositionData, type Updatable } from "@/gameData/types";
+import { createConveyer, createMerger, createSplitter, instanciateMachine } from "@/gameData/gameWorld";
+import { BuildingType, InteractionMode, type Building, type BuildingGeneral, type Merger, type PositionData, type Splitter, type Updatable } from "@/gameData/types";
 import type { Item, Machine, Resource } from "@/types";
 import { defineStore } from "pinia";
 import { ref, toRaw } from "vue";
 import { v4 } from 'uuid'
 import { getAllMachines, getItemsByMachine, getMachine } from "@/helpers/api";
+import { useLocalStorage } from "@vueuse/core";
 
 interface State {
-    entities: Map<string,{type: BuildingType, data: any}>,
+    entities: Map<string,{type: BuildingType, data: any, machineId: string}>,
     updatables: Map<string,Updatable>,
     selectedMode: InteractionMode,
     selectedBuild: BuildingType,
     selectedMachineBuild?: Machine,
-    selectedElement?: Factory | Miner | Merger,
+    selectedElement?: Building,
     selectedElementType?: BuildingType,
-    selectedFactory: Factory | undefined,
+    selectedFactory?: Building,
     cameraLocation: PositionData,
-    playerInventory: Map<string, {item: Item, quantity: number}>,
-    craftsbyBuildings: CraftByBuidling[]
+    playerInventory: Map<string, {data: Item | Resource, quantity: number}>,
+    buildingGeneral: Map<string, BuildingGeneral>
 }
 
 
@@ -31,24 +32,30 @@ export const gameStore = defineStore('gameStore', {
             selectedMachineBuild: undefined,
             selectedElement: undefined,
             selectedElementType: undefined,
-            selectedFactory: undefined,
             cameraLocation: {x: ref(0), y: ref(0)},
             playerInventory: new Map(),
-            craftsbyBuildings: []
+            buildingGeneral: new Map() //useLocalStorage("buildingGeneral", new Map()).value
         }
     },
     actions: {
         async loadSave(){
             const machines = await getAllMachines()
 
-            this.craftsbyBuildings = await Promise.all(machines.map(async (machine) => {
+            const buildingGeneral = await Promise.all(machines.map(async (machine) => {
                 if(machine.id)
                 {
                     const items = await getItemsByMachine(machine.id)
+
+                    const numberOfInputs = items.length > 0 ? items[0].ingredients.length : 0
                     
-                    return {items, machine }
+                    return {items, machine, numberOfInputs }
                 }
             }))
+
+            buildingGeneral.map((infos) => {
+                if(infos)
+                this.buildingGeneral.set(infos.machine.id + '', infos)
+            })
         },
         selectMode(mode: InteractionMode){          
             this.selectedMode = mode 
@@ -70,7 +77,7 @@ export const gameStore = defineStore('gameStore', {
 
             delete conveyer?.data
         },
-        placeConveyer(from: Building, to: Factory | Merger){
+        placeConveyer(from: Building, to: Building){
             const uuid = v4()
             const conveyer = createConveyer(toRaw(from), toRaw(to))
 
@@ -80,6 +87,38 @@ export const gameStore = defineStore('gameStore', {
             this.updatables.set(uuid, conveyer.updatable)
             this.entities.set(uuid, {type: BuildingType.CONVEYER, data: conveyer.data})
         },
+
+        changeSelectedBuildingOutput(element: Item | Resource){
+            const type = this.selectedElementType
+            if(type === BuildingType.MERGER && this.selectedElement){
+                const selectedElement = this.selectedElement as Merger
+                selectedElement.output = element
+                selectedElement.input = element
+            } else if(type === BuildingType.SPLITTER && this.selectedElement){
+                const selectedElement = this.selectedElement as Splitter
+                selectedElement.output = element
+                selectedElement.input = element
+            } else {
+                if(!this.selectedElement || this.selectedElement.output?.id === element.id) return
+
+                if(this.selectedElement.output){
+                    this.storeItem(this.selectedElement.output as Resource|Item, this.selectedElement.outQuantity)
+                }
+
+                this.selectedElement.output = element
+            
+                const elementItem = element as Item
+                if(elementItem.quantityIngredients){
+                    this.selectedElement.inputs = elementItem.quantityIngredients.map(
+                        ({receipe}) => {
+                            return {ingredient: receipe, quantity: 0}
+                        })
+                }
+                
+                this.selectedElement.outQuantity = 0
+            }
+        },
+
         changeSelectedFactoryReceipe(item: Item){
             if(!this.selectedFactory || this.selectedFactory.output === item) return
             
@@ -116,11 +155,14 @@ export const gameStore = defineStore('gameStore', {
         {
             const {output, coords} = infos
             const uuid = v4()
-            if(type === BuildingType.MINER){
-                const miner = createMiner(output ? output : defaultResource, coords)
-                this.updatables.set(uuid, miner.updatable)
-                
-                this.entities.set(uuid, {data: miner.data, type})
+            if(type === BuildingType.MACHINE && this.selectedMachineBuild?.id){
+                const buildingGeneral = this.buildingGeneral.get(this.selectedMachineBuild.id + "")
+                if(buildingGeneral){
+                    const machine = instanciateMachine(buildingGeneral, coords)
+                    this.updatables.set(uuid, machine.updatable)
+                    
+                    this.entities.set(uuid, {data: machine.data, type, machineId: buildingGeneral.machine.id ?? ''})
+                }
             } else if (type === BuildingType.FACTORY){
                 const factory = createFactory(output as Item, coords)
                 this.updatables.set(uuid, factory.updatable)
@@ -146,12 +188,13 @@ export const gameStore = defineStore('gameStore', {
           },
           selectElement(element: Building, type: BuildingType){
             if(this.selectedMode === InteractionMode.BUILD && this.selectedBuild === BuildingType.CONVEYER && this.selectedElement){
-                if(type === BuildingType.FACTORY || type === BuildingType.MERGER || type === BuildingType.SPLITTER){
+                if(type === BuildingType.MACHINE || type === BuildingType.MERGER || type === BuildingType.SPLITTER){
                     this.placeConveyer(this.selectedElement, element)
                 }
                 this.resetSelectedElement()
             } else {
                 this.selectedElement = element
+                this.selectedMachineBuild = 
                 this.selectedElementType = type
                 if(type === BuildingType.FACTORY){
                     this.selectedFactory = element
@@ -164,13 +207,13 @@ export const gameStore = defineStore('gameStore', {
             this.selectedElementType = undefined
             this.selectedFactory = undefined
           },
-          storeItem(item: Item, quantity: number){
-            const infos = this.playerInventory.get(item.id)
+          storeItem(data: Item | Resource, quantity: number){
+            const infos = this.playerInventory.get(data.id)
             if(infos){
                 infos.quantity += quantity
-                this.playerInventory.set(item.id, infos)
+                this.playerInventory.set(data.id, infos)
             } else {
-                this.playerInventory.set(item.id, {item, quantity})
+                this.playerInventory.set(data.id, {data, quantity})
             }
           },
           canTakeItemQuantity(item: Item, quantity: number){
@@ -184,6 +227,14 @@ export const gameStore = defineStore('gameStore', {
                 this.playerInventory.set(item.id, infos)
             } else {
                 throw Error(`can not take this item (${item.name}) or this quantity (${quantity})`)
+            }
+          },
+          getItemListSelectedBuild(): Item[]{
+            const machineId = this.selectedElement?.buildingGeneral.machine.id
+            if(machineId){
+                return this.buildingGeneral.get(machineId + '')?.items as Item[]
+            } else {
+                return []
             }
           }
           
