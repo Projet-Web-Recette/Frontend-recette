@@ -1,5 +1,5 @@
 <template>
-    <div :style="noHover" class="resource">
+    <div :style="noHover" class="resource" @click="emits('onMachineClicked', props.machine.id)">
         <img :src="machine.logoPath">
         <h4>{{ props.machine.name }}</h4>
     </div>
@@ -14,6 +14,7 @@ import type { Machine } from '@/types';
 import { computed } from 'vue';
 import { Position, Handle } from '@vue-flow/core';
 
+const emits = defineEmits(["onMachineClicked"]);
 const props = defineProps<{machine: Machine, isCreating: boolean}>()
 
 const sourceHandleStyleSource = computed(() => ({ 

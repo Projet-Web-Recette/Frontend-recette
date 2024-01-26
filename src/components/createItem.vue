@@ -21,6 +21,7 @@ import {
 
 const showQuantitySelectModal = ref(false);
 
+const emits = defineEmits(["cancel-creation"]);
 const props = defineProps<{ addNode: Node }>();
 
 const { onConnect, addEdges, findNode, removeSelectedEdges, getSelectedEdges, removeSelectedNodes, getSelectedNodes } = useVueFlow();
@@ -264,7 +265,7 @@ async function saveCustomRecipeUser(recipe: any[]): Promise<void> {
 }
 
 /**
- * 
+ * @description Parcours l'arbre et le transforme en un tableau exploitable pour etre enregistré
  */
 function prepareArrayForSave(nodesDepart: any[]): any[] {
 
@@ -349,17 +350,12 @@ function mapDataNode(previousNode: any, edge: any, targetNodeParent: any, target
 
 
 
-
-
-
-
-
-
 </script>
 
 <template>
     <VueFlow :min-zoom="0.2" v-model:edges="edges" v-model:nodes="nodes" class="interactionflow">
         <Panel position="bottom-right" class="save-restore-controls">
+            <button style="background-color: #ba3821" @click="emits('cancel-creation')">exit</button>
             <button style="background-color: #33a6b8" @click="onSave">save recipe</button>
         </Panel>
         <template #node-ressource="{ data }">

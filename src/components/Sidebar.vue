@@ -2,7 +2,7 @@
     <div class="sidebar" :class="isOpened ? 'open' : ''" :style="cssVars">
         <div class="logo-details" style="margin: 6px 14px 0 14px">
             <div class="logo_name">
-                {{ menuTitle }}
+                {{ menuTitle + " > " + currentLink }}
             </div>
 
             <i class="material-symbols-outlined" id="btn" @click="isOpened = !isOpened">{{ isOpened ? "arrow_back" :
@@ -98,6 +98,10 @@ export default {
     name: 'VueSideBar',
     props: {
         //! Menu settings
+        currentLink: {
+            type: String,
+            default: ''
+        },
         isCreating: {
             type: Boolean,
             default: false
@@ -144,6 +148,19 @@ export default {
                     tooltip: 'Créer un item',
                     icon: 'add',
                 },
+                {
+                    link: 'Items',
+                    name: 'Toutes les recettes',
+                    tooltip: 'Toutes les recettes',
+                    icon: 'public'
+
+                },
+                {
+                    link: 'myItems',
+                    name: 'Mes recettes',
+                    tooltip: 'Mes recettes',
+                    icon: 'deployed_code_account'
+                }
             ],
         },
         items: {

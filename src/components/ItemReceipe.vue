@@ -186,7 +186,7 @@ function countNumberStage(ingredients: any[]): number {
       <ItemDetail :isCreating="false" :item="data" @onItemClicked="$emit('on-item-selected-for-recipe', $event)"></ItemDetail>
     </template>
     <template #node-machine="{ data }">
-      <MachineDetail :isCreating="false" :machine="data"></MachineDetail>
+      <MachineDetail :isCreating="false" :machine="data" @onMachineClicked="$emit('on-machine-selected-for-recipe', $event)"></MachineDetail>
     </template>
   </VueFlow>
 </template>

@@ -107,7 +107,7 @@ export async function sendRequest(endpoint: string, method: 'GET' | 'POST', payl
         }
     }
 
-    console.log(request)
+   // console.log(request)
 
     const response = await fetch(`${baseUrl}/${endpoint}`, request)
 
@@ -137,7 +137,15 @@ export async function getItem(idItem: Number): Promise<Item> {
 }
 
 export async function getAllItems(): Promise<Item[]> {
-    const request = await sendRequest('items', 'GET', null, true);
+    const request = await sendRequest('items/?type=Items', 'GET', null, true);
+
+    const items = request?.content["hydra:member"];
+
+    return items.map((item: any) => translateItemFromApi(item))
+}
+
+export async function getAllItemsUser(): Promise<Item[]> {
+    const request = await sendRequest('items/?type=ItemsUser', 'GET', null, true);
 
     const items = request?.content["hydra:member"];
 
@@ -190,4 +198,19 @@ export async function createUserItem(nameItem:string, idIngredients: Map<string,
     const request = await sendRequest(`items_users`, "POST", dataItem, true);
 
     return request?.content;
+}
+
+export async function getItemsMachine(idMachine: string): Promise<Item[]> {
+    const requestItems = await sendRequest(`machines/${idMachine}/items?type=Items`, "GET", null, true);
+    const requestUserItems = await sendRequest(`machines/${idMachine}/items?type=ItemsUser`, "GET", null, true);
+
+
+
+    const items = requestItems?.content["hydra:member"];
+
+    const userItems = requestUserItems?.content["hydra:member"];
+
+    const array = [...items, ...userItems];
+
+    return array;
 }
