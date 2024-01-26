@@ -67,7 +67,7 @@ function translateMachineFromApi(machine: any): Machine {
     }
 }
 
-export async function sendRequest(endpoint: string, method: 'GET' | 'POST', payload?: any, useJWT = false) {
+export async function sendRequest(endpoint: string, method: 'GET' | 'POST', payload?: any, useJWT = false, isMultipart = false) {
     let token = {}
     let request = {} as HttpRequest
 
@@ -75,7 +75,7 @@ export async function sendRequest(endpoint: string, method: 'GET' | 'POST', payl
 
         const authentication = authenticationStore()
 
-        console.log(authentication.JWT)
+        //console.log(authentication.JWT)
 
         if (!authentication.isAuthenticated) return
 
@@ -83,23 +83,39 @@ export async function sendRequest(endpoint: string, method: 'GET' | 'POST', payl
             'Authorization': `Bearer ${authentication.JWT}`
         }
     }
+    
+    let contentType = isMultipart ? {'Content-Type':'multipart/form-data'} : {'Content-Type': 'application/json'}
 
     request.method = method
     request.headers = {
-        'Content-Type': 'application/json',
+        ...contentType,
         ...token
     }
 
     if (payload) {
-        request.body = JSON.stringify({ ...payload })
+
+        if (isMultipart) {
+
+            const formData = new FormData();
+            
+            for (const data of payload.entries()) {
+                formData.append(data[0], data[1]);
+            }
+
+        } else {
+            request.body = JSON.stringify({ ...payload })
+        }
     }
 
+    console.log(request)
 
     const response = await fetch(`${baseUrl}/${endpoint}`, request)
 
     const result = { status: response.status, content: await response.json() }
     return result
 }
+
+
 
 
 export async function getResources(): Promise<Resource[]> {
@@ -158,4 +174,20 @@ export async function getRessource(idRessource: string): Promise<Resource> {
     const ressource = request?.content;
 
     return translateResourceFromApi(ressource);
+}
+
+
+export async function createUserItem(nameItem:string, idIngredients: Map<string,string>, quantityProduced: string, idMachine: string, logoPath: string){
+    let logo = logoPath.split("/");
+    let nomFichier = logo[logo.length-1];
+    const dataItem = {
+        "nomItem":nameItem,
+        "identifiantsIngredient":Object.fromEntries(idIngredients),
+        "quantityProduced":quantityProduced,
+        "idMachine":idMachine,
+        "urlPath": nomFichier
+    };
+    const request = await sendRequest(`items_users`, "POST", dataItem, true);
+
+    return request?.content;
 }

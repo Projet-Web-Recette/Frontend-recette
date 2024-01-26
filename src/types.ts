@@ -52,4 +52,5 @@ export interface Node {
     type:string;
     name:string;
     logoPath: string;
+    isCreating: boolean;
 }

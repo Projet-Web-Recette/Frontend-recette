@@ -1,5 +1,5 @@
 <template>
-    <div :style="noHover" class="resource" @click="$emit('onItemClicked', props.item.id)">
+    <div :style="noHover" class="resource" @click="emits('onItemClicked', props.item.id)">
         <img :src="item.logoPath">
         <h4>{{ item.name }}</h4>
     </div>
@@ -14,6 +14,7 @@ import type { Item } from '@/types';
 import { Position, Handle } from '@vue-flow/core';
 import { computed } from 'vue';
 
+const emits = defineEmits(["onItemClicked"]);
 const props = defineProps<{item: Item, isCreating: boolean}>()
 
 const sourceHandleStyleSource = computed(() => ({ 

@@ -51,7 +51,7 @@ onMounted(async () => {
 
 async function itemSelected(idItem: string) {
     const item = await getItem(idItem);
-    keyRender.value = item.name;
+    keyRender.value = item.id;
     itemReceipe.value = item;
 
     addNode.value = {

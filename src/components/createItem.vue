@@ -7,6 +7,7 @@ import ItemDetail from './itemDetail.vue';
 import MachineDetail from './machineDetail.vue';
 import { getNormalizedId } from "@/helpers/utils";
 import { generateUniqueId, translateNodeToType } from '@/helpers/utils';
+import { createUserItem } from '@/helpers/api';
 import {
     MDBModal,
     MDBModalHeader,
@@ -101,8 +102,8 @@ onConnect((params) => {
 });
 
 function confirmQuantityForNode() {
-    showQuantitySelectModal.value = false;
-    if (inputQuantity.value !== '0') {
+    if (inputQuantity.value > '0' && inputQuantity.value !== '') {
+        showQuantitySelectModal.value = false;
         paramsForActualNode.label = inputQuantity.value;
         inputQuantity.value = '';
         addEdges(paramsForActualNode);
@@ -201,13 +202,70 @@ function onSave() {
 
     const dataRequest = prepareArrayForSave(ressources);
 
-    console.log(dataRequest);
+    dataRequest.sort((dataA, dataB) => {
+        if (dataA.identifiantsIngredients.has(dataB.idItem)) return 1;
+        else if (dataB.identifiantsIngredients.has(dataA.idItem)) return -1;
+        else if (dataA.idMachine === "5") return 1;
+        else if (dataB.idMachine === "5") return -1;
+        else return 0;
+    });
+
+    saveCustomRecipeUser(dataRequest);
 
     //TODO LORS DU FOR POUR LE TABLEAU DE DATA REQUEST IL FAUT CHANGER LES ID DES ITEMS PAR RAPPORT A CEUX ATTRIBUER PAR LA TABLE USERITEMS SAUF POUR LES RESSOURCES
 
+
+
 }
 
+async function saveCustomRecipeUser(recipe: any[]): Promise<void> {
 
+    const mapPreviousIdToNewId = new Map();
+
+    for (let ingredient of recipe) {
+
+        if (ingredient.isCreatedFromRessource) {
+            const response = await createUserItem(
+                ingredient.nomItem,
+                ingredient.identifiantsIngredients,
+                ingredient.quantityProduced,
+                ingredient.idMachine,
+                ingredient.logoPath
+            );
+
+            let splitedId = response['@id'].split('/');
+            mapPreviousIdToNewId.set(ingredient.idItem, splitedId[splitedId.length - 2]);
+
+
+        } else {
+            let idIngredientsCopy = new Map(ingredient.identifiantsIngredients);
+            for(let [previousIdItem, quantityItem] of idIngredientsCopy.entries()) {
+                
+                ingredient.identifiantsIngredients.delete(previousIdItem);
+                ingredient.identifiantsIngredients.set(mapPreviousIdToNewId.get(previousIdItem), quantityItem);
+            }
+
+
+            const response = await createUserItem(
+                ingredient.nomItem,
+                ingredient.identifiantsIngredients,
+                ingredient.quantityProduced,
+                ingredient.idMachine,
+                ingredient.logoPath
+            );
+
+            console.log(response);
+
+            let splitedId = response['@id'].split('/');
+            mapPreviousIdToNewId.set(ingredient.idItem, splitedId[splitedId.length - 2]);
+        }
+
+    }
+}
+
+/**
+ * 
+ */
 function prepareArrayForSave(nodesDepart: any[]): any[] {
 
     const dataForRequest = [];
@@ -225,6 +283,8 @@ function prepareArrayForSave(nodesDepart: any[]): any[] {
             const targetNode = getAllNodesTargetFromEdge(edge)[0];
 
             const edgeFromMachine = getAllEdgesSourceForNode(targetNode.id)[0];
+
+            if (!edgeFromMachine) return [];
 
             const targetNodeParent = getAllNodesTargetFromEdge(edgeFromMachine)[0];
 
@@ -245,36 +305,11 @@ function prepareArrayForSave(nodesDepart: any[]): any[] {
                 if (containCurrentNode) {
                     dataToChange?.identifiantsIngredients.set(getNormalizedId(previousNode.id), edge.label);
                 } else {
-                    const mapIngredients = new Map<string, string>();
-
-                    mapIngredients.set(getNormalizedId(previousNode.id), edge.label);
-
-                    const data = {
-                        nomItem: targetNodeParent.data.name,
-                        identifiantsIngredients: mapIngredients,
-                        quantityProduced: edgeFromMachine.label,
-                        idMachine: getNormalizedId(targetNode.id),
-                        idMachineNode: targetNode.id,
-                        isCreatedFromRessource: previousNode.type === "ressource"
-                    }
+                    const data = mapDataNode(previousNode, edge, targetNodeParent, targetNode, edgeFromMachine);
                     dataForRequest.push(data);
                 }
-
-
             } else {
-
-                const mapIngredients = new Map<string, string>();
-
-                mapIngredients.set(getNormalizedId(previousNode.id), edge.label);
-
-                const data = {
-                    nomItem: targetNodeParent.data.name,
-                    identifiantsIngredients: mapIngredients,
-                    quantityProduced: edgeFromMachine.label,
-                    idMachine: getNormalizedId(targetNode.id),
-                    idMachineNode: targetNode.id,
-                    isCreatedFromRessource: previousNode.type === "ressource"
-                }
+                const data = mapDataNode(previousNode, edge, targetNodeParent, targetNode, edgeFromMachine);
                 dataForRequest.push(data);
             }
 
@@ -286,6 +321,28 @@ function prepareArrayForSave(nodesDepart: any[]): any[] {
 
     return dataForRequest;
 
+}
+
+/**
+ * @description Récupère les données d'un item dans l'arbre (l'item, sa machine et son/ses ingrédients)
+ */
+function mapDataNode(previousNode: any, edge: any, targetNodeParent: any, targetNode: any, edgeFromMachine: any) {
+    const mapIngredients = new Map<string, string>();
+
+    mapIngredients.set(getNormalizedId(previousNode.id), edge.label);
+
+    const data = {
+        idItem: getNormalizedId(targetNodeParent.id),
+        nomItem: targetNodeParent.data.name,
+        identifiantsIngredients: mapIngredients,
+        quantityProduced: edgeFromMachine.label,
+        idMachine: getNormalizedId(targetNode.id),
+        logoPath: targetNodeParent.data.logoPath,
+        idMachineNode: targetNode.id,
+        isCreatedFromRessource: previousNode.type === "ressource"
+    }
+
+    return data;
 }
 
 

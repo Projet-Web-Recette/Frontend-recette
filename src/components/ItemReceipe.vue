@@ -180,13 +180,13 @@ function countNumberStage(ingredients: any[]): number {
 <template>
   <VueFlow :min-zoom="0.2" :nodes-draggable="nodesDraggable" v-model="elements" class="basicflow">
     <template #node-resource="{ data }">
-      <ResourceDetail :resource="data"></ResourceDetail>
+      <ResourceDetail :isCreating="false" :resource="data"></ResourceDetail>
     </template>
     <template #node-item="{ data }">
-      <ItemDetail :item="data" @onItemClicked="$emit('on-item-selected-for-recipe', $event)"></ItemDetail>
+      <ItemDetail :isCreating="false" :item="data" @onItemClicked="$emit('on-item-selected-for-recipe', $event)"></ItemDetail>
     </template>
     <template #node-machine="{ data }">
-      <MachineDetail :machine="data"></MachineDetail>
+      <MachineDetail :isCreating="false" :machine="data"></MachineDetail>
     </template>
   </VueFlow>
 </template>

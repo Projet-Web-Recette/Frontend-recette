@@ -53,7 +53,7 @@ const noHover = computed(() => (
 }
 
 .resource:hover{
-    border: 4px solid green;
+    border: 4px solid blue;
     transform: scale(1.2);
 }
 
