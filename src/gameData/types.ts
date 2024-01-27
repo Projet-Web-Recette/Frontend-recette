@@ -87,3 +87,27 @@ export enum InteractionMode {
     MOVE = 'move',
     CAMERA = 'camera'
 }
+
+export interface SaveFormat {
+    machines: SaveMachine[],
+    conveyers: {
+        idFrom: string,
+        idTo: string
+    }[],
+    mergers: SaveBuilding[],
+    splitters: SaveBuilding[],
+    inventory: {
+        idItem: string,
+        quantity: number
+    }[]
+}
+
+export interface SaveBuilding {
+    uuid: string,
+    idOutput?: string,
+    position: {x: number, y: number}
+}
+
+export interface SaveMachine extends SaveBuilding {
+    idMachine: string,
+}

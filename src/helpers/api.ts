@@ -1,5 +1,6 @@
+import type { SaveFormat } from "@/gameData/types"
 import { authenticationStore } from "@/stores/authenticationStore"
-import type { HttpRequest, Item, Resource, Machine } from "@/types"
+import { type HttpRequest, type Item, type Resource, type Machine, HttpErrors } from "@/types"
 import { isRuntimeOnly } from "vue"
 
 const baseUrl = 'https://webinfo.iutmontp.univ-montp2.fr/~royov/API-PLATFORM/public/api'
@@ -75,15 +76,13 @@ function translateMachineFromApi(machine: any): Machine {
     }
 }
 
-export async function sendRequest(endpoint: string, method: 'GET' | 'POST', payload?: any, useJWT = false) {
+export async function sendRequest(endpoint: string, method: 'GET' | 'POST' | 'PATCH', payload?: any, useJWT = false) {
     let token = {}
     let request = {} as HttpRequest
 
     if (useJWT) {
 
         const authentication = authenticationStore()
-
-        console.log(authentication.JWT)
 
         if (!authentication.isAuthenticated) return
 
@@ -94,7 +93,7 @@ export async function sendRequest(endpoint: string, method: 'GET' | 'POST', payl
 
     request.method = method
     request.headers = {
-        'Content-Type': 'application/json',
+        'Content-Type': method === 'PATCH' ? 'application/merge-patch+json' : 'application/json',
         ...token
     }
 
@@ -166,4 +165,39 @@ export async function getItemsByMachine(idMachine: string): Promise<Item[]> {
     const items = request?.content["hydra:member"];
     
     return items.map((item: any) => translateItemFromApi(item))
+}
+
+export async function saveGameData(save: SaveFormat){
+    const request = await sendRequest(`user_inventories`, 'POST', {data: save}, true)
+
+    if(request?.status !== HttpErrors.CREATED)
+    {
+        console.error(request?.content)
+    }
+}
+
+export async function updateSave(save: SaveFormat){
+    const authentication = authenticationStore()
+    if(!authentication.userId) return undefined
+
+    const request = await sendRequest(`user_inventories/${authentication.userId}/inventory`, 'PATCH', {data: save}, true)
+
+    if(request?.status !== HttpErrors.SUCCESS)
+    {
+        console.error(request?.content)
+    }
+}
+
+export async function retreiveGameData() {
+    const authentication = authenticationStore()
+    if(!authentication.userId) return undefined
+
+    const request = await sendRequest(`user_inventories/${authentication.userId}/inventory`, 'GET', undefined, true)
+
+    if(request?.status !== HttpErrors.SUCCESS){
+        return undefined
+    } else {
+        const {data} = request?.content
+        return data
+    }
 }

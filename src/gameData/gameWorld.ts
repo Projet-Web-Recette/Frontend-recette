@@ -159,7 +159,7 @@ export function instanciateMachine(buildingInfo: BuildingGeneral, coords: {x: nu
 
 }
 
-export function createMerger(items: Item[], coords: {x: number, y: number}, uuid: string){
+export function createMerger(items: Item[], coords: {x: number, y: number}, uuid: string, output: Item | Resource |undefined){
     const outQuantity = ref(0)
 
     const x = ref(coords.x)
@@ -170,8 +170,6 @@ export function createMerger(items: Item[], coords: {x: number, y: number}, uuid
         width: 50,
         height: 50,
     }
-
-    let input: Item | Resource | undefined
 
     const buildingGeneral: BuildingGeneral = {
         items,
@@ -192,7 +190,7 @@ export function createMerger(items: Item[], coords: {x: number, y: number}, uuid
         inputs: [],
         rate: 999,
         uuid,
-        input,
+        input: output ? output : undefined,
         outQuantity,
         canReceive: (ingredient) => false,
         give: (ingredient, newQuantity) => {

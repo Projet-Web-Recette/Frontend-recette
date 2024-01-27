@@ -9,6 +9,7 @@ export const authenticationStore = defineStore('authenticationStore', {
         JWT: useLocalStorage("JWT", ""),
         isPremium: false,
         isAdmin: false,
+        userId: useLocalStorage("userId", "")
         //isAuthenticated: false
     }),
 
@@ -33,9 +34,10 @@ export const authenticationStore = defineStore('authenticationStore', {
                 
                 this.JWT = response.content.token? response.content.token : ""
 
-                const jwtJSON = jwtDecode<{adresseEmail: String, exp: Number, iat: Number, id: Number, roles: String[], username: string}>(this.JWT);
+                const jwtJSON = jwtDecode<{adresseEmail: String, exp: Number, iat: Number, id: string, roles: String[], username: string}>(this.JWT);
     
                 this.isAdmin = jwtJSON.roles.includes('ROLE_ADMIN');
+                this.userId = jwtJSON.id
     
                 this.isPremium = false; //METTRE LA VALEUR CONTENUE DANS LE JWT
             } catch(e) {

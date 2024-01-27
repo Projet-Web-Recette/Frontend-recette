@@ -48,7 +48,7 @@ export enum HttpErrors {
 }
 
 export interface HttpRequest {
-    method: 'GET' | 'POST',
+    method: 'GET' | 'POST' | 'PATCH',
     headers: {[key: string]: string},
     body?: string
 }
