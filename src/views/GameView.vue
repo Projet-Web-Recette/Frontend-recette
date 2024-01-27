@@ -122,7 +122,7 @@ function canDisplayInput(machineId: string, data: Building){
         </div>
       </WindowComponent>
   
-      <div id="ui">
+      <div id="ui" @mousedown.stop>
         <div>
           <div id="iconDisplay">
             <IconUI :action-name="InteractionMode.BUILD" icon-path="icons/hammer.png" @icon-selected="game.selectMode(InteractionMode.BUILD)" :class="game.selectedMode === InteractionMode.BUILD ? 'iconSelected' : ''"></IconUI>
@@ -131,7 +131,7 @@ function canDisplayInput(machineId: string, data: Building){
             <IconUI :action-name="InteractionMode.CAMERA" icon-path="icons/camera.png" @icon-selected="game.selectMode(InteractionMode.CAMERA)" :class="game.selectedMode === InteractionMode.CAMERA ? 'iconSelected' : ''"></IconUI>
             <IconUI action-name="Stock" icon-path="icons/box.png" @icon-selected="inventoryWindowOpen = true"></IconUI>
           </div>
-          <div style="background-color: lightgrey;" v-if="game.selectedMode === InteractionMode.BUILD">
+          <div style="background-color: lightgrey;" v-if="game.selectedMode === InteractionMode.BUILD" @mousedown.stop>
             <h1>Building sélectionné: {{ game.selectedBuild === BuildingType.MACHINE ? game.selectedMachineBuild?.name : game.selectedBuild }}</h1>
             
             <div @click="game.selectedBuild = BuildingType.CONVEYER">
