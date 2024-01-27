@@ -2,13 +2,13 @@ import { createConveyer, createMerger, createSplitter, instanciateMachine } from
 import { BuildingType, InteractionMode, type Building, type BuildingGeneral, type Merger, type PositionData, type Splitter, type Updatable } from "@/gameData/types";
 import type { Item, Machine, Resource } from "@/types";
 import { defineStore } from "pinia";
-import { ref, toRaw } from "vue";
+import { isRef, ref, toRaw } from "vue";
 import { v4 } from 'uuid'
-import { getAllMachines, getItemsByMachine, getMachine } from "@/helpers/api";
+import { getAllMachines, getItemsByMachine } from "@/helpers/api";
 import { useLocalStorage } from "@vueuse/core";
 
 interface State {
-    entities: Map<string,{type: BuildingType, data: any, machineId: string}>,
+    entities: Map<string,{type: BuildingType, data: any, machineId?: string}>,
     updatables: Map<string,Updatable>,
     selectedMode: InteractionMode,
     selectedBuild: BuildingType,
@@ -34,7 +34,7 @@ export const gameStore = defineStore('gameStore', {
             selectedElementType: undefined,
             cameraLocation: {x: ref(0), y: ref(0)},
             playerInventory: new Map(),
-            buildingGeneral: new Map() //useLocalStorage("buildingGeneral", new Map()).value
+            buildingGeneral: useLocalStorage("buildingGeneral", new Map()).value
         }
     },
     actions: {
@@ -87,7 +87,6 @@ export const gameStore = defineStore('gameStore', {
             this.updatables.set(uuid, conveyer.updatable)
             this.entities.set(uuid, {type: BuildingType.CONVEYER, data: conveyer.data})
         },
-
         changeSelectedBuildingOutput(element: Item | Resource){
             const type = this.selectedElementType
             if(type === BuildingType.MERGER && this.selectedElement){
@@ -109,44 +108,13 @@ export const gameStore = defineStore('gameStore', {
             
                 const elementItem = element as Item
                 if(elementItem.quantityIngredients){
-                    this.selectedElement.inputs = elementItem.quantityIngredients.map(
-                        ({receipe}) => {
-                            return {ingredient: receipe, quantity: 0}
-                        })
+                    for(let i=0; i<elementItem.quantityIngredients.length; i++){
+                        this.selectedElement.inputs[i].ingredient = elementItem.quantityIngredients[i].receipe
+                        this.selectedElement.inputs[i].quantity = 0
+                    }
                 }
                 
                 this.selectedElement.outQuantity = 0
-            }
-        },
-
-        changeSelectedFactoryReceipe(item: Item){
-            if(!this.selectedFactory || this.selectedFactory.output === item) return
-            
-            if(this.selectedFactory.output)
-                this.storeItem(this.selectedFactory.output as Item, this.selectedFactory.quantity)
-            
-            this.selectedFactory.output = item
-            let newInput: Item | Resource | undefined
-          
-            if(item.receipe.resources){
-              newInput = item.receipe.resources[0]
-            } else if(item.receipe.items) {
-              newInput = item.receipe.items[0]
-            }
-
-            this.selectedFactory.inQuantity = 0
-            this.selectedFactory.quantity = 0
-          
-            if(newInput) this.selectedFactory.input = newInput
-        },
-        changeSelectedLogisticItem(element: Item | Resource){
-            if(
-                (   this.selectedElementType === BuildingType.MERGER || 
-                    this.selectedElementType === BuildingType.SPLITTER ) && 
-                this.selectedElement
-                ){
-                this.selectedElement.output = element
-                this.selectedElement.input = element
             }
         },
         addEntity(type: BuildingType, infos: {
@@ -159,6 +127,14 @@ export const gameStore = defineStore('gameStore', {
                 const buildingGeneral = this.buildingGeneral.get(this.selectedMachineBuild.id + "")
                 if(buildingGeneral){
                     const machine = instanciateMachine(buildingGeneral, coords)
+                    if(machine.data.buildingGeneral.machine.id === 'foreuse1'){
+                        const copper: Resource = {
+                            id: "7",
+                            logoPath: "https://webinfo.iutmontp.univ-montp2.fr/~royov/API-PLATFORM/public/media/logo/65afbbe40b6a3_Iron_Ore.webp",
+                            name: "Iron Ore"
+                        }
+                        machine.data.output = copper
+                    }
                     this.updatables.set(uuid, machine.updatable)
                     
                     this.entities.set(uuid, {data: machine.data, type, machineId: buildingGeneral.machine.id ?? ''})
@@ -194,11 +170,7 @@ export const gameStore = defineStore('gameStore', {
                 this.resetSelectedElement()
             } else {
                 this.selectedElement = element
-                this.selectedMachineBuild = 
                 this.selectedElementType = type
-                if(type === BuildingType.FACTORY){
-                    this.selectedFactory = element
-                }
             }
 
           },

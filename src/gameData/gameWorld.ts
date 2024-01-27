@@ -1,7 +1,7 @@
 import type { Item, Resource } from "@/types";
 import type { Building, Conveyer, ConveyerDisplayData, BuildingGeneral, Display, Merger, Splitter, Updatable, Input } from "./types";
 import { gameStore } from "@/stores/gameStore";
-import { ref } from "vue";
+import { ref, watch } from "vue";
 
 export const defaultItem: Item = {
     logoPath: 'public/icons/nothing.png',
@@ -42,6 +42,13 @@ export function instanciateMachine(buildingInfo: BuildingGeneral, coords: {x: nu
         }
     }
 
+    const copper: Resource = {
+        id: "8",
+        logoPath: "https://webinfo.iutmontp.univ-montp2.fr/~royov/API-PLATFORM/public/media/logo/65afbc55227aa_Copper_Ore.webp",
+        name: "Copper Ore"
+    }
+    
+
     const inputCount = items ? items.length ? items[0].quantityIngredients.length : 0: 0
 
     const machineInstance: Building = {
@@ -52,8 +59,10 @@ export function instanciateMachine(buildingInfo: BuildingGeneral, coords: {x: nu
         outQuantity,
         outputConveyerUid: [],
         inputs: [],
+        output: machine.name === 'foreuse1' ? copper : undefined,
 
         inputConveyerUid: [],
+        canReceive: (ingredient) => false,
         
         rate: 20,
         take,
@@ -78,21 +87,28 @@ export function instanciateMachine(buildingInfo: BuildingGeneral, coords: {x: nu
         const inputs: Input[] = []
 
         for(let i = 0; i<inputCount; i++){
-            const inQuantity = ref(0)
-            inputs.push({quantity: inQuantity})
+            const quantity = ref(0)
+            inputs.push({quantity})
         }
 
         machineInstance.inputs = inputs
 
 
+        machineInstance.canReceive = (ingredient) => {
+            const can = machineInstance.inputs.find((input) => input.ingredient?.id + '' === ingredient.id + '')
+            return can ? true : false
+        }
+
         machineInstance.give = (data: Item | Resource, newQuantity: number) => {
             let givenQuantity = 0
-            machineInstance.inputs.forEach(({ingredient, quantity}) => {
-                if(ingredient && ingredient.id === data.id){
-                    quantity.value += newQuantity
+            
+            machineInstance.inputs.forEach((infos) => {
+                if(infos.ingredient && infos.ingredient.id + '' === data.id + ''){
+                    infos.quantity.value += newQuantity
                     givenQuantity += newQuantity
                 }
             })
+
 
             if(givenQuantity > newQuantity){console.log("give s'est donné plus de quantité que recu")}
 
@@ -106,15 +122,16 @@ export function instanciateMachine(buildingInfo: BuildingGeneral, coords: {x: nu
                 if(itemOutput?.quantityIngredients)
                 {
                     itemOutput.quantityIngredients.map(({quantity, receipe}) => {
-                        const equivalent = machineInstance.inputs.find((value) => {
-                            value.ingredient?.id === receipe.id
-                        })
-
+                        
+                        const equivalent = machineInstance.inputs.find((value) => value.ingredient?.id === receipe.id)
                         if(equivalent && equivalent.quantity.value < quantity){
                             validateProduction = false
                         }
                     })
+                } else {
+                    validateProduction = false
                 }
+                
 
                 if(validateProduction && machineInstance.output){
                     machineLogic.tick(delta)
@@ -379,19 +396,19 @@ export function createConveyer(from: Building, to: Building) {
     const conveyerUpdate: Updatable = {
         tick: (delta) => {
             const {output} = conveyerData.from
-            const {inputs} = conveyerData.to
+            const {inputs, canReceive, give} = conveyerData.to
     
             if(!inputs || !output || !conveyerData.isEnabled){
                 return
             }
 
-            if(inputs.find((input) => input.ingredient?.name === output.name)){
+            if(canReceive(output)){
                 conveyerLogic.tick(delta)
                 if(conveyerLogic.rateRespected()){
                     conveyerLogic.consumeOneRate()
-                    if(conveyerData.to.give && conveyerData.from.outQuantity.value > 0 && conveyerData.from.output){
+                    if(give && conveyerData.from.outQuantity.value > 0 && output){
                         const taken = conveyerData.from.take(1)
-                        conveyerData.to.give(conveyerData.from.output, taken)
+                        give(output, taken)
                     }
                 }
             }

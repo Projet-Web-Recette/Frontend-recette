@@ -36,6 +36,7 @@ export interface Building {
     
     inputs: Input[]
     give?: (ingredient: Item |Resource, quantity: number) => number
+    canReceive: (ingredient: Item | Resource) => boolean
     inputConveyerUid: Array<string>, // doesn't apply interface segregation
 }
 

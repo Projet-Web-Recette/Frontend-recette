@@ -89,8 +89,7 @@ function canDisplayInput(machineId: string, data: Building){
                   :width="data.displayData.width" 
                   :left="data.position.x"
                   :top="data.position.y"
-                  :disable="() => type === BuildingType.MINER || 
-                            game.selectedMode !== InteractionMode.MOVE"
+                  :disable="() => game.selectedMode !== InteractionMode.MOVE"
                   @update-pos="({x, y}) => { data.position.x = x; data.position.y = y}">
           <div class="factory" @mousedown="game.selectElement(data, type)" :class="data === game.selectedElement ? 'buildingSelected' : ''">
             <factoryDisplay :display="data.displayData">
@@ -99,14 +98,14 @@ function canDisplayInput(machineId: string, data: Building){
                   <p>In:</p>
                   <quantityDisplay v-for="input in data.inputs"
                     :logo-path="input.ingredient.logoPath" 
-                    :quantity="input.ingredient.inQuantity" />
+                    :quantity="input.quantity" />
                 </div>
       
                 <div>
                   <p>{{ type === BuildingType.MERGER ? ' (merger) ' : type === BuildingType.SPLITTER ? ' (splitter)' : '' }} Out:</p>
                   <quantityDisplay v-if="data.output"
                     :logo-path="data.output.logoPath" 
-                    :quantity="data.quantity" />
+                    :quantity="data.outQuantity" />
                 </div>
               </div>
             </factoryDisplay>
@@ -119,7 +118,7 @@ function canDisplayInput(machineId: string, data: Building){
   
       <WindowComponent v-model="inventoryWindowOpen" right="100px" top="0px" title="Inventory">
         <div class="inventory">
-          <InventoryItem v-for="{item, quantity} in game.playerInventory.values()" :item="item" :quantity="quantity" />
+          <InventoryItem v-for="{data, quantity} in game.playerInventory.values()" :item="data" :quantity="quantity" />
         </div>
       </WindowComponent>
   
@@ -134,6 +133,17 @@ function canDisplayInput(machineId: string, data: Building){
           </div>
           <div style="background-color: lightgrey;" v-if="game.selectedMode === InteractionMode.BUILD">
             <h1>Building sélectionné: {{ game.selectedBuild === BuildingType.MACHINE ? game.selectedMachineBuild?.name : game.selectedBuild }}</h1>
+            
+            <div @click="game.selectedBuild = BuildingType.CONVEYER">
+              <h1>CONVEYER</h1>
+            </div>
+            <div @click="game.selectedBuild = BuildingType.SPLITTER">
+              <h1>SPLITTER</h1>
+            </div>
+            <div @click="game.selectedBuild = BuildingType.MERGER">
+              <h1>MERGER</h1>
+            </div>
+            
             <div v-for="{machine} in game.buildingGeneral.values()" @click="() => {
                 game.selectedBuild = BuildingType.MACHINE
                 game.selectMachine(machine)
