@@ -4,18 +4,25 @@
         <h4>{{ item.name }}</h4>
     </div>
     <div v-if="isCreating">
-        <Handle id="source" type="source" :position="Position.Top" :style="sourceHandleStyleSource"/>
-        <Handle id="target" type="target" :position="Position.Bottom"  :style="sourceHandleStyleTarget"/>
+        <Handle v-if="!item.id.includes('admin')" id="source" type="source" :position="Position.Top" :style="sourceHandleStyleSource"/>
+        <Handle v-if="!authentication.isAdmin || item.id.includes('admin')" id="target" type="target" :position="Position.Bottom"  :style="sourceHandleStyleTarget"/>
     </div>
 </template>
 
 <script setup lang="ts">
 import type { Item } from '@/types';
 import { Position, Handle } from '@vue-flow/core';
-import { computed } from 'vue';
+import { computed, onMounted } from 'vue';
+import { authenticationStore } from '@/stores/authenticationStore';
 
 const emits = defineEmits(["onItemClicked"]);
-const props = defineProps<{item: Item, isCreating: boolean}>()
+const props = defineProps<{item: any, isCreating: boolean}>()
+
+const authentication = authenticationStore();
+
+onMounted(() => {
+    console.log(props.item.id.includes('admin'))
+})
 
 const sourceHandleStyleSource = computed(() => ({ 
     backgroundColor: 'green', 

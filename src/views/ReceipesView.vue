@@ -40,7 +40,6 @@ const addNode = ref<Node>();
 
 
 onMounted(async () => {
-
     itemsApi = await getAllItems();
     machinesApi = await getAllMachines();
     ressourcesApi = await getResources();
@@ -48,7 +47,6 @@ onMounted(async () => {
     items.value = itemsApi;
     machines.value = machinesApi;
     ressources.value = ressourcesApi;
-
 });
 
 async function itemSelected(idItem: string) {
@@ -100,14 +98,12 @@ async function menuItemClicked(link: string) {
         case "Items":
             itemsApi = await getAllItems();
             items.value = itemsApi;
-            currentLink.value = "Tous les items"
-            isCreatingItem.value = false;
+            if (!isCreatingItem.value)  currentLink.value = "Tous les items"
             break;
         case "myItems": 
             itemsApi = await getAllItemsUser();
             items.value = itemsApi;
-            currentLink.value = "Mes items"
-            isCreatingItem.value = false;
+            if (!isCreatingItem.value) currentLink.value = "Mes items"
             break;
     }
 }

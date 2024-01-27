@@ -7,7 +7,9 @@ import ItemDetail from './itemDetail.vue';
 import MachineDetail from './machineDetail.vue';
 import { getNormalizedId } from "@/helpers/utils";
 import { generateUniqueId, translateNodeToType } from '@/helpers/utils';
-import { createUserItem } from '@/helpers/api';
+import { createUserItem, createItemAdmin } from '@/helpers/api';
+import {authenticationStore} from "@/stores/authenticationStore";
+import CustomItemFormVue  from "./customItemForm.vue"
 import {
     MDBModal,
     MDBModalHeader,
@@ -19,10 +21,14 @@ import {
 } from 'mdb-vue-ui-kit';
 
 
-const showQuantitySelectModal = ref(false);
+const showQuantitySelectModal = ref<boolean>(false);
 
 const emits = defineEmits(["cancel-creation"]);
 const props = defineProps<{ addNode: Node }>();
+
+const pendingFile = ref<any>(undefined);
+
+const authentication = authenticationStore()
 
 const { onConnect, addEdges, findNode, removeSelectedEdges, getSelectedEdges, removeSelectedNodes, getSelectedNodes } = useVueFlow();
 
@@ -46,6 +52,14 @@ onUnmounted(() => {
 watch(() => props.addNode, (node) => {
 
     node.id += generateUniqueId();
+    
+    addNodeToFlow(node);
+});
+
+/**
+ * 
+ */
+function addNodeToFlow(node: any) {
 
     const object = translateNodeToType(node);
 
@@ -56,8 +70,7 @@ watch(() => props.addNode, (node) => {
         data: object,
         position: { x: 500, y: 0 }
     });
-
-});
+}
 
 const nodes = ref<any>([]);
 const edges = ref<any>([]);
@@ -66,6 +79,8 @@ const sourceNodeGlobal = ref<any>();
 const targetNodeGlobal = ref<any>();
 
 const inputQuantity = ref<string>('');
+
+const clickedButton = ref(false);
 
 let paramsForActualNode: any = undefined;
 
@@ -192,16 +207,31 @@ function getAllNodesTargetFromEdge(edge: any): any[] {
     });
 }
 
+function getAllNodesDepart(): any[] {
+    return nodes.value.filter((node: any) => {
+        let noEdgeTargetForNode = true;
+        let edgeSourceForNode = false;
+        for (let edge of edges.value) {
+            if (edge.target === node.id) {
+                noEdgeTargetForNode = false;
+                break;
+            }
+            if (edge.source === node.id) edgeSourceForNode = true;
+        }
+        if (noEdgeTargetForNode && edgeSourceForNode) return node;
+    });
+}
+
 
 function onSave() {
     if (nodes.value.length <= 1) return;
 
-    const ressources = getAllNodesRessources();
+    const nodesDepart = getAllNodesDepart();
 
-    if (ressources.length === 0) return;
+    if (nodesDepart.length === 0) return;
 
 
-    const dataRequest = prepareArrayForSave(ressources);
+    const dataRequest = prepareArrayForSave(nodesDepart);
 
     dataRequest.sort((dataA, dataB) => {
         if (dataA.identifiantsIngredients.has(dataB.idItem)) return 1;
@@ -211,13 +241,23 @@ function onSave() {
         else return 0;
     });
 
-    saveCustomRecipeUser(dataRequest);
+    if (authentication.isAdmin) saveCustomRecipeAdmin(dataRequest);
+    else saveCustomRecipeUser(dataRequest);
 
-    //TODO LORS DU FOR POUR LE TABLEAU DE DATA REQUEST IL FAUT CHANGER LES ID DES ITEMS PAR RAPPORT A CEUX ATTRIBUER PAR LA TABLE USERITEMS SAUF POUR LES RESSOURCES
+    emits("cancel-creation");
+}
 
 
+
+async function saveCustomRecipeAdmin(recipe:any[]): Promise<void> {
+    const item = recipe[0];
+
+    const response = await createItemAdmin(item.nomItem, item.identifiantsIngredients, item.quantityProduced, item.idMachine, pendingFile.value);
+
+    console.log(response);
 
 }
+
 
 async function saveCustomRecipeUser(recipe: any[]): Promise<void> {
 
@@ -237,13 +277,19 @@ async function saveCustomRecipeUser(recipe: any[]): Promise<void> {
             let splitedId = response['@id'].split('/');
             mapPreviousIdToNewId.set(ingredient.idItem, splitedId[splitedId.length - 2]);
 
-
         } else {
             let idIngredientsCopy = new Map(ingredient.identifiantsIngredients);
             for(let [previousIdItem, quantityItem] of idIngredientsCopy.entries()) {
                 
                 ingredient.identifiantsIngredients.delete(previousIdItem);
-                ingredient.identifiantsIngredients.set(mapPreviousIdToNewId.get(previousIdItem), quantityItem);
+
+                let newId = previousIdItem;
+
+                if (mapPreviousIdToNewId.get(previousIdItem)) {
+                    newId = mapPreviousIdToNewId.get(previousIdItem);
+                }
+                
+                ingredient.identifiantsIngredients.set(newId, quantityItem);
             }
 
 
@@ -346,7 +392,32 @@ function mapDataNode(previousNode: any, edge: any, targetNodeParent: any, target
     return data;
 }
 
+function button(){
+    clickedButton.value = true;
+}
 
+/**
+ * @description Create a custom node on ui from form data
+ */
+async function confirmModalCreationNode(data: any) {
+    closeModalCreationNode();
+
+    pendingFile.value = data.file;
+
+    const logoPath = URL.createObjectURL(data.file);
+
+    let newData = {
+        id:"admin" + generateUniqueId(), 
+        type:"item",
+        name: data.name,
+        logoPath: logoPath
+    };
+    addNodeToFlow(newData);
+}
+
+function closeModalCreationNode() {
+    clickedButton.value = false;
+}
 
 
 
@@ -355,6 +426,7 @@ function mapDataNode(previousNode: any, edge: any, targetNodeParent: any, target
 <template>
     <VueFlow :min-zoom="0.2" v-model:edges="edges" v-model:nodes="nodes" class="interactionflow">
         <Panel position="bottom-right" class="save-restore-controls">
+            <button v-if="authentication.isAdmin" style="background-color: #33a6b8" @click="button">create node</button>
             <button style="background-color: #ba3821" @click="emits('cancel-creation')">exit</button>
             <button style="background-color: #33a6b8" @click="onSave">save recipe</button>
         </Panel>
@@ -385,6 +457,8 @@ function mapDataNode(previousNode: any, edge: any, targetNodeParent: any, target
             <MDBBtn @click="confirmQuantityForNode" color="primary">Confirm</MDBBtn>
         </MDBModalFooter>
     </MDBModal>
+    
+    <CustomItemFormVue @closeModal="closeModalCreationNode" @confirmModal="confirmModalCreationNode" :show="clickedButton"></CustomItemFormVue>
 </template>
 
 <style>

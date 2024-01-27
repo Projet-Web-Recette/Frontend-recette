@@ -84,7 +84,7 @@ export async function sendRequest(endpoint: string, method: 'GET' | 'POST', payl
         }
     }
     
-    let contentType = isMultipart ? {'Content-Type':'multipart/form-data'} : {'Content-Type': 'application/json'}
+    const contentType = isMultipart ? "" : {'Content-Type': 'application/json'}
 
     request.method = method
     request.headers = {
@@ -96,11 +96,7 @@ export async function sendRequest(endpoint: string, method: 'GET' | 'POST', payl
 
         if (isMultipart) {
 
-            const formData = new FormData();
-            
-            for (const data of payload.entries()) {
-                formData.append(data[0], data[1]);
-            }
+            request.body = payload;
 
         } else {
             request.body = JSON.stringify({ ...payload })
@@ -213,4 +209,18 @@ export async function getItemsMachine(idMachine: string): Promise<Item[]> {
     const array = [...items, ...userItems];
 
     return array;
+}
+
+export async function createItemAdmin(nameItem: string, idIngredients: Map<string, string>, quantityProduced: string, idMachine: string, file: any) {
+    const formData = new FormData();
+
+    formData.append("nomItem", nameItem);
+    formData.append("identifiantsIngredient", JSON.stringify(Object.fromEntries(idIngredients)));
+    formData.append("quantityProduced", quantityProduced);
+    formData.append("idMachine", idMachine);
+    formData.append("file", file);
+
+    const request = await sendRequest("items", "POST", formData, true, true);
+
+    return request;
 }
