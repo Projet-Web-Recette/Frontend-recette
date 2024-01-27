@@ -29,6 +29,11 @@ export interface Machine {
     logoPath: string
 }
 
+export interface Miner extends Machine {
+    rate: number,
+    type: string
+}
+
 
 export interface LoginInformations {
     login: string,

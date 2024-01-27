@@ -1,12 +1,12 @@
 <script setup lang="ts">
 import { gameStore } from '@/stores/gameStore';
 import factoryDisplay from '@/components/factoryDisplay.vue'
-import type { Item, Machine, Receipe, Resource } from '@/types';
+import type { Item } from '@/types';
 import { launchGame} from '@/gameData/gameWorld';
 import ConveyerDisplay from '@/components/conveyerDisplay.vue';
 import quantityDisplay from '@/components/quantityDisplay.vue';
 import draggable from '@/components/draggable.vue'
-import { ref, toRaw, watch, type VNodeRef } from 'vue';
+import { ref, toRaw, watch } from 'vue';
 import { InteractionMode, BuildingType, type Building } from '@/gameData/types';
 import WindowComponent from '@/components/windowComponent.vue';
 import SelectItem from '@/components/selectItem.vue';
@@ -15,7 +15,7 @@ import InventoryItem from '@/components/invetoryItem.vue';
 
 const game = gameStore()
 
-game.loadSave()
+game.loadGame()
 
 launchGame()
 
@@ -24,7 +24,11 @@ let lastCamPos = {x: 0, y: 0}
 function mouseDownHandler(event: MouseEvent){
   if(event.button === 0){
     if(game.selectedMode === InteractionMode.BUILD && game.selectedBuild !== BuildingType.CONVEYER){
-      game.addEntity(game.selectedBuild, {coords:{x: event.offsetX, y: event.offsetY}})
+      if(game.selectedMachineBuild?.id){
+        game.addEntity(game.selectedBuild, {coords:{x: event.offsetX, y: event.offsetY}, buildingGeneral: game.buildingGeneral.get(game.selectedMachineBuild.id + "") as any})
+      } else {
+        console.error("can't add entity")
+      }
     }
     else if(game.selectedMode === InteractionMode.CAMERA){
       game.resetSelectedElement()
@@ -98,7 +102,7 @@ function canDisplayInput(machineId: string, data: Building){
                   <p>In:</p>
                   <quantityDisplay v-for="input in data.inputs"
                     :logo-path="input.ingredient.logoPath" 
-                    :quantity="input.quantity" />
+                    :quantity="Math.round(input.quantity)" />
                 </div>
       
                 <div>

@@ -1,11 +1,11 @@
 import { createConveyer, createMerger, createSplitter, instanciateMachine } from "@/gameData/gameWorld";
 import { BuildingType, InteractionMode, type Building, type BuildingGeneral, type Merger, type PositionData, type Splitter, type Updatable } from "@/gameData/types";
-import type { Item, Machine, Resource } from "@/types";
+import type { Item, Machine, Miner, Resource } from "@/types";
 import { defineStore } from "pinia";
 import { isRef, ref, toRaw } from "vue";
 import { v4 } from 'uuid'
-import { getAllItems, getAllMachines, getItemsByMachine } from "@/helpers/api";
-import { useLocalStorage } from "@vueuse/core";
+import { getAllItems, getAllMachines, getItemsByMachine, getResources, sendRequest } from "@/helpers/api";
+import { rand, useLocalStorage } from "@vueuse/core";
 
 interface State {
     entities: Map<string,{type: BuildingType, data: any, machineId?: string}>,
@@ -20,30 +20,40 @@ interface State {
     playerInventory: Map<string, {data: Item | Resource, quantity: number}>,
     buildingGeneral: Map<string, BuildingGeneral>,
     allItems: Item[],
-    allResources: Resource[]
+    allResources: Resource[],
+    save: Map<string, {
+        type: BuildingType, 
+        infos: {
+            output?: Item | Resource, 
+            machineId?: string
+            uuidFrom?: string, 
+            uuidTo?: string}
+        }>
 }
 
 
 export const gameStore = defineStore('gameStore', {
     state: (): State => {
         return{
-            entities: new Map,
+            entities: new Map(),
             updatables: new Map(),
             selectedMode: InteractionMode.INTERACT,
             selectedBuild: BuildingType.CONVEYER,
             selectedMachineBuild: undefined,
             selectedElement: undefined,
             selectedElementType: undefined,
-            cameraLocation: {x: ref(0), y: ref(0)},
+            cameraLocation: {x: ref(-800), y: ref(-800)},
             playerInventory: new Map(),
             buildingGeneral: useLocalStorage("buildingGeneral", new Map()).value,
             allItems: [],
-            allResources: []
+            allResources: [],
+            save: useLocalStorage("save", new Map()).value
         }
     },
     actions: {
-        async loadSave(){
+        async loadGame(){
             this.allItems = await getAllItems()
+            this.allResources = await getResources()
 
             const machines = await getAllMachines()
 
@@ -58,10 +68,54 @@ export const gameStore = defineStore('gameStore', {
                 }
             }))
 
+
+            const request = await sendRequest('foreuses', 'GET', undefined, true)
+    
+            const response = request?.content["hydra:member"];
+
+            const miners: Miner[] = response.map((value: any) => {
+                const {id, contentUrl, nom, tauxProdForeuse, type} = value
+                return {
+                    id,
+                    logoPath: contentUrl, 
+                    name: nom, 
+                    rate: tauxProdForeuse, 
+                    type
+                } as Miner 
+            })
+
+            const miner1 = miners.find((miner) => miner.type === 'mk1')
+
+            const minerBuildingGeneral: BuildingGeneral = {
+                items: this.allResources,
+                machine: miner1 as Machine,
+                numberOfInputs: 0
+            }
+            
+            
+            if(miner1){
+                this.allResources.forEach((resource) => {
+                    this.addEntity(BuildingType.MACHINE, {output: resource, coords: {x: rand(500, 4000), y: rand(1000, 3000)}, buildingGeneral: minerBuildingGeneral})
+                })
+            }
+
+
+
             buildingGeneral.map((infos) => {
                 if(infos)
                 this.buildingGeneral.set(infos.machine.id + '', infos)
             })
+
+            // this.save.set('test', {infos: {uuidFrom: 'je', uuidTo: 'tu'}, type: BuildingType.CONVEYER})
+
+            // if(this.save.size){
+            //     const saveIterator = this.save.entries()
+            //     for(const [id, {infos, type}] of saveIterator){
+            //         if(type === BuildingType.MACHINE){
+
+            //         }
+            //     }
+            // }
         },
         selectMode(mode: InteractionMode){          
             this.selectedMode = mode 
@@ -130,25 +184,24 @@ export const gameStore = defineStore('gameStore', {
         },
         addEntity(type: BuildingType, infos: {
             output?: Resource | Item, 
-            coords: {x: number, y:number}})
+            coords: {x: number, y:number},
+            buildingGeneral: BuildingGeneral})
         {
             const {output, coords} = infos
             const uuid = v4()
-            if(type === BuildingType.MACHINE && this.selectedMachineBuild?.id){
-                const buildingGeneral = this.buildingGeneral.get(this.selectedMachineBuild.id + "")
-                if(buildingGeneral){
-                    const machine = instanciateMachine(buildingGeneral, coords, uuid)
-                    if(machine.data.buildingGeneral.machine.id === 'foreuse1'){
-                        const copper: Resource = {
-                            id: "7",
-                            logoPath: "https://webinfo.iutmontp.univ-montp2.fr/~royov/API-PLATFORM/public/media/logo/65afbbe40b6a3_Iron_Ore.webp",
-                            name: "Iron Ore"
-                        }
-                        machine.data.output = copper
-                    }
-                    this.updatables.set(uuid, machine.updatable)
-                    
-                    this.entities.set(uuid, {data: machine.data, type, machineId: buildingGeneral.machine.id ?? ''})
+            if(type === BuildingType.MACHINE){
+                const {buildingGeneral} = infos
+                const machine = instanciateMachine(buildingGeneral, coords, uuid)
+                this.updatables.set(uuid, machine.updatable)
+                
+                const entityInfos = {data: machine.data, type, machineId: buildingGeneral.machine.id ?? ''}
+
+                this.entities.set(uuid, entityInfos)
+                
+                if(output){
+                    this.selectElement(entityInfos.data, type)
+                    this.changeSelectedBuildingOutput(output)
+                    this.resetSelectedElement()
                 }
             } else if (type === BuildingType.MERGER){
                 const merger = createMerger(this.allItems, coords, uuid)

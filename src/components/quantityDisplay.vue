@@ -6,9 +6,7 @@
 </template>
 
 <script setup lang="ts">
-import type { Ref } from 'vue';
-
-defineProps<{quantity: Ref<number>, logoPath: string}>()
+defineProps<{quantity: number, logoPath: string}>()
 </script>
 
 <style>

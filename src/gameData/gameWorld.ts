@@ -1,7 +1,9 @@
-import type { Item, Resource } from "@/types";
-import type { Building, Conveyer, ConveyerDisplayData, BuildingGeneral, Display, Merger, Splitter, Updatable, Input } from "./types";
+import type { Item, Miner, Resource } from "@/types";
+import { type Building, type Conveyer, type ConveyerDisplayData, type BuildingGeneral, type Display, type Merger, type Splitter, type Updatable, type Input, BuildingType } from "./types";
 import { gameStore } from "@/stores/gameStore";
 import { ref, watch } from "vue";
+import { rand } from "@vueuse/core";
+import { sendRequest } from "@/helpers/api";
 
 export const defaultItem: Item = {
     logoPath: 'public/icons/nothing.png',
@@ -41,15 +43,15 @@ export function instanciateMachine(buildingInfo: BuildingGeneral, coords: {x: nu
             return max
         }
     }
-
-    const copper: Resource = {
-        id: "8",
-        logoPath: "https://webinfo.iutmontp.univ-montp2.fr/~royov/API-PLATFORM/public/media/logo/65afbc55227aa_Copper_Ore.webp",
-        name: "Copper Ore"
-    }
     
+    let inputCount = 0
 
-    const inputCount = items ? items.length ? items[0].quantityIngredients.length : 0: 0
+    if(items && items.length){
+        if((items[0] as Item).quantityIngredients)
+        {
+            inputCount = (items[0] as Item).quantityIngredients.length
+        }
+    }
 
     const machineInstance: Building = {
         buildingGeneral: buildingInfo,
@@ -61,7 +63,7 @@ export function instanciateMachine(buildingInfo: BuildingGeneral, coords: {x: nu
         outQuantity,
         outputConveyerUid: [],
         inputs: [],
-        output: machine.name === 'foreuse1' ? copper : undefined,
+        output: undefined,
 
         inputConveyerUid: [],
         canReceive: (ingredient) => false,

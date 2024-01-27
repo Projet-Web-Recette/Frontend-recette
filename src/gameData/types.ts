@@ -19,7 +19,7 @@ export interface PositionData {
 
 export interface BuildingGeneral {
     machine: Machine,
-    items: Item[],
+    items: Item[] | Resource[],
     numberOfInputs: number
 }
 
