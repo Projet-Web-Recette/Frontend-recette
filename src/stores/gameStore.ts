@@ -42,7 +42,7 @@ export const gameStore = defineStore('gameStore', {
             selectedMachineBuild: undefined,
             selectedElement: undefined,
             selectedElementType: undefined,
-            cameraLocation: {x: ref(-800), y: ref(-800)},
+            cameraLocation: {x: ref(-800), y: ref(-1000)},
             playerInventory: new Map(),
             buildingGeneral: useLocalStorage("buildingGeneral", new Map()).value,
             allItems: [],
@@ -91,11 +91,21 @@ export const gameStore = defineStore('gameStore', {
                 machine: miner1 as Machine,
                 numberOfInputs: 0
             }
-            
+
+            const validPosition: {x: number, y: number}[] = [
+                {x: 600, y: 1600},
+                {x: 2000, y: 1800},
+                {x: 1400, y: 1700},
+                // {x: 800, y: 2200},
+                // {x: 1200, y: 2400},
+            ]
+
+            let idx = 0
             
             if(miner1){
                 this.allResources.forEach((resource) => {
-                    this.addEntity(BuildingType.MACHINE, {output: resource, coords: {x: rand(500, 4000), y: rand(1000, 3000)}, buildingGeneral: minerBuildingGeneral})
+                    this.addEntity(BuildingType.MACHINE, {output: resource, coords: validPosition[idx], buildingGeneral: minerBuildingGeneral})
+                    idx = (idx + 1) % validPosition.length
                 })
             }
 

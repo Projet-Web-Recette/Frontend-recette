@@ -39,6 +39,7 @@ export const authenticationStore = defineStore('authenticationStore', {
     
                 this.isPremium = false; //METTRE LA VALEUR CONTENUE DANS LE JWT
             } catch(e) {
+                this.JWT = ""
                 console.error(e)
                 fail()
             }
