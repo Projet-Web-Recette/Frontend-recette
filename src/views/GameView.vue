@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { gameStore } from '@/stores/gameStore';
 import factoryDisplay from '@/components/factoryDisplay.vue'
-import type { Item } from '@/types';
+import type { Item, Resource } from '@/types';
 import { launchGame} from '@/gameData/gameWorld';
 import ConveyerDisplay from '@/components/conveyerDisplay.vue';
 import quantityDisplay from '@/components/quantityDisplay.vue';
@@ -167,10 +167,8 @@ function canDisplayInput(machineId: string, data: Building){
         <div style="background-color: orange; cursor: pointer;width: fit-content;padding: 2px; margin: 5px;" @click="disconnectConveyersClicked">
           <h3>Disconnect conveyers</h3>
         </div>
-        <SelectItem :ingredient-list="game.getItemListSelectedBuild()" @ingredient-selected="(item: Item) => { 
-          if(game.selectedElement) {
-            game.changeSelectedBuildingOutput(item)
-          }}"></SelectItem>
+        <SelectItem :ingredient-list="game.getItemListSelectedBuild()" @ingredient-selected="(item: Item) => {game.changeSelectedBuildingOutput(item)}"></SelectItem>
+          <SelectItem v-if="game.selectedElementType === BuildingType.MERGER || game.selectedElementType === BuildingType.SPLITTER" :ingredient-list="game.allResources" @ingredient-selected="(resource: Resource) => {game.changeSelectedBuildingOutput(resource)}"></SelectItem>
       </div>
     </WindowComponent>
   </draggable>
