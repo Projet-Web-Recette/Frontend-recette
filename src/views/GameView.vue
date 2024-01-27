@@ -87,7 +87,7 @@ function canDisplayInput(machineId: string, data: Building){
 <template>
   <div id="gameWindow">
     <div class="gameViewport" @mousedown="mouseDownHandler($event)">
-      <div class="camera" :style="{ left: game.cameraLocation.x + 'px', top:game.cameraLocation.y + 'px', width: (1700-game.cameraLocation.x) + 'px' }">
+      <div class="camera" :style="{ left: game.cameraLocation.x + 'px', top:game.cameraLocation.y + 'px', width: (1700-game.cameraLocation.x) + 'px', height: (1700-game.cameraLocation.y) + 'px' }">
         <draggable v-for="({type, data, machineId}, index) in [...game.entities.values()].filter(({type}) => type !== BuildingType.CONVEYER)" :key="index"
                   :height="data.displayData.height" 
                   :width="data.displayData.width" 

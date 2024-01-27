@@ -1,5 +1,5 @@
 <template>
-    <div class="conveyers" :style="{width: (1000 - game.cameraLocation.x) + 'px', height: (1000 - game.cameraLocation.y) + 'px'}">
+    <div class="conveyers" :style="{width: (1700 - game.cameraLocation.x) + 'px', height: (1700 - game.cameraLocation.y) + 'px'}">
         <svg height="100%" width="100%">
             <g v-for="({x1, x2, y1, y2}, index) in conveyers" :key="'conv' + index">
                 <defs>
