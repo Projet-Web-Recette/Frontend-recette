@@ -91,7 +91,7 @@ function canDisplayInput(machineId: string, data: Building){
                   :top="data.position.y"
                   :disable="() => game.selectedMode !== InteractionMode.MOVE"
                   @update-pos="({x, y}) => { data.position.x = x; data.position.y = y}">
-          <div class="factory" @mousedown="game.selectElement(data, type)" :class="data === game.selectedElement ? 'buildingSelected' : ''">
+          <div class="factory" @mousedown="game.selectElement(data, type)" :class="data.uuid === game.selectedElement?.uuid ? 'buildingSelected' : ''">
             <factoryDisplay :display="data.displayData">
               <div class="BuildingInfos">
                 <div v-if="canDisplayInput(machineId + '', data)">
@@ -167,7 +167,6 @@ function canDisplayInput(machineId: string, data: Building){
           if(game.selectedElement) {
             game.changeSelectedBuildingOutput(item)
           }}"></SelectItem>
-        <SelectItem v-if="game.selectedElementType === BuildingType.MERGER || game.selectedElementType === BuildingType.SPLITTER" :ingredient-list="[iron, cooper]" @ingredient-selected="(resource: Resource) => { if(game.selectedElementType === BuildingType.MERGER || game.selectedElementType === BuildingType.SPLITTER) game.changeSelectedLogisticItem(resource)}"></SelectItem>
       </div>
     </WindowComponent>
   </draggable>

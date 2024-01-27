@@ -4,7 +4,7 @@ import type { Item, Machine, Resource } from "@/types";
 import { defineStore } from "pinia";
 import { isRef, ref, toRaw } from "vue";
 import { v4 } from 'uuid'
-import { getAllMachines, getItemsByMachine } from "@/helpers/api";
+import { getAllItems, getAllMachines, getItemsByMachine } from "@/helpers/api";
 import { useLocalStorage } from "@vueuse/core";
 
 interface State {
@@ -18,7 +18,9 @@ interface State {
     selectedFactory?: Building,
     cameraLocation: PositionData,
     playerInventory: Map<string, {data: Item | Resource, quantity: number}>,
-    buildingGeneral: Map<string, BuildingGeneral>
+    buildingGeneral: Map<string, BuildingGeneral>,
+    allItems: Item[],
+    allResources: Resource[]
 }
 
 
@@ -34,11 +36,15 @@ export const gameStore = defineStore('gameStore', {
             selectedElementType: undefined,
             cameraLocation: {x: ref(0), y: ref(0)},
             playerInventory: new Map(),
-            buildingGeneral: useLocalStorage("buildingGeneral", new Map()).value
+            buildingGeneral: useLocalStorage("buildingGeneral", new Map()).value,
+            allItems: [],
+            allResources: []
         }
     },
     actions: {
         async loadSave(){
+            this.allItems = await getAllItems()
+
             const machines = await getAllMachines()
 
             const buildingGeneral = await Promise.all(machines.map(async (machine) => {
@@ -131,7 +137,7 @@ export const gameStore = defineStore('gameStore', {
             if(type === BuildingType.MACHINE && this.selectedMachineBuild?.id){
                 const buildingGeneral = this.buildingGeneral.get(this.selectedMachineBuild.id + "")
                 if(buildingGeneral){
-                    const machine = instanciateMachine(buildingGeneral, coords)
+                    const machine = instanciateMachine(buildingGeneral, coords, uuid)
                     if(machine.data.buildingGeneral.machine.id === 'foreuse1'){
                         const copper: Resource = {
                             id: "7",
@@ -144,15 +150,11 @@ export const gameStore = defineStore('gameStore', {
                     
                     this.entities.set(uuid, {data: machine.data, type, machineId: buildingGeneral.machine.id ?? ''})
                 }
-            } else if (type === BuildingType.FACTORY){
-                const factory = createFactory(output as Item, coords)
-                this.updatables.set(uuid, factory.updatable)
-                this.entities.set(uuid, {data: factory.data, type})
             } else if (type === BuildingType.MERGER){
-                const merger = createMerger(undefined, coords)
+                const merger = createMerger(this.allItems, coords, uuid)
                 this.entities.set(uuid, {data: merger.data, type})
             } else if (type === BuildingType.SPLITTER){
-                const splitter = createSplitter(undefined, coords)
+                const splitter = createSplitter(this.allItems, coords, uuid)
 
                 const changeConveyerState = (id: string, status: boolean) => {
                     const infos = this.entities.get(id)
@@ -169,7 +171,7 @@ export const gameStore = defineStore('gameStore', {
           },
           selectElement(element: Building, type: BuildingType){
             if(this.selectedMode === InteractionMode.BUILD && this.selectedBuild === BuildingType.CONVEYER && this.selectedElement){
-                if(type === BuildingType.MACHINE || type === BuildingType.MERGER || type === BuildingType.SPLITTER){
+                if(type !== BuildingType.CONVEYER){
                     this.placeConveyer(this.selectedElement, element)
                 }
                 this.resetSelectedElement()
@@ -208,7 +210,10 @@ export const gameStore = defineStore('gameStore', {
           },
           getItemListSelectedBuild(): Item[]{
             const machineId = this.selectedElement?.buildingGeneral.machine.id
-            if(machineId){
+            if(this.selectedElementType === BuildingType.MERGER || this.selectedElementType === BuildingType.SPLITTER){
+                return this.allItems
+            }
+            else if(machineId){
                 return this.buildingGeneral.get(machineId + '')?.items as Item[]
             } else {
                 return []

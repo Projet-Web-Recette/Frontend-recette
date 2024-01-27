@@ -46,14 +46,14 @@ function translateItemFromApi(item: any): Item {
         logoPath: contentUrl,
         quantityProduced: quantityProduced,
         machine: machineTranslate,
-        quantityIngredients: quantitesIngredients.map(({quantite, recette}) => {
+        quantityIngredients: quantitesIngredients ? quantitesIngredients.map(({quantite, recette}) => {
             let ingredient
             if(recette.nomRessource){
                 ingredient = translateResourceFromApi(recette)
             } else {
                 ingredient = translateItemFromApi(recette)
             }
-            return {quantity: quantite, receipe: ingredient}}),
+            return {quantity: quantite, receipe: ingredient}}) : [],
         ingredients: ingredients ? translateArrayIngredients(ingredients) : []
     }
 }
@@ -129,7 +129,7 @@ export async function getItem(idItem: Number): Promise<Item> {
 }
 
 export async function getAllItems(): Promise<Item[]> {
-    const request = await sendRequest('items', 'GET', null, true);
+    const request = await sendRequest('items?type=Items', 'GET', null, true);
 
     const items = request?.content["hydra:member"];
 

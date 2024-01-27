@@ -16,7 +16,7 @@ export const defaultItem: Item = {
     quantityProduced: '0'
 }
 
-export function instanciateMachine(buildingInfo: BuildingGeneral, coords: {x: number, y: number}){
+export function instanciateMachine(buildingInfo: BuildingGeneral, coords: {x: number, y: number}, uuid: string){
     const {machine, items} = buildingInfo
 
     const x = ref(coords.x)
@@ -55,6 +55,8 @@ export function instanciateMachine(buildingInfo: BuildingGeneral, coords: {x: nu
         buildingGeneral: buildingInfo,
         displayData,
         position: {x, y},
+
+        uuid,
 
         outQuantity,
         outputConveyerUid: [],
@@ -155,127 +157,7 @@ export function instanciateMachine(buildingInfo: BuildingGeneral, coords: {x: nu
 
 }
 
-
-// export function createMiner(resource: Resource, coords: {x: number, y: number}){
-//     const minerQuantity = ref(0) // quantity for miner
-    
-//     const x = ref(coords.x)
-//     const y = ref(coords.y)
-
-//     const displayData = {
-//         width: 100,
-//         height: 100,
-//         src: "https://static.wikia.nocookie.net/satisfactory_gamepedia_en/images/c/cf/Miner_Mk.1.png"
-//     }
-
-//     const minerData: Miner = {
-//         displayData,
-//         position: {
-//             x,
-//             y
-//         },
-//         output: resource,
-//         rate: 120,
-//         quantity: minerQuantity,
-//         take: (quantity: number) => {
-//             if(minerQuantity.value > quantity){
-//                 minerQuantity.value -= quantity;
-//                 return quantity
-//             } else {
-//                 const max = minerQuantity.value > 0 ? minerQuantity.value : 0
-//                 minerQuantity.value -= max 
-//                 return max
-//             }
-//         },
-//         inputConveyerUid: [],
-//         outputConveyerUid: []
-//     }
-
-//     const minerLogic = generateDeltaLogic(minerData.rate)
-
-//     const minerUpdate: Updatable = {
-//         tick(delta: number) {
-//             minerLogic.tick(delta)
-
-//             if(minerData.output && minerLogic.rateRespected()){
-//                 minerLogic.consumeOneRate()
-//                 minerData.quantity.value ++
-//             }    
-//         }
-//     }
-
-//     return {data: minerData, updatable: minerUpdate}
-// }
-
-// export function createFactory(output: Item | undefined = undefined, coords: {x: number, y: number}){
-//     const smelterQuantity = ref(0)
-//     const smelterInputQuantity = ref(0)
-
-//     const x = ref(coords.x)
-//     const y = ref(coords.y)
-
-//     const displayData: Display = {
-//         src: "https://static.wikia.nocookie.net/satisfactory_gamepedia_en/images/4/45/Smelter.png",
-//         width: 100,
-//         height: 100,
-//     }
-
-//     let input: Item | Resource | undefined
-
-//     if(output && output.receipe.resources){
-//         input = output.receipe.resources[0]
-//     }
-
-//     const smelterData: Factory = {
-//         displayData,
-//         position: {
-//             x,
-//             y
-//         },
-//         input: input ? input : output,
-//         output,
-//         quantity: smelterQuantity,
-//         inQuantity: smelterInputQuantity,
-//         rate: 20,
-//         give: (newQuantity: number) => {
-//             smelterInputQuantity.value += newQuantity
-//             return 0
-//         },
-//         take: (quantity: number) => {
-//             if(smelterQuantity.value > quantity){
-//                 smelterQuantity.value -= quantity;
-//                 return quantity
-//             } else {
-//                 const max = smelterQuantity.value > 0 ? smelterQuantity.value : 0
-//                 smelterQuantity.value -= max 
-//                 return max
-//             }
-//         },
-//         inputConveyerUid: [],
-//         outputConveyerUid: []
-//     }
-
-//     const factoryLogic = generateDeltaLogic(smelterData.rate)
-
-//     const smelterUpdatable: Updatable = {
-//         tick: (delta) => {
-//             if(smelterInputQuantity.value >= 2 && smelterData.output){
-//                 factoryLogic.tick(delta)
-
-//                 if(factoryLogic.rateRespected()){
-//                     factoryLogic.consumeAllRate()
-//                     smelterQuantity.value += 1
-//                     smelterInputQuantity.value -= 2
-//                 }
-
-//             }
-//         }
-//     }
-
-//     return {data: smelterData, updatable: smelterUpdatable}
-// }
-
-export function createMerger(output: Item | undefined = undefined, coords: {x: number, y: number}){
+export function createMerger(items: Item[], coords: {x: number, y: number}, uuid: string){
     const outQuantity = ref(0)
 
     const x = ref(coords.x)
@@ -289,19 +171,28 @@ export function createMerger(output: Item | undefined = undefined, coords: {x: n
 
     let input: Item | Resource | undefined
 
-    if(output){
-        input = output
+    const buildingGeneral: BuildingGeneral = {
+        items,
+        numberOfInputs: 1,
+        machine: {
+            logoPath: "https://static.wikia.nocookie.net/satisfactory_gamepedia_en/images/a/aa/Conveyor_Merger.png",
+            name: 'merger'
+        }
     }
 
     const mergerData: Merger = {
+        buildingGeneral,
         displayData,
         position: {
             x,
             y
         },
+        inputs: [],
+        rate: 999,
+        uuid,
         input,
-        output,
         outQuantity,
+        canReceive: (ingredient) => false,
         give: (ingredient, newQuantity) => {
             outQuantity.value += newQuantity
             return 0
@@ -319,10 +210,13 @@ export function createMerger(output: Item | undefined = undefined, coords: {x: n
         outputConveyerUid: [],
         inputConveyerUid: []
     }
+
+    mergerData.canReceive = (element) => mergerData.output?.id === element.id
+
     return {data: mergerData}
 }
 
-export function createSplitter(output: Item | undefined = undefined, coords: {x: number, y: number}){
+export function createSplitter(items: Item[], coords: {x: number, y: number}, uuid: string){
     const inQuantity = ref(0)
 
     const x = ref(coords.x)
@@ -334,22 +228,32 @@ export function createSplitter(output: Item | undefined = undefined, coords: {x:
         height: 50,
     }
 
-    let input: Item | Resource | undefined
-
-    if(output){
-        input = output
+    const buildingGeneral: BuildingGeneral = {
+        items,
+        numberOfInputs: 1,
+        machine: {
+            logoPath: "https://static.wikia.nocookie.net/satisfactory_gamepedia_en/images/a/aa/Conveyor_Merger.png",
+            name: 'merger'
+        }
     }
+
+
+    let input: Item | Resource | undefined
 
     let enabledConveyer = 0
 
     const splitterData: Splitter = {
+        buildingGeneral,
         displayData,
         position: {
             x,
             y
         },
         input,
-        output,
+        inputs: [],
+        canReceive: () => false,
+        rate: 999,
+        uuid,
         outQuantity: inQuantity, // absurd but to late to correct namming
         give: (ingredient, newQuantity) => {
             inQuantity.value += newQuantity
@@ -375,6 +279,10 @@ export function createSplitter(output: Item | undefined = undefined, coords: {x:
         outputConveyerUid:[],
         inputConveyerUid: []
     }
+
+
+    splitterData.canReceive = (element) => splitterData.output?.id === element.id
+
     return {data: splitterData}
 }
 

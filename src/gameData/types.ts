@@ -28,6 +28,8 @@ export interface Building {
     displayData: Display,
     position: PositionData,
 
+    uuid: string,
+
     rate: number,
     output?: Resource | Item,
     outQuantity: Ref<number>,
@@ -46,7 +48,8 @@ export interface Input {
 }
 
 export interface Merger extends Building {
-    input?: Resource | Item
+    input?: Resource | Item,
+    buidlingGeneral?: undefined
 }
 
 export interface Splitter extends Building {
