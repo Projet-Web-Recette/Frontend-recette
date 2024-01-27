@@ -64,18 +64,18 @@ export function instanciateMachine(buildingInfo: BuildingGeneral, coords: {x: nu
         inputConveyerUid: [],
         canReceive: (ingredient) => false,
         
-        rate: 20,
+        rate: machine.name === 'foreuse1' ? 60 : 0,
         take,
     }
-    const machineLogic = generateDeltaLogic(machineInstance.rate)
+    const machineLogic = generateDeltaLogic()
 
     if(!inputCount){
         const machineUpdatable: Updatable = {
             tick: (delta) => {
                 machineLogic.tick(delta)
 
-                if(machineInstance.output && machineLogic.rateRespected()){
-                    machineLogic.consumeOneRate()
+                if(machineInstance.output && machineLogic.rateRespected(machineInstance.rate)){
+                    machineLogic.consumeOneRate(machineInstance.rate)
                     machineInstance.outQuantity.value ++
                 }
             }
@@ -119,28 +119,31 @@ export function instanciateMachine(buildingInfo: BuildingGeneral, coords: {x: nu
             tick: (delta) => {
                 let validateProduction = true
                 const itemOutput = machineInstance.output as Item | undefined
+                let outputRate = machineInstance.rate
                 if(itemOutput?.quantityIngredients)
                 {
-                    itemOutput.quantityIngredients.map(({quantity, receipe}) => {
-                        
+                    outputRate = Number.parseInt(itemOutput.quantityProduced)
+
+                    itemOutput.quantityIngredients.map(({quantity, receipe}) => {                        
                         const equivalent = machineInstance.inputs.find((value) => value.ingredient?.id === receipe.id)
-                        if(equivalent && equivalent.quantity.value < quantity){
+                        if(equivalent && equivalent.quantity.value < quantity / outputRate){
                             validateProduction = false
                         }
                     })
                 } else {
                     validateProduction = false
                 }
-                
+
 
                 if(validateProduction && machineInstance.output){
                     machineLogic.tick(delta)
 
-                    if(machineLogic.rateRespected()){
+                    if(machineLogic.rateRespected(machineInstance.rate)){
                         machineLogic.consumeAllRate()
                         outQuantity.value += 1
                         inputs.forEach((input) => {
-                            input.quantity.value -= 2
+                            const equivalent = itemOutput?.quantityIngredients.find((value) => value.receipe.id === input.ingredient?.id)
+                            input.quantity.value -= equivalent? equivalent.quantity / outputRate : 1
                         })
                     }
                 }
@@ -347,7 +350,7 @@ export function createSplitter(output: Item | undefined = undefined, coords: {x:
         },
         input,
         output,
-        inQuantity,
+        outQuantity: inQuantity, // absurd but to late to correct namming
         give: (ingredient, newQuantity) => {
             inQuantity.value += newQuantity
             return 0
@@ -391,7 +394,7 @@ export function createConveyer(from: Building, to: Building) {
         isEnabled: true
     }
 
-    const conveyerLogic = generateDeltaLogic(conveyerData.rate)
+    const conveyerLogic = generateDeltaLogic()
 
     const conveyerUpdate: Updatable = {
         tick: (delta) => {
@@ -404,8 +407,8 @@ export function createConveyer(from: Building, to: Building) {
 
             if(canReceive(output)){
                 conveyerLogic.tick(delta)
-                if(conveyerLogic.rateRespected()){
-                    conveyerLogic.consumeOneRate()
+                if(conveyerLogic.rateRespected(conveyerData.rate)){
+                    conveyerLogic.consumeOneRate(conveyerData.rate)
                     if(give && conveyerData.from.outQuantity.value > 0 && output){
                         const taken = conveyerData.from.take(1)
                         give(output, taken)
@@ -418,17 +421,16 @@ export function createConveyer(from: Building, to: Building) {
     return {data: conveyerData, updatable: conveyerUpdate}
 }
 
-function generateDeltaLogic(rate: number){
+function generateDeltaLogic(){
     let timePassed = 0
-    const tickToTake = 60 / rate * 1000
-    const rateRespected = () => timePassed > tickToTake
+    const rateRespected = (rate: number) => timePassed > 60 / rate * 1000
     
     function tick(delta: number){
         timePassed += delta
     }
 
-    const consumeOneRate = () => {
-        timePassed -= tickToTake; 
+    const consumeOneRate = (rate: number) => {
+        timePassed -= 60 / rate * 1000;
         timePassed = timePassed < 0 ? 0 : timePassed
     }
 

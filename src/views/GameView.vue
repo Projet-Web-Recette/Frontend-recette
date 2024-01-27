@@ -166,8 +166,6 @@ function canDisplayInput(machineId: string, data: Building){
         <SelectItem :ingredient-list="game.getItemListSelectedBuild()" @ingredient-selected="(item: Item) => { 
           if(game.selectedElement) {
             game.changeSelectedBuildingOutput(item)
-          } else if (game.selectedElementType === BuildingType.MERGER || game.selectedElementType === BuildingType.SPLITTER) {
-            game.changeSelectedLogisticItem(item)
           }}"></SelectItem>
         <SelectItem v-if="game.selectedElementType === BuildingType.MERGER || game.selectedElementType === BuildingType.SPLITTER" :ingredient-list="[iron, cooper]" @ingredient-selected="(resource: Resource) => { if(game.selectedElementType === BuildingType.MERGER || game.selectedElementType === BuildingType.SPLITTER) game.changeSelectedLogisticItem(resource)}"></SelectItem>
       </div>

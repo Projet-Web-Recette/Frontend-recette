@@ -112,7 +112,12 @@ export const gameStore = defineStore('gameStore', {
                         this.selectedElement.inputs[i].ingredient = elementItem.quantityIngredients[i].receipe
                         this.selectedElement.inputs[i].quantity = 0
                     }
+
+                    this.selectedElement.rate = Number.parseInt(elementItem.quantityProduced)
+
+                    console.log(this.selectedElement.rate)
                 }
+
                 
                 this.selectedElement.outQuantity = 0
             }
