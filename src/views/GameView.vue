@@ -135,23 +135,23 @@ function canDisplayInput(machineId: string, data: Building){
             <IconUI :action-name="InteractionMode.CAMERA" icon-path="icons/camera.png" @icon-selected="game.selectMode(InteractionMode.CAMERA)" :class="game.selectedMode === InteractionMode.CAMERA ? 'iconSelected' : ''"></IconUI>
             <IconUI action-name="Stock" icon-path="icons/box.png" @icon-selected="inventoryWindowOpen = true"></IconUI>
           </div>
-          <div style="background-color: lightgrey;" v-if="game.selectedMode === InteractionMode.BUILD" @mousedown.stop>
+          <div style="background-color: lightgrey; display: block; height: 60%;" v-if="game.selectedMode === InteractionMode.BUILD" @mousedown.stop>
             <h1>Building sélectionné: {{ game.selectedBuild === BuildingType.MACHINE ? game.selectedMachineBuild?.name : game.selectedBuild }}</h1>
             
             <div @click="game.selectedBuild = BuildingType.CONVEYER">
-              <h1>CONVEYER</h1>
+              <h1 class="buildSelection" >CONVEYER</h1>
             </div>
             <div @click="game.selectedBuild = BuildingType.SPLITTER">
-              <h1>SPLITTER</h1>
+              <h1 class="buildSelection" >SPLITTER</h1>
             </div>
             <div @click="game.selectedBuild = BuildingType.MERGER">
-              <h1>MERGER</h1>
+              <h1 class="buildSelection" >MERGER</h1>
             </div>
             
             <div v-for="{machine} in game.buildingGeneral.values()" @click="() => {
                 game.selectedBuild = BuildingType.MACHINE
                 game.selectMachine(machine)
-              }">
+              }" class="buildSelection" >
               <img :src="machine.logoPath" style="height: 80px;" />
               <p>{{ machine.name }}</p>
             </div>
@@ -202,8 +202,9 @@ function canDisplayInput(machineId: string, data: Building){
 
 #ui {
   position: absolute;
-  left: 100px;
-  top: 0px;
+  left: 30px;
+  top: 20px;
+  width: 500px;
 }
 
 #iconDisplay {
@@ -246,6 +247,11 @@ function canDisplayInput(machineId: string, data: Building){
   border-radius: 5px;
   display: flex;
   flex-direction: row;
+}
+
+.buildSelection {
+  cursor: pointer;
+  width: fit-content;
 }
 
 </style>
