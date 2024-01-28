@@ -162,6 +162,11 @@ const specialMachines: {name: string, type: BuildingType}[] = [
             </div>
           </div>
         </div>
+
+        <div v-if="game.isProcessing" id="processing">
+          <h1>Processing</h1>
+          <img :src="'src/assets/logo.png'" />
+        </div>
       </div>
     </div>
   </div>
@@ -257,6 +262,30 @@ const specialMachines: {name: string, type: BuildingType}[] = [
 .buildSelection {
   cursor: pointer;
   width: fit-content;
+}
+
+
+#processing {
+  position: fixed;
+  bottom: 50px;
+  left: 50px;
+  background-color: white;
+  width: fit-content;
+}
+
+#processing > img {
+  margin: auto;
+  width: 50px;
+  animation: rotation 2s infinite linear;
+}
+
+@keyframes rotation {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(359deg);
+  }
 }
 
 </style>
