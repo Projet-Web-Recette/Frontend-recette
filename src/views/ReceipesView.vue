@@ -18,6 +18,7 @@ import type { Item, Machine, Resource, Node } from '@/types';
 import { getItem, getAllItems, getAllRecipesFromItem, getAllMachines, getResources, getMachine, getRessource, getItemsMachine, getAllItemsUser } from '@/helpers/api';
 import { onMounted, ref } from 'vue';
 import VueSideBar from "../components/Sidebar.vue";
+import { flashMessage } from '@smartweb/vue-flash-message';
 
 let itemsApi: Item[] = [];
 let machinesApi: Machine[] = [];

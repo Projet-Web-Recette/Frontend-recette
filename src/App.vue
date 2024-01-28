@@ -1,8 +1,10 @@
 <script setup lang="ts">
+
 </script>
 
 <template>
   <main>
+    <FlashMessage position="right top" time="3000" strategy="multiple" image="./assets/logo.png"/>
     <router-view/>
   </main>
 </template>

@@ -1,6 +1,7 @@
 import { authenticationStore } from "@/stores/authenticationStore"
 import type { HttpRequest, Item, Resource, Machine } from "@/types"
 import { isRuntimeOnly } from "vue"
+import { flashMessage } from "@smartweb/vue-flash-message"
 
 const baseUrl = 'https://webinfo.iutmontp.univ-montp2.fr/~royov/API-PLATFORM/public/api'
 const baseUrl2 = 'https://webinfo.iutmontp.univ-montp2.fr/~bordl/API-PLATFORM-main/API-PLATFORM/public/api'
@@ -67,6 +68,22 @@ function translateMachineFromApi(machine: any): Machine {
     }
 }
 
+async function handleErrors(response: Response) {
+    if (!response.ok) {
+          await response.json().
+             then(object => {
+                flashMessage.show({
+                    type: 'error',
+                    title: "",
+                    text: object.message,
+                    image: './src/assets/flash-messages-logo/error.svg',
+                 });
+          })
+        throw new Error(response.status+"");
+    }
+    return response;
+}
+
 export async function sendRequest(endpoint: string, method: 'GET' | 'POST', payload?: any, useJWT = false, isMultipart = false) {
     let token = {}
     let request = {} as HttpRequest
@@ -107,8 +124,13 @@ export async function sendRequest(endpoint: string, method: 'GET' | 'POST', payl
 
     const response = await fetch(`${baseUrl}/${endpoint}`, request)
 
+    await handleErrors(response);
+
     const result = { status: response.status, content: await response.json() }
-    return result
+     return result
+    
+
+    
 }
 
 
