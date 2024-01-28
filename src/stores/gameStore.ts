@@ -126,7 +126,7 @@ export const gameStore = defineStore('gameStore', {
     
     
                 const previousSave = await retreiveGameData() as SaveFormat
-                const hasSave = previousSave && previousSave.conveyers.length > 0 && previousSave.machines.length > 0 && previousSave.mergers.length > 0 && previousSave.splitters.length > 0
+                const hasSave = previousSave && (previousSave.conveyers.length > 0 || previousSave.machines.length > 0 || previousSave.mergers.length > 0 || previousSave.splitters.length > 0)
                 if(hasSave){
                     previousSave.machines.forEach((machine) => {
                         const general = buildingGeneral.find((bg) => bg?.machine.id === machine.idMachine)
