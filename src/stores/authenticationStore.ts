@@ -7,9 +7,8 @@ import { useLocalStorage } from "@vueuse/core"
 export const authenticationStore = defineStore('authenticationStore', {
     state: () => ({ 
         JWT: useLocalStorage("JWT", ""),
-        isPremium: false,
-        isAdmin: false,
-        //isAuthenticated: false
+        isPremium: useLocalStorage("isPremium", false),
+        isAdmin: useLocalStorage("isAdmin", false)
     }),
 
     getters: {
@@ -23,21 +22,22 @@ export const authenticationStore = defineStore('authenticationStore', {
             
             try {
                 const response = await sendRequest('auth', 'POST', {login, password})
+
+                console.log(response)
     
                 if(!response || response.status !== HttpErrors.SUCCESS){
                     fail()
                     return
                 }
-
-                // isAuthenticated = true
                 
                 this.JWT = response.content.token? response.content.token : ""
 
-                const jwtJSON = jwtDecode<{adresseEmail: String, exp: Number, iat: Number, id: Number, roles: String[], username: string}>(this.JWT);
+                const jwtJSON = jwtDecode<{adresseEmail: String, exp: Number, iat: Number, id: Number, roles: String[], username: string, premium: boolean}>(this.JWT);
     
                 this.isAdmin = jwtJSON.roles.includes('ROLE_ADMIN');
     
-                this.isPremium = false; //METTRE LA VALEUR CONTENUE DANS LE JWT
+                this.isPremium = jwtJSON.premium;
+
             } catch(e) {
                 console.error(e)
                 fail()
