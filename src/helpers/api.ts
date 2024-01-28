@@ -3,6 +3,7 @@ import { authenticationStore } from "@/stores/authenticationStore"
 import { type HttpRequest, type Item, type Resource, type Machine, HttpErrors } from "@/types"
 import { flashMessage } from "@smartweb/vue-flash-message"
 import router from "@/router"
+import { md5 } from "js-md5"
 
 const baseUrl = 'https://webinfo.iutmontp.univ-montp2.fr/~royov/API-PLATFORM/public/api'
 const baseUrl2 = 'https://webinfo.iutmontp.univ-montp2.fr/~bordl/API-PLATFORM-main/API-PLATFORM/public/api'
@@ -289,4 +290,24 @@ export async function retreiveGameData() {
         const {data} = request?.content
         return data
     }
+}
+
+export async function getUserAvatar(email: string){
+    const hashed = md5(email)
+
+    const request = {} as HttpRequest
+
+    const contentType = {'Content-Type': 'application/json'}
+
+    request.method = 'GET'
+    request.headers = {
+        ...contentType,
+        
+    }
+
+    const response = await fetch(`https://webinfo.iutmontp.univ-montp2.fr/~cazauxl/MyAvatar/public/avatar/${hashed}`)
+
+    debugger
+    const result = { status: response.status, content: await response.json() }
+    return result
 }
