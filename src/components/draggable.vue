@@ -2,7 +2,7 @@
     <div class="draggable" @mousedown="dragMouseDown($event)" :style="{
       left: (left - width / 2) + 'px', 
       top: (top - height / 2) + 'px', 
-      width: width + 'px',
+      width: width !== 0 ? width + 'px' : 'fit-content',
       height: height + 'px'}"
     >
       <slot></slot>
@@ -11,7 +11,13 @@
 
 <script setup lang="ts">
 import { ref } from 'vue';
-const initPosition = defineProps<{left: number, top: number, width: number, height: number}>()
+const initPosition = defineProps<{
+  left: number,
+  top: number, 
+  width: number, 
+  height: number, 
+  disable: () => boolean | false
+}>()
 
 const top = ref(initPosition.top)
 const left = ref(initPosition.left)
@@ -19,15 +25,20 @@ const left = ref(initPosition.left)
 let offsetX = 0
 let offsetY = 0
 
-let dropX = initPosition.top
-let dropY = initPosition.left
+let dropX = initPosition.left
+let dropY = initPosition.top
 
 
 
-const emit = defineEmits<{(e: 'updatePos', pos: {x: number, y:number}): void}>()
+const emit = defineEmits<{
+  (e: 'updatePos', pos: {x: number, y:number}): void
+}>()
 
 function dragMouseDown(e: MouseEvent) {
+  if(initPosition.disable()) return
+
   e.preventDefault();
+  e.stopPropagation()
   // get the mouse cursor position at startup:
   document.onmouseup = closeDragElement;
   // call a function whenever the cursor moves:

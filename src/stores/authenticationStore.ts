@@ -8,7 +8,9 @@ export const authenticationStore = defineStore('authenticationStore', {
     state: () => ({ 
         JWT: useLocalStorage("JWT", ""),
         isPremium: useLocalStorage("isPremium", false),
-        isAdmin: useLocalStorage("isAdmin", false)
+        isAdmin: useLocalStorage("isAdmin", false),
+        userId: useLocalStorage("userId", "")
+
     }),
 
     getters: {
@@ -31,14 +33,17 @@ export const authenticationStore = defineStore('authenticationStore', {
                 }
                 
                 this.JWT = response.content.token? response.content.token : ""
+              
+                const jwtJSON = jwtDecode<{adresseEmail: String, exp: Number, iat: Number, id: string, roles: String[], username: string, premium: boolean}>(this.JWT);
 
-                const jwtJSON = jwtDecode<{adresseEmail: String, exp: Number, iat: Number, id: Number, roles: String[], username: string, premium: boolean}>(this.JWT);
     
                 this.isAdmin = jwtJSON.roles.includes('ROLE_ADMIN');
+                this.userId = jwtJSON.id
     
                 this.isPremium = jwtJSON.premium;
 
             } catch(e) {
+                this.JWT = ""
                 console.error(e)
                 fail()
             }

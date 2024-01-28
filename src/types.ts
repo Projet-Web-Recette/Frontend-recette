@@ -5,7 +5,7 @@ export interface Item {
     quantityProduced: string,
     machine: Machine,
     ingredients: any[],
-    quantityIngredients: any[]
+    quantityIngredients: {receipe: Resource | Item, quantity: number}[]
 }
 
 export interface Receipe {
@@ -17,7 +17,7 @@ export interface Receipe {
 
 
 export interface Resource {
-    id?: string,
+    id: string,
     name: string,
     quality?: 'pur' | 'normal' | 'impur',
     logoPath: string
@@ -29,6 +29,11 @@ export interface Machine {
     logoPath: string
 }
 
+export interface Miner extends Machine {
+    rate: number,
+    type: string
+}
+
 
 export interface LoginInformations {
     login: string,
@@ -38,11 +43,12 @@ export interface LoginInformations {
 
 export enum HttpErrors {
     SUCCESS = 200,
-    CREATED = 201
+    CREATED = 201,
+    UNAUTHORIZED = 401
 }
 
 export interface HttpRequest {
-    method: 'GET' | 'POST',
+    method: 'GET' | 'POST' | 'PATCH',
     headers: {[key: string]: string},
     body?: string
 }

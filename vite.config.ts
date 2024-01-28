@@ -9,7 +9,11 @@ export default defineConfig({
     devSourcemap: true,
   },
   plugins: [
-    vue(),
+    vue({
+      script: {
+        defineModel: true
+      }
+    })
   ],
   resolve: {
     alias: {

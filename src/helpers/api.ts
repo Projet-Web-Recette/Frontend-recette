@@ -1,5 +1,6 @@
+import type { SaveFormat } from "@/gameData/types"
 import { authenticationStore } from "@/stores/authenticationStore"
-import type { HttpRequest, Item, Resource, Machine } from "@/types"
+import { type HttpRequest, type Item, type Resource, type Machine, HttpErrors } from "@/types"
 import { isRuntimeOnly } from "vue"
 import { flashMessage } from "@smartweb/vue-flash-message"
 
@@ -38,7 +39,7 @@ function translateItemFromApi(item: any): Item {
             name: machine.nom,
             logoPath: machine.contentUrl
         }
-    } 
+    }
     
     return {
         id: id ? id : item["@id"],
@@ -46,7 +47,14 @@ function translateItemFromApi(item: any): Item {
         logoPath: contentUrl,
         quantityProduced: quantityProduced,
         machine: machineTranslate,
-        quantityIngredients: quantitesIngredients,
+        quantityIngredients: quantitesIngredients ? quantitesIngredients.map(({quantite, recette}) => {
+            let ingredient
+            if(recette.nomRessource){
+                ingredient = translateResourceFromApi(recette)
+            } else {
+                ingredient = translateItemFromApi(recette)
+            }
+            return {quantity: quantite, receipe: ingredient}}) : [],
         ingredients: ingredients ? translateArrayIngredients(ingredients) : []
     }
 }
@@ -84,15 +92,14 @@ async function handleErrors(response: Response) {
     return response;
 }
 
-export async function sendRequest(endpoint: string, method: 'GET' | 'POST', payload?: any, useJWT = false, isMultipart = false) {
+export async function sendRequest(endpoint: string, method: 'GET' | 'POST' | 'PATCH', payload?: any, useJWT = false, isMultipart = false) {
+
     let token = {}
     let request = {} as HttpRequest
 
     if (useJWT) {
 
         const authentication = authenticationStore()
-
-        //console.log(authentication.JWT)
 
         if (!authentication.isAuthenticated) return
 
@@ -101,7 +108,7 @@ export async function sendRequest(endpoint: string, method: 'GET' | 'POST', payl
         }
     }
     
-    const contentType = isMultipart ? "" : {'Content-Type': 'application/json'}
+    const contentType = isMultipart ? "" : {'Content-Type': method === 'PATCH' ? 'application/merge-patch+json' : 'application/json'}
 
     request.method = method
     request.headers = {
@@ -218,6 +225,13 @@ export async function createUserItem(nameItem:string, idIngredients: Map<string,
     return request?.content;
 }
 
+export async function getItemsByMachine(idMachine: string): Promise<Item[]> { // TODO: REMOVE ?
+    const request = await sendRequest(`machines/${idMachine}/items?type=Items`, 'GET', null, true);
+
+    const items = request?.content["hydra:member"];
+    
+    return items.map((item: any) => translateItemFromApi(item))
+}
 export async function getItemsMachine(idMachine: string): Promise<Item[]> {
     const requestItems = await sendRequest(`machines/${idMachine}/items?type=Items`, "GET", null, true);
     const requestUserItems = await sendRequest(`machines/${idMachine}/items?type=ItemsUser`, "GET", null, true);
@@ -245,4 +259,39 @@ export async function createItemAdmin(nameItem: string, idIngredients: Map<strin
     const request = await sendRequest("items", "POST", formData, true, true);
 
     return request;
+}
+
+export async function saveGameData(save: SaveFormat){
+    const request = await sendRequest(`user_inventories`, 'POST', {data: save}, true)
+
+    if(request?.status !== HttpErrors.CREATED)
+    {
+        console.error(request?.content)
+    }
+}
+
+export async function updateSave(save: SaveFormat){
+    const authentication = authenticationStore()
+    if(!authentication.userId) return undefined
+
+    const request = await sendRequest(`user_inventories/${authentication.userId}/inventory`, 'PATCH', {data: save}, true)
+
+    if(request?.status !== HttpErrors.SUCCESS)
+    {
+        console.error(request?.content)
+    }
+}
+
+export async function retreiveGameData() {
+    const authentication = authenticationStore()
+    if(!authentication.userId) return undefined
+
+    const request = await sendRequest(`user_inventories/${authentication.userId}/inventory`, 'GET', undefined, true)
+
+    if(request?.status !== HttpErrors.SUCCESS){
+        return undefined
+    } else {
+        const {data} = request?.content
+        return data
+    }
 }
