@@ -1,7 +1,6 @@
 import type { SaveFormat } from "@/gameData/types"
 import { authenticationStore } from "@/stores/authenticationStore"
 import { type HttpRequest, type Item, type Resource, type Machine, HttpErrors } from "@/types"
-import { isRuntimeOnly } from "vue"
 import { flashMessage } from "@smartweb/vue-flash-message"
 import router from "@/router"
 
@@ -228,13 +227,6 @@ export async function createUserItem(nameItem:string, idIngredients: Map<string,
     return request?.content;
 }
 
-export async function getItemsByMachine(idMachine: string): Promise<Item[]> { // TODO: REMOVE ?
-    const request = await sendRequest(`machines/${idMachine}/items?type=Items`, 'GET', null, true);
-
-    const items = request?.content["hydra:member"];
-    
-    return items.map((item: any) => translateItemFromApi(item))
-}
 export async function getItemsMachine(idMachine: string): Promise<Item[]> {
     const requestItems = await sendRequest(`machines/${idMachine}/items?type=Items`, "GET", null, true);
     const requestUserItems = await sendRequest(`machines/${idMachine}/items?type=ItemsUser`, "GET", null, true);

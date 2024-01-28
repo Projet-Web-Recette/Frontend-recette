@@ -2,10 +2,10 @@ import { createConveyer, createMerger, createSplitter, instanciateMachine } from
 import { BuildingType, InteractionMode, type Building, type BuildingGeneral, type Merger, type PositionData, type SaveFormat, type Splitter, type Updatable } from "@/gameData/types";
 import type { Item, Machine, Miner, Resource } from "@/types";
 import { defineStore } from "pinia";
-import { isRef, ref, toRaw } from "vue";
+import { ref, toRaw } from "vue";
 import { v4 } from 'uuid'
-import { getAllItems, getAllMachines, getItemsByMachine, getResources, retreiveGameData, saveGameData, sendRequest, updateSave } from "@/helpers/api";
-import { rand, useLocalStorage } from "@vueuse/core";
+import { getAllItems, getAllMachines, getItemsMachine, getResources, retreiveGameData, saveGameData, sendRequest, updateSave } from "@/helpers/api";
+import { useLocalStorage } from "@vueuse/core";
 
 interface State {
     entities: Map<string,{type: BuildingType, data: any, machineId?: string}>,
@@ -116,7 +116,7 @@ export const gameStore = defineStore('gameStore', {
                 const buildingGeneral = await Promise.all(this.allMachines.map(async (machine) => {
                     if(machine.id)
                     {
-                        const items = await getItemsByMachine(machine.id)
+                        const items = await getItemsMachine(machine.id)
     
                         const numberOfInputs = items.length > 0 ? items[0].ingredients.length : 0
                         
@@ -126,7 +126,8 @@ export const gameStore = defineStore('gameStore', {
     
     
                 const previousSave = await retreiveGameData() as SaveFormat
-                if(previousSave){
+                const hasSave = previousSave && previousSave.conveyers.length > 0 && previousSave.machines.length > 0 && previousSave.mergers.length > 0 && previousSave.splitters.length > 0
+                if(hasSave){
                     previousSave.machines.forEach((machine) => {
                         const general = buildingGeneral.find((bg) => bg?.machine.id === machine.idMachine)
                         const item = general?.items.find((item) => item.id + '' === machine.idOutput + '')
@@ -189,7 +190,6 @@ export const gameStore = defineStore('gameStore', {
                     })
     
                 } else {
-    
                     const request = await sendRequest('foreuses', 'GET', undefined, true)
         
                     const response = request?.content["hydra:member"];

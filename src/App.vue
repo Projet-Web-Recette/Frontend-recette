@@ -2,7 +2,7 @@
   <header style="position: absolute">
     <!-- Top right corner burger menu that opens a dropdown over body -->
     <button id="burger-button" class="fixed top-0 right-0 material-symbols-outlined hover:text-orange-main transition-all duration-200
-    text-white-main p-4 select-none z-10" @click="burgerActivate = !burgerActivate" :class="{'rotate-90': burgerActivate}">
+    text-white-main p-4 select-none bg-gray-main" @click="burgerActivate = !burgerActivate" :class="{'rotate-90': burgerActivate}">
         {{ burgerActivate ? 'close' : 'menu' }}
     </button>
 
@@ -29,9 +29,14 @@
           Playground
         </a>
 
-        <a href="/login" class="flex flex-row items-center gap-3 text-4xl text-white-main satisfont select-none transition-all duration-200">
+        <a v-if="!authentication.isAuthenticated" href="/login" class="flex flex-row items-center gap-3 text-4xl text-white-main satisfont select-none transition-all duration-200">
           <span class="material-symbols-outlined text-4xl text-orange-main">login</span>
           Login
+        </a>
+        
+        <a v-if="authentication.isAuthenticated" @click="authentication.deconnexion" class="flex flex-row items-center gap-3 text-4xl text-white-main satisfont select-none transition-all duration-200">
+          <span class="material-symbols-outlined text-4xl text-orange-main">logout</span>
+          Logout
         </a>
       </div>
     </nav>
@@ -45,5 +50,15 @@
 
 <script setup lang="ts">
 import { ref } from 'vue';
+import { authenticationStore } from './stores/authenticationStore';
+
+const authentication = authenticationStore()
+
 const burgerActivate = ref(false)
 </script>
+
+<style>
+#burger-button {
+  z-index: 11;
+}
+</style>
