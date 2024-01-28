@@ -60,7 +60,16 @@ Pour récupérer l'image de profil d'un utilisateur il existe plusieurs moyens :
 ---
 ## 🔬 Investissement de chaque membre
 ### Vincent
-  - e
+  - Mise en place de **l'API**, réalisation de la structure du patron composite pour les recettes (items et ressources)
+  - Intégration de nombreux **systèmes** de l'API comme les event listener, le filter permettant de récupérer un certain type d'item, gestion des states processors de toutes les tables
+  - Mise en place de la **sécurité** de l'API (création d'un **voter**, attributs security, etc...)
+  - Intégration de la **structure** permettant de récupérer les quantités d'ingrédients pour les ingrédients d'une recette particulière
+  - Réalisation du **serializer** offrant la possibilité d'enregistrer des images à l'aide des formulaires de type multipart pour l'API
+  - Gestion du livre de recette (frontend & backend)
+  - Réalisation d'un **algorithme** permettant d'afficher l'arbre de construction d'un item
+  - Réalisation de la fonctionnalité permettant de **créer une recette** pour les utilisateurs premium (mise en place de récursivité pour le parcours de l'arbre)
+  - Réalisation de **requêtes** et mise en place de **types** pour récupérer les informations depuis l'api
+  - Filtrage des items de différentes façon (par rapport à la machine le construisant, son type, qu'est ce qui le compose, etc...)
 
 ### Loris B.
   - e
@@ -79,14 +88,15 @@ Pour récupérer l'image de profil d'un utilisateur il existe plusieurs moyens :
 ### 🌐 SatisCraftory
 
 #### 👨‍💼️ Comptes utilisateurs
-| Login | Mot de passe |
-|-------|--------------|
-|       |              |
+| Login       | Mot de passe    |
+|-------------|-----------------|
+| normalUser  | NormalUser1234  |
+| premiumUser | premiumUser1234 |
 
 #### 👨‍✈️ Comptes administrateurs
-| Login | Mot de passe |
-|-------|--------------|
-|       |              |
+| Login       | Mot de passe    |
+|-------------|-----------------|
+| admin       | Admin1234       |
 
 ### 🙂 MyAvatar
 
