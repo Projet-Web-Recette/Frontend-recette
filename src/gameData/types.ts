@@ -85,7 +85,8 @@ export enum InteractionMode {
     BUILD = 'build',
     INTERACT = 'interact',
     MOVE = 'move',
-    CAMERA = 'camera'
+    CAMERA = 'camera',
+    DELETE = 'delete'
 }
 
 export interface SaveFormat {

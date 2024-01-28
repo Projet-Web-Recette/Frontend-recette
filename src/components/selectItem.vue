@@ -29,15 +29,20 @@ const emit = defineEmits<{
 .itemSelector > * {
     margin: 5px;
     cursor: pointer;
+    background-color: #4b4b4b;
+    border-radius: 5px;
+    width: 70px;
 }
 
 .itemSelector img {
     width: 50px;
     height: 50px;
+    margin: auto;
 }
 
 .itemSelector p {
-    width: 50px;
+    width: 100%;
     font-size: 12px;
+    text-align: center;
 }
 </style>

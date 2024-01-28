@@ -2,7 +2,7 @@
 import { gameStore } from '@/stores/gameStore';
 import factoryDisplay from '@/components/factoryDisplay.vue'
 import type { Item, Machine, Resource } from '@/types';
-import { launchGame} from '@/gameData/gameWorld';
+import { conveyerImg, launchGame, mergerImg, splitterImg} from '@/gameData/gameWorld';
 import ConveyerDisplay from '@/components/conveyerDisplay.vue';
 import quantityDisplay from '@/components/quantityDisplay.vue';
 import draggable from '@/components/draggable.vue'
@@ -72,8 +72,6 @@ function disconnectConveyersClicked() {
 const windowOpen= ref(false)
 const inventoryWindowOpen = ref(false)
 
-const hasOutput = [BuildingType.MERGER, BuildingType.SPLITTER]
-
 
 function canDisplayInput(machineId: string, data: Building){
   const bg = game.buildingGeneral.get(machineId)
@@ -82,17 +80,18 @@ function canDisplayInput(machineId: string, data: Building){
   return response
 }
 
-const specialMachines: {name: string, type: BuildingType}[] = [
-  {name: 'splitter', type: BuildingType.SPLITTER}
+const specialMachines: {name: string, type: BuildingType, iconPath: string}[] = [
+  {name: 'Splitter', type: BuildingType.SPLITTER, iconPath: splitterImg},
+  {name: 'Merger', type: BuildingType.MERGER, iconPath: mergerImg},
+  {name: 'Conveyor', type: BuildingType.CONVEYER, iconPath: conveyerImg}
 ] 
 
 </script>
 
 <template>
   <div id="gameWindow">
-    <button @click="game.saveGame()">Save</button>
     <div id="gameViewport" @mousedown="mouseDownHandler($event)">
-      <div class="camera" :style="{ left: game.cameraLocation.x + 'px', top:game.cameraLocation.y + 'px', width: (1700-game.cameraLocation.x) + 'px', height: (1700-game.cameraLocation.y) + 'px' }">
+      <div class="camera" :style="{ left: game.cameraLocation.x + 'px', top:game.cameraLocation.y + 'px', minWidth:'100vw', width: (2000-game.cameraLocation.x) + 'px'}">
         <draggable v-for="({type, data, machineId}, index) in [...game.entities.values()].filter(({type}) => type !== BuildingType.CONVEYER)" :key="index"
                   :height="data.displayData.height" 
                   :width="data.displayData.width" 
@@ -134,54 +133,50 @@ const specialMachines: {name: string, type: BuildingType}[] = [
       <div id="ui" @mousedown.stop>
         <div>
           <div id="iconDisplay">
+            <button @click="game.saveGame()" id="saveBtn">Save</button>
             <IconUI :action-name="InteractionMode.BUILD" icon-path="icons/hammer.png" @icon-selected="game.selectMode(InteractionMode.BUILD)" :class="game.selectedMode === InteractionMode.BUILD ? 'iconSelected' : ''"></IconUI>
             <IconUI :action-name="InteractionMode.INTERACT" icon-path="icons/click.png" @icon-selected="game.selectMode(InteractionMode.INTERACT)" :class="game.selectedMode === InteractionMode.INTERACT ? 'iconSelected' : ''"></IconUI>
             <IconUI :action-name="InteractionMode.MOVE" icon-path="icons/move.png" @icon-selected="game.selectMode(InteractionMode.MOVE)" :class="game.selectedMode === InteractionMode.MOVE ? 'iconSelected' : ''"></IconUI>
             <IconUI :action-name="InteractionMode.CAMERA" icon-path="icons/camera.png" @icon-selected="game.selectMode(InteractionMode.CAMERA)" :class="game.selectedMode === InteractionMode.CAMERA ? 'iconSelected' : ''"></IconUI>
+            <IconUI :action-name="InteractionMode.DELETE" icon-path="icons/demolition.png" @icon-selected="game.selectMode(InteractionMode.DELETE)" :class="game.selectedMode === InteractionMode.DELETE ? 'iconSelected' : ''"></IconUI>
             <IconUI action-name="Stock" icon-path="icons/box.png" @icon-selected="inventoryWindowOpen = true"></IconUI>
           </div>
-          <div style="background-color: lightgrey; display: block; height: 60%;" v-if="game.selectedMode === InteractionMode.BUILD" @mousedown.stop>
-            <h1>Building sélectionné: {{ game.selectedBuild === BuildingType.MACHINE ? game.selectedMachineBuild?.name : game.selectedBuild }}</h1>
-            
-            <div @click="game.selectedBuild = BuildingType.CONVEYER">
-              <h1 class="buildSelection" >CONVEYER</h1>
-            </div>
-            <div @click="game.selectedBuild = BuildingType.SPLITTER">
-              <h1 class="buildSelection" >SPLITTER</h1>
-            </div>
-            <div @click="game.selectedBuild = BuildingType.MERGER">
-              <h1 class="buildSelection" >MERGER</h1>
-            </div>
-            
-            <div v-for="{machine} in game.buildingGeneral.values()" @click="() => {
-                game.selectedBuild = BuildingType.MACHINE
-                game.selectMachine(machine)
-              }" class="buildSelection" >
-              <img :src="machine.logoPath" style="height: 80px;" />
-              <p>{{ machine.name }}</p>
+          <div id="buildingMenu" v-if="game.selectedMode === InteractionMode.BUILD" @mousedown.stop>
+            <div id="buildingList">
+              <div v-for="specialMachine in specialMachines" @click="game.selectedBuild = specialMachine.type" class="buildSelection" :class="{buildSelected: game.selectedBuild === specialMachine.type}">
+                <img :src="specialMachine.iconPath" style="height: 80px;" />
+                <p>{{ specialMachine.name }}</p>
+              </div>
+              
+              <div v-for="{machine} in game.buildingGeneral.values()" @click="() => {
+                  game.selectedBuild = BuildingType.MACHINE
+                  game.selectMachine(machine)
+                }" class="buildSelection" :class="{buildSelected: game.selectedMachineBuild?.id === machine.id && game.selectedBuild === BuildingType.MACHINE}" >
+                <img :src="machine.logoPath" style="height: 80px;" />
+                <p>{{ machine.name }}</p>
+              </div>
             </div>
           </div>
+
+          <WindowComponent v-model="windowOpen" left="10px" top="10px" title="Select output">
+            <div style="min-width: 400px;">
+              <div style="background-color: orange; cursor: pointer;width: fit-content;padding: 2px; margin: 5px;" @click="disconnectConveyersClicked">
+                <h3>Disconnect conveyers</h3>
+              </div>
+              <div style="background-color: red; cursor: pointer;" @click="game.storeSelectedElementItem"><h3>Collect</h3></div>
+              <SelectItem :ingredient-list="game.getItemListSelectedBuild()" @ingredient-selected="(item: Item) => {game.changeSelectedBuildingOutput(item)}"></SelectItem>
+              <SelectItem v-if="game.selectedElementType === BuildingType.MERGER || game.selectedElementType === BuildingType.SPLITTER" :ingredient-list="game.allResources" @ingredient-selected="(resource: Resource) => {game.changeSelectedBuildingOutput(resource)}"></SelectItem>
+            </div>
+          </WindowComponent>
         </div>
 
         <div v-if="game.isProcessing" id="processing">
-          <h1>Processing</h1>
           <img :src="'src/assets/logo.png'" />
+          <h1>Processing</h1>
         </div>
       </div>
     </div>
   </div>
-
-  <draggable :disable="() => false" :height="0" :left="100" :top="100" :width="0">
-    <WindowComponent v-model="windowOpen" left="10px" top="10px" title="Select output">
-      <div style="min-width: 400px;">
-        <div style="background-color: orange; cursor: pointer;width: fit-content;padding: 2px; margin: 5px;" @click="disconnectConveyersClicked">
-          <h3>Disconnect conveyers</h3>
-        </div>
-        <SelectItem :ingredient-list="game.getItemListSelectedBuild()" @ingredient-selected="(item: Item) => {game.changeSelectedBuildingOutput(item)}"></SelectItem>
-          <SelectItem v-if="game.selectedElementType === BuildingType.MERGER || game.selectedElementType === BuildingType.SPLITTER" :ingredient-list="game.allResources" @ingredient-selected="(resource: Resource) => {game.changeSelectedBuildingOutput(resource)}"></SelectItem>
-      </div>
-    </WindowComponent>
-  </draggable>
 
 
 </template>
@@ -189,21 +184,20 @@ const specialMachines: {name: string, type: BuildingType}[] = [
 <style>
 #gameWindow {
   overflow: hidden;
-  position: absolute;
-  width: 100%;
-  height: 100%;
+  position: relative;
+  width: 100vw;
+  height: 100vh;
 }
 
 #gameViewport {
-  position: relative;
-  height: 100%;
-  height: max-content;
   overflow: hidden;
 }
 
 .camera {
   background-image: url("/src/assets/satysfactory_high.jpg");
   position: relative;
+  height: fit-content;
+  overflow: unset;
 }
 
 .factory {
@@ -219,6 +213,13 @@ const specialMachines: {name: string, type: BuildingType}[] = [
   width: 500px;
 }
 
+#saveBtn {
+  background-color: orange;
+  color: white;
+  border-radius: 5px;
+  padding: 2px;
+}
+
 #iconDisplay {
   display: flex;
   flex-direction: row;
@@ -227,6 +228,40 @@ const specialMachines: {name: string, type: BuildingType}[] = [
 .iconSelected {
   background-color: #707070;
 }
+
+#buildingMenu {
+  background-color: lightgrey; 
+  display: block; 
+  height: 60%;
+  margin-top: 10px;
+  border-radius: 5px;
+}
+
+#buildingList {
+  display: flex;
+  flex-direction: row;
+  flex-flow: wrap;
+}
+
+
+.buildSelection {
+  cursor: pointer;
+  width: 100px;
+  margin: 10px;
+  color: white;
+  background-color: #4b4b4b;
+  border-radius: 5px;
+}
+
+.buildSelected {
+  background-color: #ff5a00;
+}
+
+.buildSelection > * {
+  margin: auto;
+  text-align: center;
+}
+
 
 .BuildingInfos {
   display: flex;
@@ -261,18 +296,18 @@ const specialMachines: {name: string, type: BuildingType}[] = [
   flex-direction: row;
 }
 
-.buildSelection {
-  cursor: pointer;
-  width: fit-content;
-}
-
-
 #processing {
   position: fixed;
   bottom: 50px;
   left: 50px;
-  background-color: white;
   width: fit-content;
+}
+
+#processing > h1 {
+  border-radius: 5px;
+  padding: 7px;
+  margin-bottom: 5px;
+  background-color: white;
 }
 
 #processing > img {

@@ -18,6 +18,12 @@ export const defaultItem: Item = {
     quantityProduced: '0'
 }
 
+
+export const splitterImg = 'https://static.wikia.nocookie.net/satisfactory_gamepedia_en/images/4/41/Conveyor_Splitter.png'
+export const mergerImg = 'https://static.wikia.nocookie.net/satisfactory_gamepedia_en/images/a/aa/Conveyor_Merger.png'
+export const conveyerImg = 'https://static.wikia.nocookie.net/satisfactory_gamepedia_en/images/c/c9/Conveyor_Belt_Mk.1.png'
+
+
 export function instanciateMachine(buildingInfo: BuildingGeneral, coords: {x: number, y: number}, uuid: string){
     const {machine, items} = buildingInfo
 
@@ -166,7 +172,7 @@ export function createMerger(items: Item[], coords: {x: number, y: number}, uuid
     const y = ref(coords.y)
 
     const displayData: Display = {
-        src: "https://static.wikia.nocookie.net/satisfactory_gamepedia_en/images/a/aa/Conveyor_Merger.png",
+        src: mergerImg,
         width: 50,
         height: 50,
     }
@@ -175,7 +181,7 @@ export function createMerger(items: Item[], coords: {x: number, y: number}, uuid
         items,
         numberOfInputs: 1,
         machine: {
-            logoPath: "https://static.wikia.nocookie.net/satisfactory_gamepedia_en/images/a/aa/Conveyor_Merger.png",
+            logoPath: mergerImg,
             name: 'merger'
         }
     }
@@ -223,7 +229,7 @@ export function createSplitter(items: Item[], coords: {x: number, y: number}, uu
     const y = ref(coords.y)
 
     const displayData: Display = {
-        src: "https://static.wikia.nocookie.net/satisfactory_gamepedia_en/images/4/41/Conveyor_Splitter.png",
+        src: splitterImg,
         width: 50,
         height: 50,
     }
@@ -232,7 +238,7 @@ export function createSplitter(items: Item[], coords: {x: number, y: number}, uu
         items,
         numberOfInputs: 1,
         machine: {
-            logoPath: "https://static.wikia.nocookie.net/satisfactory_gamepedia_en/images/a/aa/Conveyor_Merger.png",
+            logoPath: splitterImg,
             name: 'merger'
         }
     }

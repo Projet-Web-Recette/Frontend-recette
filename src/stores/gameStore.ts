@@ -217,8 +217,8 @@ export const gameStore = defineStore('gameStore', {
                         {x: 600, y: 1600},
                         {x: 2000, y: 1800},
                         {x: 1400, y: 1700},
-                        // {x: 800, y: 2200},
-                        // {x: 1200, y: 2400},
+                        {x: 800, y: 2200},
+                        {x: 1200, y: 2400},
                     ]
     
                     let idx = 0
@@ -277,13 +277,28 @@ export const gameStore = defineStore('gameStore', {
         changeSelectedBuildingOutput(element: Item | Resource){
             const type = this.selectedElementType
             if(type === BuildingType.MERGER && this.selectedElement){
+                if(this.selectedElement.output?.id === element.id) return
+
+                if(this.selectedElement.output){
+                    this.storeItem(this.selectedElement.output as Resource|Item, this.selectedElement.outQuantity)
+                }
+                
                 const selectedElement = this.selectedElement as Merger
+                this.selectedElement.outQuantity = 0
                 selectedElement.output = element
                 selectedElement.input = element
             } else if(type === BuildingType.SPLITTER && this.selectedElement){
+                if(this.selectedElement.output?.id === element.id) return
+
+                if(this.selectedElement.output){
+                    this.storeItem(this.selectedElement.output as Resource|Item, this.selectedElement.outQuantity)
+                }
+                
                 const selectedElement = this.selectedElement as Splitter
+                this.selectedElement.outQuantity = 0
                 selectedElement.output = element
                 selectedElement.input = element
+                
             } else {
                 if(!this.selectedElement || this.selectedElement.output?.id === element.id) return
 
@@ -358,7 +373,9 @@ export const gameStore = defineStore('gameStore', {
             }
           },
           selectElement(element: Building, type: BuildingType){
-            if(this.selectedMode === InteractionMode.BUILD && this.selectedBuild === BuildingType.CONVEYER && this.selectedElement){
+            if(this.selectedMode === InteractionMode.DELETE){
+                this.deleteBuilding(element)
+            } else if(this.selectedMode === InteractionMode.BUILD && this.selectedBuild === BuildingType.CONVEYER && this.selectedElement){
                 if(type !== BuildingType.CONVEYER){
                     this.placeConveyer(this.selectedElement, element)
                 }
@@ -406,7 +423,18 @@ export const gameStore = defineStore('gameStore', {
             } else {
                 return []
             }
+          },
+          storeSelectedElementItem() {
+            if(this.selectedElement && this.selectedElement.output){
+                this.storeItem(this.selectedElement.output, this.selectedElement.outQuantity)
+                this.selectedElement.outQuantity = 0
+            }
+          },
+          deleteBuilding(building: Building){
+            building.inputConveyerUid.concat(building.outputConveyerUid).forEach((id) => {
+                this.disconnectConveyer(id)
+            })
+            this.entities.delete(building.uuid)
           }
-          
     }
 })
