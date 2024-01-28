@@ -21,14 +21,8 @@ interface State {
     buildingGeneral: Map<string, BuildingGeneral>,
     allItems: Item[],
     allResources: Resource[],
-    save: Map<string, {
-        type: BuildingType, 
-        infos: {
-            output?: Item | Resource, 
-            machineId?: string
-            uuidFrom?: string, 
-            uuidTo?: string}
-        }>
+    allMachines: Resource[],
+    isProcessing: boolean
 }
 
 
@@ -47,195 +41,208 @@ export const gameStore = defineStore('gameStore', {
             buildingGeneral: useLocalStorage("buildingGeneral", new Map()).value,
             allItems: [],
             allResources: [],
-            save: useLocalStorage("save", new Map()).value
+            allMachines: [],
+            isProcessing: false
         }
     },
     actions: {
         async saveGame() {
-            const save: SaveFormat = {
-                conveyers: [], inventory: [], machines: [], mergers: [], splitters: []
-            }
-
-            this.entities.forEach((entity, key) => {
-                if(entity.type === BuildingType.MACHINE && entity.machineId){
-                    let idOutput = undefined
-                    if(entity.data.output?.id){idOutput = entity.data.output?.id}
-
-                    
-                    const {position} = entity.data
-                    save.machines.push({
-                        uuid: key,
-                        idMachine: entity.machineId,
-                        idOutput,
-                        position
-                    })
-                } else if (entity.type === BuildingType.CONVEYER){
-                    save.conveyers.push({
-                        idFrom: entity.data.from.uuid, 
-                        idTo: entity.data.to.uuid})
-                } else if (entity.type === BuildingType.MERGER){
-                    save.mergers.push({
-                        position: entity.data.position,
-                        uuid: key,
-                        idOutput: entity.data.input.id ?? undefined
-                    })
+            try {
+                this.isProcessing = true
+                
+                const save: SaveFormat = {
+                    conveyers: [], inventory: [], machines: [], mergers: [], splitters: []
                 }
-            })
-
-            this.playerInventory.forEach((value, id) => {
-                const {data, quantity} = value
-                save.inventory.push({idItem: data.id, quantity})
-            })
-
-            if(await retreiveGameData()){
-                updateSave(save)
-            } else {
-                saveGameData(save)
+    
+                this.entities.forEach((entity, key) => {
+                    if(entity.type === BuildingType.MACHINE && entity.machineId){
+                        let idOutput = undefined
+                        if(entity.data.output?.id){idOutput = entity.data.output?.id}
+    
+                        
+                        const {position} = entity.data
+                        save.machines.push({
+                            uuid: key,
+                            idMachine: entity.machineId,
+                            idOutput,
+                            position
+                        })
+                    } else if (entity.type === BuildingType.CONVEYER){
+                        save.conveyers.push({
+                            idFrom: entity.data.from.uuid, 
+                            idTo: entity.data.to.uuid})
+                    } else if (entity.type === BuildingType.MERGER){
+                        save.mergers.push({
+                            position: entity.data.position,
+                            uuid: key,
+                            idOutput: entity.data.input?.id ?? undefined
+                        })
+                    } else if (entity.type === BuildingType.SPLITTER){
+                        save.splitters.push({
+                            position: entity.data.position,
+                            uuid: key,
+                            idOutput: entity.data.input?.id ?? undefined
+                        })
+                    }
+                })
+    
+                this.playerInventory.forEach((value, id) => {
+                    const {data, quantity} = value
+                    save.inventory.push({idItem: data.id, quantity})
+                })
+    
+                if(await retreiveGameData()){
+                    updateSave(save)
+                } else {
+                    saveGameData(save)
+                }
+            } catch(error){
+                console.error(error)
+            } 
+            finally {
+                this.isProcessing = false
             }
-
-            // saveGameData(save)
         },
         async loadGame(){
-            this.allItems = await getAllItems()
-            this.allResources = await getResources()
+            try {
+                this.isProcessing = true
 
-
-            const machines = await getAllMachines()
-
-            const buildingGeneral = await Promise.all(machines.map(async (machine) => {
-                if(machine.id)
-                {
-                    const items = await getItemsByMachine(machine.id)
-
-                    const numberOfInputs = items.length > 0 ? items[0].ingredients.length : 0
-                    
-                    return {items, machine, numberOfInputs }
-                }
-            }))
-
-
-            const previousSave = await retreiveGameData() as SaveFormat
-            if(previousSave){
-                previousSave.machines.forEach((machine) => {
-                    const general = buildingGeneral.find((bg) => bg?.machine.id === machine.idMachine)
-                    const item = general?.items.find((item) => item.id + '' === machine.idOutput + '')
-
-                    if(general){
-                        this.addEntity(BuildingType.MACHINE, {output: item, buildingGeneral: general, coords: machine.position, id: machine.uuid})
-                    }else {
-                        console.error('cant load entity from save')
-                    }
-                })
-
-                previousSave.mergers.forEach((merger) => {
-                    const {position, uuid, idOutput} = merger
-
-                    const item = this.allItems.find((item) => item.id +'' === idOutput +'')
-                    const resource = this.allResources.find((resource) => resource.id +'' === idOutput +'')
-
-                    const mergerInstance = createMerger(this.allItems, position, uuid, item ? item : resource)
-                    this.entities.set(uuid, {data: mergerInstance.data, type: BuildingType.MERGER})
-
-                    if(item || resource){
-                        this.selectElement(mergerInstance.data, BuildingType.MERGER)
-                        this.changeSelectedBuildingOutput(item ? item : resource)
-                        this.resetSelectedElement()
-                    }
-                })
-
-                previousSave.splitters.forEach((splitter) => {
-                    const {position, uuid, idOutput} = splitter
-
-                    const item = this.allItems.find((item) => item.id +'' === idOutput +'')
-                    const resource = this.allResources.find((resource) => resource.id +'' === idOutput +'')
-
-                    const splitterInstance = createSplitter(this.allItems, position, uuid)
-                    this.entities.set(uuid, {data: splitterInstance.data, type: BuildingType.SPLITTER})
-
-
-                    if(item || resource){
-                        this.selectElement(splitterInstance.data, BuildingType.SPLITTER)
-                        this.changeSelectedBuildingOutput(item ? item : resource)
-                        this.resetSelectedElement()
-                    }
-                })
-
-
-                previousSave.conveyers.forEach((conveyer) => {
-                    const from = this.entities.get(conveyer.idFrom)?.data
-                    const to = this.entities.get(conveyer.idTo)?.data
-
-                    if(from && to){
-                        this.placeConveyer(from, to)
-                    }
-                })
-
-                previousSave.inventory.forEach((invent) => {
-                    const item = this.allItems.find((i) => i.id + '' === invent.idItem + '')
-                    
-                    if(item) this.storeItem(item, invent.quantity)
-                })
-
-            } else {
-
-                const request = await sendRequest('foreuses', 'GET', undefined, true)
+                this.allItems = await getAllItems()
+                this.allResources = await getResources()
     
-                const response = request?.content["hydra:member"];
-
-                const miners: Miner[] = response.map((value: any) => {
-                    const {id, contentUrl, nom, tauxProdForeuse, type} = value
-                    return {
-                        id,
-                        logoPath: contentUrl, 
-                        name: nom, 
-                        rate: tauxProdForeuse, 
-                        type
-                    } as Miner 
-                })
-
-                const miner1 = miners.find((miner) => miner.type === 'mk1')
-
-                const minerBuildingGeneral: BuildingGeneral = {
-                    items: this.allResources,
-                    machine: miner1 as Machine,
-                    numberOfInputs: 0
-                }
-
-                const validPosition: {x: number, y: number}[] = [
-                    {x: 600, y: 1600},
-                    {x: 2000, y: 1800},
-                    {x: 1400, y: 1700},
-                    // {x: 800, y: 2200},
-                    // {x: 1200, y: 2400},
-                ]
-
-                let idx = 0
-                
-                if(miner1){
-                    this.allResources.forEach((resource) => {
-                        this.addEntity(BuildingType.MACHINE, {output: resource, coords: validPosition[idx], buildingGeneral: minerBuildingGeneral})
-                        idx = (idx + 1) % validPosition.length
+    
+                this.allMachines = await getAllMachines()
+    
+                const buildingGeneral = await Promise.all(this.allMachines.map(async (machine) => {
+                    if(machine.id)
+                    {
+                        const items = await getItemsByMachine(machine.id)
+    
+                        const numberOfInputs = items.length > 0 ? items[0].ingredients.length : 0
+                        
+                        return {items, machine, numberOfInputs }
+                    }
+                }))
+    
+    
+                const previousSave = await retreiveGameData() as SaveFormat
+                if(previousSave){
+                    previousSave.machines.forEach((machine) => {
+                        const general = buildingGeneral.find((bg) => bg?.machine.id === machine.idMachine)
+                        const item = general?.items.find((item) => item.id + '' === machine.idOutput + '')
+                        const resource = this.allResources.find((resource) => resource.id + '' === machine.idOutput + '')
+    
+                        if(general){
+                            this.addEntity(BuildingType.MACHINE, {output: item ? item : resource, buildingGeneral: general, coords: machine.position, id: machine.uuid})
+                        }else {
+                            console.error('cant load entity from save')
+                        }
                     })
+    
+                    previousSave.mergers.forEach((merger) => {
+                        const {position, uuid, idOutput} = merger
+    
+                        const item = this.allItems.find((item) => item.id +'' === idOutput +'')
+                        const resource = this.allResources.find((resource) => resource.id +'' === idOutput +'')
+    
+                        const mergerInstance = createMerger(this.allItems, position, uuid, item ? item : resource)
+                        this.entities.set(uuid, {data: mergerInstance.data, type: BuildingType.MERGER})
+    
+                        if(item || resource){
+                            this.selectElement(mergerInstance.data, BuildingType.MERGER)
+                            this.changeSelectedBuildingOutput(item ? item : resource)
+                            this.resetSelectedElement()
+                        }
+                    })
+    
+                    previousSave.splitters.forEach((splitter) => {
+                        const {position, uuid, idOutput} = splitter
+    
+                        const item = this.allItems.find((item) => item.id +'' === idOutput +'')
+                        const resource = this.allResources.find((resource) => resource.id +'' === idOutput +'')
+    
+                        const splitterInstance = createSplitter(this.allItems, position, uuid)
+                        this.entities.set(uuid, {data: splitterInstance.data, type: BuildingType.SPLITTER})
+    
+    
+                        if(item || resource){
+                            this.selectElement(splitterInstance.data, BuildingType.SPLITTER)
+                            this.changeSelectedBuildingOutput(item ? item : resource)
+                            this.resetSelectedElement()
+                        }
+                    })
+    
+    
+                    previousSave.conveyers.forEach((conveyer) => {
+                        const from = this.entities.get(conveyer.idFrom)?.data
+                        const to = this.entities.get(conveyer.idTo)?.data
+    
+                        if(from && to){
+                            this.placeConveyer(from, to)
+                        }
+                    })
+    
+                    previousSave.inventory.forEach((invent) => {
+                        const item = this.allItems.find((i) => i.id + '' === invent.idItem + '')
+                        
+                        if(item) this.storeItem(item, invent.quantity)
+                    })
+    
+                } else {
+    
+                    const request = await sendRequest('foreuses', 'GET', undefined, true)
+        
+                    const response = request?.content["hydra:member"];
+    
+                    const miners: Miner[] = response.map((value: any) => {
+                        const {id, contentUrl, nom, tauxProdForeuse, type} = value
+                        return {
+                            id,
+                            logoPath: contentUrl, 
+                            name: nom, 
+                            rate: tauxProdForeuse, 
+                            type
+                        } as Miner 
+                    })
+    
+                    const miner1 = miners.find((miner) => miner.type === 'mk1')
+    
+                    const minerBuildingGeneral: BuildingGeneral = {
+                        items: this.allResources,
+                        machine: miner1 as Machine,
+                        numberOfInputs: 0
+                    }
+    
+                    const validPosition: {x: number, y: number}[] = [
+                        {x: 600, y: 1600},
+                        {x: 2000, y: 1800},
+                        {x: 1400, y: 1700},
+                        // {x: 800, y: 2200},
+                        // {x: 1200, y: 2400},
+                    ]
+    
+                    let idx = 0
+                    
+                    if(miner1){
+                        this.allResources.forEach((resource) => {
+                            this.addEntity(BuildingType.MACHINE, {output: resource, coords: validPosition[idx], buildingGeneral: minerBuildingGeneral})
+                            idx = (idx + 1) % validPosition.length
+                        })
+                    }
                 }
+    
+    
+    
+                buildingGeneral.map((infos) => {
+                    if(infos)
+                    this.buildingGeneral.set(infos.machine.id + '', infos)
+                })
+            } catch (error){
+                console.error(error)
+            } finally {
+                this.isProcessing = false
             }
-
-
-
-            buildingGeneral.map((infos) => {
-                if(infos)
-                this.buildingGeneral.set(infos.machine.id + '', infos)
-            })
-
-            // this.save.set('test', {infos: {uuidFrom: 'je', uuidTo: 'tu'}, type: BuildingType.CONVEYER})
-
-            // if(this.save.size){
-            //     const saveIterator = this.save.entries()
-            //     for(const [id, {infos, type}] of saveIterator){
-            //         if(type === BuildingType.MACHINE){
-
-            //         }
-            //     }
-            // }
+            
         },
         selectMode(mode: InteractionMode){          
             this.selectedMode = mode 
@@ -305,7 +312,7 @@ export const gameStore = defineStore('gameStore', {
         addEntity(type: BuildingType, infos: {
             output?: Resource | Item, 
             coords: {x: number, y:number},
-            buildingGeneral: BuildingGeneral,
+            buildingGeneral?: BuildingGeneral,
             id?: string})
         {
             const {output, coords, id, buildingGeneral} = infos
@@ -318,7 +325,7 @@ export const gameStore = defineStore('gameStore', {
 
             
 
-            if(type === BuildingType.MACHINE){
+            if(type === BuildingType.MACHINE && buildingGeneral){
                 const machine = instanciateMachine(buildingGeneral, coords, uuid)
                 this.updatables.set(uuid, machine.updatable)
                 

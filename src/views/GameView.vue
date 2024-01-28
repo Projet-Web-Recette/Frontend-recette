@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { gameStore } from '@/stores/gameStore';
 import factoryDisplay from '@/components/factoryDisplay.vue'
-import type { Item, Resource } from '@/types';
+import type { Item, Machine, Resource } from '@/types';
 import { launchGame} from '@/gameData/gameWorld';
 import ConveyerDisplay from '@/components/conveyerDisplay.vue';
 import quantityDisplay from '@/components/quantityDisplay.vue';
@@ -27,7 +27,7 @@ function mouseDownHandler(event: MouseEvent){
       if(game.selectedMachineBuild?.id){
         game.addEntity(game.selectedBuild, {coords:{x: event.offsetX, y: event.offsetY}, buildingGeneral: game.buildingGeneral.get(game.selectedMachineBuild.id + "") as any})
       } else {
-        console.error("can't add entity")
+        game.addEntity(game.selectedBuild, {coords:{x: event.offsetX, y: event.offsetY}})
       }
     }
     else if(game.selectedMode === InteractionMode.CAMERA){
@@ -81,6 +81,10 @@ function canDisplayInput(machineId: string, data: Building){
   const response = bg && bg.numberOfInputs > 0 && inputs && inputs.length > 0 && inputs[0].ingredient
   return response
 }
+
+const specialMachines: {name: string, type: BuildingType}[] = [
+  {name: 'splitter', type: BuildingType.SPLITTER}
+] 
 
 </script>
 
