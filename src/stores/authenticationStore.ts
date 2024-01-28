@@ -10,7 +10,7 @@ export const authenticationStore = defineStore('authenticationStore', {
         isPremium: useLocalStorage("isPremium", false),
         isAdmin: useLocalStorage("isAdmin", false),
         userId: useLocalStorage("userId", "")
-        //isAuthenticated: false
+
     }),
 
     getters: {
@@ -24,6 +24,8 @@ export const authenticationStore = defineStore('authenticationStore', {
             
             try {
                 const response = await sendRequest('auth', 'POST', {login, password})
+
+                console.log(response)
     
                 if(!response || response.status !== HttpErrors.SUCCESS){
                     fail()
@@ -31,8 +33,9 @@ export const authenticationStore = defineStore('authenticationStore', {
                 }
                 
                 this.JWT = response.content.token? response.content.token : ""
-
+              
                 const jwtJSON = jwtDecode<{adresseEmail: String, exp: Number, iat: Number, id: string, roles: String[], username: string, premium: boolean}>(this.JWT);
+
     
                 this.isAdmin = jwtJSON.roles.includes('ROLE_ADMIN');
                 this.userId = jwtJSON.id

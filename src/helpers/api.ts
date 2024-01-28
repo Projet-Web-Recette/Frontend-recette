@@ -93,6 +93,7 @@ async function handleErrors(response: Response) {
 }
 
 export async function sendRequest(endpoint: string, method: 'GET' | 'POST' | 'PATCH', payload?: any, useJWT = false, isMultipart = false) {
+
     let token = {}
     let request = {} as HttpRequest
 
@@ -111,7 +112,7 @@ export async function sendRequest(endpoint: string, method: 'GET' | 'POST' | 'PA
 
     request.method = method
     request.headers = {
-        'Content-Type': 'application/json',
+        ...contentType,
         ...token
     }
 
@@ -231,8 +232,6 @@ export async function getItemsByMachine(idMachine: string): Promise<Item[]> { //
     
     return items.map((item: any) => translateItemFromApi(item))
 }
-
-
 export async function getItemsMachine(idMachine: string): Promise<Item[]> {
     const requestItems = await sendRequest(`machines/${idMachine}/items?type=Items`, "GET", null, true);
     const requestUserItems = await sendRequest(`machines/${idMachine}/items?type=ItemsUser`, "GET", null, true);
