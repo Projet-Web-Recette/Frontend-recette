@@ -19,15 +19,14 @@ const initPosition = defineProps<{
   disable: () => boolean | false
 }>()
 
-const top = ref(initPosition.top)
-const left = ref(initPosition.left)
-
 let offsetX = 0
 let offsetY = 0
 
 let dropX = initPosition.left
 let dropY = initPosition.top
 
+let x = 0
+let y = 0
 
 
 const emit = defineEmits<{
@@ -50,19 +49,20 @@ function dragMouseDown(e: MouseEvent) {
 
 function elementDrag(e: MouseEvent) {
   e.preventDefault();
-
-  top.value = dropY + e.clientY - offsetY
-  left.value = dropX + e.clientX - offsetX
-
   
-    emit("updatePos", {x: left.value, y: top.value})
-//   elmnt.style.top = (elmnt.offsetTop - pos2) + "px";
-//   elmnt.style.left = (elmnt.offsetLeft - pos1) + "px";
+  let x = dropX + e.clientX - offsetX
+  let y = dropY + e.clientY - offsetY
+
+  emit("updatePos", {x, y})
+  
+  //   elmnt.style.top = (elmnt.offsetTop - pos2) + "px";
+  //   elmnt.style.left = (elmnt.offsetLeft - pos1) + "px";
 }
 
 function closeDragElement() {
-  dropX = left.value
-  dropY = top.value
+  dropX = x
+  dropY = y
+  
   /* stop moving when mouse button is released:*/
   document.onmouseup = null;
   document.onmousemove = null;

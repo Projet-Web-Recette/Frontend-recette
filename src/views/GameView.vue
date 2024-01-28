@@ -72,8 +72,6 @@ function disconnectConveyersClicked() {
 const windowOpen= ref(false)
 const inventoryWindowOpen = ref(false)
 
-const hasOutput = [BuildingType.MERGER, BuildingType.SPLITTER]
-
 
 function canDisplayInput(machineId: string, data: Building){
   const bg = game.buildingGeneral.get(machineId)
@@ -140,6 +138,7 @@ const specialMachines: {name: string, type: BuildingType, iconPath: string}[] = 
             <IconUI :action-name="InteractionMode.INTERACT" icon-path="icons/click.png" @icon-selected="game.selectMode(InteractionMode.INTERACT)" :class="game.selectedMode === InteractionMode.INTERACT ? 'iconSelected' : ''"></IconUI>
             <IconUI :action-name="InteractionMode.MOVE" icon-path="icons/move.png" @icon-selected="game.selectMode(InteractionMode.MOVE)" :class="game.selectedMode === InteractionMode.MOVE ? 'iconSelected' : ''"></IconUI>
             <IconUI :action-name="InteractionMode.CAMERA" icon-path="icons/camera.png" @icon-selected="game.selectMode(InteractionMode.CAMERA)" :class="game.selectedMode === InteractionMode.CAMERA ? 'iconSelected' : ''"></IconUI>
+            <IconUI :action-name="InteractionMode.DELETE" icon-path="icons/demolition.png" @icon-selected="game.selectMode(InteractionMode.DELETE)" :class="game.selectedMode === InteractionMode.DELETE ? 'iconSelected' : ''"></IconUI>
             <IconUI action-name="Stock" icon-path="icons/box.png" @icon-selected="inventoryWindowOpen = true"></IconUI>
           </div>
           <div id="buildingMenu" v-if="game.selectedMode === InteractionMode.BUILD" @mousedown.stop>
@@ -164,6 +163,7 @@ const specialMachines: {name: string, type: BuildingType, iconPath: string}[] = 
               <div style="background-color: orange; cursor: pointer;width: fit-content;padding: 2px; margin: 5px;" @click="disconnectConveyersClicked">
                 <h3>Disconnect conveyers</h3>
               </div>
+              <div style="background-color: red; cursor: pointer;" @click="game.storeSelectedElementItem"><h3>Collect</h3></div>
               <SelectItem :ingredient-list="game.getItemListSelectedBuild()" @ingredient-selected="(item: Item) => {game.changeSelectedBuildingOutput(item)}"></SelectItem>
               <SelectItem v-if="game.selectedElementType === BuildingType.MERGER || game.selectedElementType === BuildingType.SPLITTER" :ingredient-list="game.allResources" @ingredient-selected="(resource: Resource) => {game.changeSelectedBuildingOutput(resource)}"></SelectItem>
             </div>
@@ -171,8 +171,8 @@ const specialMachines: {name: string, type: BuildingType, iconPath: string}[] = 
         </div>
 
         <div v-if="game.isProcessing" id="processing">
-          <h1>Processing</h1>
           <img :src="'src/assets/logo.png'" />
+          <h1>Processing</h1>
         </div>
       </div>
     </div>
@@ -300,8 +300,14 @@ const specialMachines: {name: string, type: BuildingType, iconPath: string}[] = 
   position: fixed;
   bottom: 50px;
   left: 50px;
-  background-color: white;
   width: fit-content;
+}
+
+#processing > h1 {
+  border-radius: 5px;
+  padding: 7px;
+  margin-bottom: 5px;
+  background-color: white;
 }
 
 #processing > img {

@@ -25,7 +25,8 @@ const emit = defineEmits<{
     margin: 5px;
     color: #EFEFEF;
     background-color: #222222;
-    width: 80px;
+    width: 90px;
+    min-width: 90px;
     cursor: pointer;
 }
 
