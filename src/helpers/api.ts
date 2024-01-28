@@ -2,6 +2,7 @@ import type { SaveFormat } from "@/gameData/types"
 import { authenticationStore } from "@/stores/authenticationStore"
 import { type HttpRequest, type Item, type Resource, type Machine, HttpErrors } from "@/types"
 import { isRuntimeOnly } from "vue"
+import { flashMessage } from "@smartweb/vue-flash-message"
 
 const baseUrl = 'https://webinfo.iutmontp.univ-montp2.fr/~royov/API-PLATFORM/public/api'
 const baseUrl2 = 'https://webinfo.iutmontp.univ-montp2.fr/~bordl/API-PLATFORM-main/API-PLATFORM/public/api'
@@ -11,7 +12,6 @@ function translateResourceFromApi(resource: any): Resource {
     return {
         id: id ? id : resource["@id"],
         name: nomRessource,
-        quality: qualite,
         logoPath: contentUrl
     }
 }
@@ -76,7 +76,23 @@ function translateMachineFromApi(machine: any): Machine {
     }
 }
 
-export async function sendRequest(endpoint: string, method: 'GET' | 'POST' | 'PATCH', payload?: any, useJWT = false) {
+async function handleErrors(response: Response) {
+    if (!response.ok) {
+          await response.json().
+             then(object => {
+                flashMessage.show({
+                    type: 'error',
+                    title: "",
+                    text: object.message,
+                    image: './src/assets/flash-messages-logo/error.svg',
+                 });
+          })
+        throw new Error(response.status+"");
+    }
+    return response;
+}
+
+export async function sendRequest(endpoint: string, method: 'GET' | 'POST' | 'PATCH', payload?: any, useJWT = false, isMultipart = false) {
     let token = {}
     let request = {} as HttpRequest
 
@@ -90,23 +106,40 @@ export async function sendRequest(endpoint: string, method: 'GET' | 'POST' | 'PA
             'Authorization': `Bearer ${authentication.JWT}`
         }
     }
+    
+    const contentType = isMultipart ? "" : {'Content-Type': method === 'PATCH' ? 'application/merge-patch+json' : 'application/json'}
 
     request.method = method
     request.headers = {
-        'Content-Type': method === 'PATCH' ? 'application/merge-patch+json' : 'application/json',
+        ...contentType,
         ...token
     }
 
     if (payload) {
-        request.body = JSON.stringify({ ...payload })
+
+        if (isMultipart) {
+
+            request.body = payload;
+
+        } else {
+            request.body = JSON.stringify({ ...payload })
+        }
     }
 
+   // console.log(request)
 
     const response = await fetch(`${baseUrl}/${endpoint}`, request)
 
+    await handleErrors(response);
+
     const result = { status: response.status, content: await response.json() }
-    return result
+     return result
+    
+
+    
 }
+
+
 
 
 export async function getResources(): Promise<Resource[]> {
@@ -128,7 +161,15 @@ export async function getItem(idItem: Number): Promise<Item> {
 }
 
 export async function getAllItems(): Promise<Item[]> {
-    const request = await sendRequest('items?type=Items', 'GET', null, true);
+    const request = await sendRequest('items/?type=Items', 'GET', null, true);
+
+    const items = request?.content["hydra:member"];
+
+    return items.map((item: any) => translateItemFromApi(item))
+}
+
+export async function getAllItemsUser(): Promise<Item[]> {
+    const request = await sendRequest('items/?type=ItemsUser', 'GET', null, true);
 
     const items = request?.content["hydra:member"];
 
@@ -151,7 +192,7 @@ export async function getAllMachines(): Promise<Machine[]>{
     return machines.map((machine: any) => translateMachineFromApi(machine))
 }
 
-export async function getMachine(idMachine: Number): Promise<Machine> {
+export async function getMachine(idMachine: string): Promise<Machine> {
     const request = await sendRequest(`machines/${idMachine}`, 'GET', null, true);
 
     const machine = request?.content;
@@ -159,12 +200,66 @@ export async function getMachine(idMachine: Number): Promise<Machine> {
     return translateMachineFromApi(machine);
 }
 
-export async function getItemsByMachine(idMachine: string): Promise<Item[]> {
+export async function getRessource(idRessource: string): Promise<Resource> {
+    const request = await sendRequest(`ressources/${idRessource}`, "GET", null, true);
+
+    const ressource = request?.content;
+
+    return translateResourceFromApi(ressource);
+}
+
+
+export async function createUserItem(nameItem:string, idIngredients: Map<string,string>, quantityProduced: string, idMachine: string, logoPath: string){
+    let logo = logoPath.split("/");
+    let nomFichier = logo[logo.length-1];
+    const dataItem = {
+        "nomItem":nameItem,
+        "identifiantsIngredient":Object.fromEntries(idIngredients),
+        "quantityProduced":quantityProduced,
+        "idMachine":idMachine,
+        "urlPath": nomFichier
+    };
+    const request = await sendRequest(`items_users`, "POST", dataItem, true);
+
+    return request?.content;
+}
+
+export async function getItemsByMachine(idMachine: string): Promise<Item[]> { // TODO: REMOVE ?
     const request = await sendRequest(`machines/${idMachine}/items?type=Items`, 'GET', null, true);
 
     const items = request?.content["hydra:member"];
     
     return items.map((item: any) => translateItemFromApi(item))
+}
+
+
+export async function getItemsMachine(idMachine: string): Promise<Item[]> {
+    const requestItems = await sendRequest(`machines/${idMachine}/items?type=Items`, "GET", null, true);
+    const requestUserItems = await sendRequest(`machines/${idMachine}/items?type=ItemsUser`, "GET", null, true);
+
+
+
+    const items = requestItems?.content["hydra:member"];
+
+    const userItems = requestUserItems?.content["hydra:member"];
+
+    const array = [...items, ...userItems];
+
+    return array;
+}
+
+export async function createItemAdmin(nameItem: string, idIngredients: Map<string, string>, quantityProduced: string, idMachine: string, file: any) {
+    const formData = new FormData();
+
+    formData.append("nomItem", nameItem);
+    formData.append("identifiantsIngredient", JSON.stringify(Object.fromEntries(idIngredients)));
+    formData.append("quantityProduced", quantityProduced);
+    formData.append("idMachine", idMachine);
+    formData.append("file", file);
+
+    const request = await sendRequest("items", "POST", formData, true, true);
+
+    return request;
 }
 
 export async function saveGameData(save: SaveFormat){

@@ -1,12 +1,12 @@
 
 <template>
-    <VueSideBar :is-creating="isCreatingItem" @menuItemClicked="menuItemClicked" @on-machine-emit="machineSelected" @on-ressource-emit="ressourceSelected" @on-item-emit="itemSelected" @search-input-emit="searchItem"
+    <VueSideBar :currentLink="currentLink" :is-creating="isCreatingItem" @menuItemClicked="menuItemClicked" @on-machine-emit="machineSelected" @on-ressource-emit="ressourceSelected" @on-item-emit="itemSelected" @search-input-emit="searchItem"
         :items="items" :machines="machines" :ressources="ressources"/>
 
     <div id="receipe">
-        <ItemReceipeVue v-if="itemReceipe && !isCreatingItem" @on-item-selected-for-recipe="itemSelectedForRecipe"
+        <ItemReceipeVue v-if="itemReceipe && !isCreatingItem" @on-item-selected-for-recipe="itemSelectedForRecipe" @on-machine-selected-for-recipe="machineSelectedForRecipe"
             :key="keyRender" :item="itemReceipe"></ItemReceipeVue>
-        <CreateItem :add-node="addNode" v-if="isCreatingItem"></CreateItem>
+        <CreateItem :add-node="addNode" v-if="isCreatingItem" @cancel-creation="cancelCreation"></CreateItem>
     </div>
 </template>
 
@@ -14,14 +14,17 @@
 <script setup lang="ts">
 import ItemReceipeVue from '@/components/ItemReceipe.vue';
 import CreateItem from '@/components/createItem.vue';
-import type { Item, Machine, Resource } from '@/types';
-import { getItem, getAllItems, getAllRecipesFromItem, getAllMachines, getResources, getMachine } from '@/helpers/api';
+import type { Item, Machine, Resource, Node } from '@/types';
+import { getItem, getAllItems, getAllRecipesFromItem, getAllMachines, getResources, getMachine, getRessource, getItemsMachine, getAllItemsUser } from '@/helpers/api';
 import { onMounted, ref } from 'vue';
 import VueSideBar from "../components/Sidebar.vue";
+import { flashMessage } from '@smartweb/vue-flash-message';
 
 let itemsApi: Item[] = [];
 let machinesApi: Machine[] = [];
-let ressourcesApi: Ressource[] = [];
+let ressourcesApi: Resource[] = [];
+
+const currentLink = ref<string>();
 
 const isCreatingItem = ref<Boolean>(false);
 
@@ -34,62 +37,74 @@ const keyRender = ref<string>('');
 
 const itemReceipe = ref<Item>();
 
-const addNode = ref<{
-    id:string;
-    type:string
-}>();
+const addNode = ref<Node>();
 
 
 onMounted(async () => {
-
     itemsApi = await getAllItems();
-
     machinesApi = await getAllMachines();
-
     ressourcesApi = await getResources();
 
     items.value = itemsApi;
-
     machines.value = machinesApi;
-
     ressources.value = ressourcesApi;
-
 });
 
-async function itemSelected(idItem: number) {
+async function itemSelected(idItem: string) {
     const item = await getItem(idItem);
-    keyRender.value = item.name;
+    keyRender.value = item.id;
     itemReceipe.value = item;
 
     addNode.value = {
         id: idItem,
-        type: "item"
+        type: "item",
+        name: item.name,
+        logoPath: item.logoPath,
+        isCreating: true
     }
 
 }
 
-async function machineSelected(idMachine: number) {
+async function machineSelected(idMachine: string) {
     const machine = await getMachine(idMachine);
-    keyRender.value = machine.name;
-
 
     addNode.value = {
         id: `${idMachine}`,
-        type: "machine"
+        type: "machine",
+        name: machine.name,
+        logoPath: machine.logoPath,
+        isCreating: true
     }
 }
 
-async function ressourceSelected(idRessource: number) {
+async function ressourceSelected(idRessource: string) {
+
+    const ressource = await getRessource(idRessource);
+
     addNode.value = {
         id: `${idRessource}`,
-        type: "ressource"
+        type: "ressource",
+        name: ressource.name,
+        logoPath: ressource.logoPath,
+        isCreating: true
     }
 }
 
-function menuItemClicked(link: string) {
+async function menuItemClicked(link: string) {
     switch (link) {
         case "createItem":
             isCreatingItem.value = true;
+            currentLink.value = "Création d'un item"
+            break;
+        case "Items":
+            itemsApi = await getAllItems();
+            items.value = itemsApi;
+            if (!isCreatingItem.value)  currentLink.value = "Tous les items"
+            break;
+        case "myItems": 
+            itemsApi = await getAllItemsUser();
+            items.value = itemsApi;
+            if (!isCreatingItem.value) currentLink.value = "Mes items"
             break;
     }
 }
@@ -123,6 +138,27 @@ async function itemSelectedForRecipe(idItemCode: string) {
     });
 }
 
+async function machineSelectedForRecipe(idMachineCode: string) {
+    const idMachine = idMachineCode.split("_")[0];
+
+    let itemRecipes = await getItemsMachine(idMachine);
+
+    let arrayIdItems = getAllIdForMachine(itemRecipes);
+
+    items.value = itemsApi.filter((item: Item) => {
+        if (arrayIdItems.includes(item.id)) return item;
+    });
+}
+
+
+function getAllIdForMachine(items: any[], ids: string[] = []): string[] {
+    for(let item of items){
+        ids.push(item.id);
+        continue;
+    }
+    return ids;
+}
+
 
 /**
  * @description Récupère tous les identifiants des items contenus dans la recette de l'item courante
@@ -137,6 +173,11 @@ function getAllId(itemsRecipes: any[], ids: string[] = []): string[] {
         getAllId(item.ingredientsOf, ids);
     }
     return ids;
+}
+
+function cancelCreation(){
+    isCreatingItem.value = false;
+    menuItemClicked("myItems");
 }
 
 

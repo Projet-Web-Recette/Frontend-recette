@@ -52,3 +52,11 @@ export interface HttpRequest {
     headers: {[key: string]: string},
     body?: string
 }
+
+export interface Node {
+    id:string;
+    type:string;
+    name:string;
+    logoPath: string;
+    isCreating: boolean;
+}

@@ -4,7 +4,8 @@ import { VueFlow, useVueFlow, MarkerType } from '@vue-flow/core'
 import { onMounted, ref } from 'vue';
 import ResourceDetail from './ResourceDetail.vue';
 import ItemDetail from './itemDetail.vue';
-import MachineDetail from './machineDetail.vue'
+import MachineDetail from './machineDetail.vue';
+import { generateUniqueId } from '@/helpers/utils';
 
 const vueFlow = useVueFlow();
 
@@ -34,8 +35,6 @@ onMounted(async () => {
 
     horizontalSpacing += numberOfDoubleItems * 10;
 
-
-
     item.id += generateUniqueId();
     machine.id += generateUniqueId();
 
@@ -57,8 +56,6 @@ onMounted(async () => {
       position: { x: 500, y: 300 }
     });
 
-  
-
 
     elements.value.push({ id: `${item.id}${machine.id}`, label: item.quantityProduced, source: item.id, target: machine.id, markerStart: MarkerType.ArrowClosed });
 
@@ -70,12 +67,7 @@ onMounted(async () => {
   }
 });
 
-/**
- * @description Génère un id aléatoire
- */
-function generateUniqueId() {
-  return '_' + Math.random().toString(36).substring(2, 9);
-}
+
 
 /**
  * @description Affiche l'arbre d'ingrédient et de machine associés 
@@ -188,13 +180,13 @@ function countNumberStage(ingredients: any[]): number {
 <template>
   <VueFlow :min-zoom="0.2" :nodes-draggable="nodesDraggable" v-model="elements" class="basicflow">
     <template #node-resource="{ data }">
-      <ResourceDetail :resource="data"></ResourceDetail>
+      <ResourceDetail :isCreating="false" :resource="data"></ResourceDetail>
     </template>
     <template #node-item="{ data }">
-      <ItemDetail :item="data" @onItemClicked="$emit('on-item-selected-for-recipe', $event)"></ItemDetail>
+      <ItemDetail :isCreating="false" :item="data" @onItemClicked="$emit('on-item-selected-for-recipe', $event)"></ItemDetail>
     </template>
     <template #node-machine="{ data }">
-      <MachineDetail :machine="data"></MachineDetail>
+      <MachineDetail :isCreating="false" :machine="data" @onMachineClicked="$emit('on-machine-selected-for-recipe', $event)"></MachineDetail>
     </template>
   </VueFlow>
 </template>

@@ -98,6 +98,7 @@ import {MDBBtn, MDBInput, MDBTabContent, MDBTabItem, MDBTabNav, MDBTabPane, MDBT
 import {authenticationStore} from "@/stores/authenticationStore";
 import {ref} from "vue";
 import {useRouter} from "vue-router";
+import { flashMessage } from '@smartweb/vue-flash-message';
 
 const form7ActiveTab = ref("form7-login");
 
@@ -126,6 +127,12 @@ async function loginSubmit() {
 
     if(authentication.isAuthenticated){
       router.push({path:'/'});
+      flashMessage.show({
+        type: 'success',
+        title: "",
+        text: 'You have been successfully connected',
+        image: './src/assets/flash-messages-logo/success.svg',
+      });
     }
   }
 }

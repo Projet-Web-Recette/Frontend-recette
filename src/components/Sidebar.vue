@@ -2,7 +2,7 @@
     <div class="sidebar" :class="isOpened ? 'open' : ''" :style="cssVars">
         <div class="logo-details" style="margin: 6px 14px 0 14px">
             <div class="logo_name">
-                {{ menuTitle }}
+                {{ menuTitle + " > " + currentLink }}
             </div>
 
             <i class="material-symbols-outlined" id="btn" @click="isOpened = !isOpened">{{ isOpened ? "arrow_back" :
@@ -19,17 +19,16 @@
             <div id="my-scroll" style="margin: 6px 14px 0 14px">
                 <ul class="nav-list" style="overflow: visible">
                     <li v-for="(menuItem, index) in menuItems" :key="index" :id="'links_' + index">
-                        <router-link v-if="isUsedVueRouter" :to="menuItem.link">
-                            <i class="material-symbols-outlined">{{ menuItem.icon }}</i>
-                            <span class="links_name">{{ menuItem.name }}</span>
-                        </router-link>
-                        <a v-else @click.stop.prevent="$emit('menuItemClicked', menuItem.link)" :href="menuItem.link">
-                            <i class="material-symbols-outlined">{{ menuItem.icon }}</i>
-                            <span class="links_name">{{ menuItem.name }}</span>
-                        </a>
-                        <span :data-target="'links_' + index" class="tooltip">{{
-                            menuItem.tooltip || menuItem.name
-                        }}</span>
+                        <div v-if="menuItem.safe || canCreateItem">
+                            <a @click.stop.prevent="$emit('menuItemClicked', menuItem.link)" :href="menuItem.link">
+                                <i class="material-symbols-outlined">{{ menuItem.icon }}</i>
+                                <span class="links_name">{{ menuItem.name }}</span>
+                            </a>
+                            <span :data-target="'links_' + index" class="tooltip">{{
+                                menuItem.tooltip || menuItem.name
+                            }}</span>
+                        </div>
+
                     </li>
                     <li id="links_search" v-if="isSearch" @click="isOpened = true">
 
@@ -51,7 +50,9 @@
 
                         <MDBAccordionItem headerTitle="Ressources" collapseId="collapseOne">
                             <div class="grid grid-cols-4 gap-4">
-                                <RessourceIconVue @onRessourceClicked="$emit('on-ressource-emit', $event)" v-for="(ressource, index) in ressources" :key="index" :ressource="ressource"></RessourceIconVue>
+                                <RessourceIconVue @onRessourceClicked="$emit('on-ressource-emit', $event)"
+                                    v-for="(ressource, index) in ressources" :key="index" :ressource="ressource">
+                                </RessourceIconVue>
                             </div>
                         </MDBAccordionItem>
 
@@ -63,10 +64,10 @@
                         </MDBAccordionItem>
                         <MDBAccordionItem headerTitle="Machines" collapseId="collapseThree">
                             <div class="grid grid-cols-4 gap-4">
-                                <MachineIconVue @onMachineClicked="$emit('on-machine-emit', $event)" v-for="(machine, index) in machines" :key="index" :machine="machine"></MachineIconVue>
+                                <MachineIconVue @onMachineClicked="$emit('on-machine-emit', $event)"
+                                    v-for="(machine, index) in machines" :key="index" :machine="machine"></MachineIconVue>
                             </div>
                         </MDBAccordionItem>
-
                     </MDBAccordion>
 
                 </div>
@@ -81,9 +82,18 @@
 
 <script setup lang="ts">
 import { MDBAccordion, MDBAccordionItem } from "mdb-vue-ui-kit";
-import { ref } from "vue";
+import { onMounted, ref } from "vue";
+import { authenticationStore } from "@/stores/authenticationStore";
 
 const activeItem = ref('collapseOne');
+
+const canCreateItem = ref<Boolean>();
+
+const authentication = authenticationStore()
+
+onMounted(() => {
+    canCreateItem.value = authentication.isAdmin || authentication.isPremium;
+});
 
 </script>
   
@@ -93,11 +103,14 @@ import MachineIconVue from "./MachineIcon.vue";
 import RessourceIconVue from "./RessourceIcon.vue";
 
 
-
 export default {
     name: 'VueSideBar',
     props: {
         //! Menu settings
+        currentLink: {
+            type: String,
+            default: ''
+        },
         isCreating: {
             type: Boolean,
             default: false
@@ -143,7 +156,23 @@ export default {
                     name: 'Créer un item',
                     tooltip: 'Créer un item',
                     icon: 'add',
+                    safe: false
+
                 },
+                {
+                    link: 'Items',
+                    name: 'Toutes les recettes',
+                    tooltip: 'Toutes les recettes',
+                    icon: 'public',
+                    safe: true
+                },
+                 {
+                    link: 'myItems',
+                    name: 'Mes recettes',
+                    tooltip: 'Mes recettes',
+                    icon: 'deployed_code_account',
+                    safe: true
+                }
             ],
         },
         items: {
