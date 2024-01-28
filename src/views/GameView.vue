@@ -148,7 +148,7 @@ const specialMachines: {name: string, type: BuildingType, iconPath: string}[] = 
                 <p>{{ specialMachine.name }}</p>
               </div>
               
-              <div v-for="{machine} in game.buildingGeneral.values()" @click="() => {
+              <div v-for="machine in game.allMachines.values()" @click="() => {
                   game.selectedBuild = BuildingType.MACHINE
                   game.selectMachine(machine)
                 }" class="buildSelection" :class="{buildSelected: game.selectedMachineBuild?.id === machine.id && game.selectedBuild === BuildingType.MACHINE}" >
