@@ -13,6 +13,7 @@
   "dependencies": {
     "@headlessui/vue": "^1.7.17",
     "@material-tailwind/html": "^2.2.2",
+    "@smartweb/vue-flash-message": "^1.0.0-alpha.12",
     "@vue-flow/core": "^1.28.0",
     "@vue-hero-icons/outline": "^1.7.2",
     "@vueuse/core": "^10.7.2",

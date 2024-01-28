@@ -10,6 +10,7 @@ import { generateUniqueId, translateNodeToType } from '@/helpers/utils';
 import { createUserItem, createItemAdmin } from '@/helpers/api';
 import {authenticationStore} from "@/stores/authenticationStore";
 import CustomItemFormVue  from "./customItemForm.vue"
+import { flashMessage } from '@smartweb/vue-flash-message';
 import {
     MDBModal,
     MDBModalHeader,
@@ -224,12 +225,26 @@ function getAllNodesDepart(): any[] {
 
 
 function onSave() {
-    if (nodes.value.length <= 1) return;
-
+    if (nodes.value.length <= 1){
+        flashMessage.show({
+          type: 'info',
+          title: "",
+          text: 'You must have at least a machine connected to two nodes',
+          image: './src/assets/flash-messages-logo/info.svg',
+        });
+        return;
+    }
     const nodesDepart = getAllNodesDepart();
 
-    if (nodesDepart.length === 0) return;
-
+    if (nodesDepart.length === 0){
+        flashMessage.show({
+            type: 'info',
+            title: "",
+            text: 'You must have at least a machine connected to two nodes',
+            image: './src/assets/flash-messages-logo/info.svg',
+        });
+        return;
+    }
 
     const dataRequest = prepareArrayForSave(nodesDepart);
 
@@ -245,6 +260,13 @@ function onSave() {
     else saveCustomRecipeUser(dataRequest);
 
     emits("cancel-creation");
+
+    flashMessage.show({
+        type: 'success',
+        title: "",
+        text: 'Recipe successfully saved',
+        image: './src/assets/flash-messages-logo/success.svg',
+      });
 }
 
 
@@ -419,6 +441,16 @@ function closeModalCreationNode() {
     clickedButton.value = false;
 }
 
+function onExit(){
+    flashMessage.show({
+        type: 'info',
+        title: "",
+        text: 'Exiting create recipe mode',
+        image: './src/assets/flash-messages-logo/info.svg',
+      });
+    emits('cancel-creation');
+}
+
 
 
 </script>
@@ -427,7 +459,7 @@ function closeModalCreationNode() {
     <VueFlow :min-zoom="0.2" v-model:edges="edges" v-model:nodes="nodes" class="interactionflow">
         <Panel position="bottom-right" class="save-restore-controls">
             <button v-if="authentication.isAdmin" style="background-color: #33a6b8" @click="button">create node</button>
-            <button style="background-color: #ba3821" @click="emits('cancel-creation')">exit</button>
+            <button style="background-color: #ba3821" @click="onExit">exit</button>
             <button style="background-color: #33a6b8" @click="onSave">save recipe</button>
         </Panel>
         <template #node-ressource="{ data }">

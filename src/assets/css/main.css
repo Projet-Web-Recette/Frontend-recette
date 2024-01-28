@@ -109,3 +109,7 @@ body {
   width: 450px;
   font-weight: normal;
 }
+
+._vue-flash-msg-body{
+  z-index: 10000;
+}
