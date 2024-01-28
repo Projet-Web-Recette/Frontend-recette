@@ -38,18 +38,12 @@
   </header>
 
   <main>
+    <FlashMessage position="right top" time="3000" strategy="multiple" image="./assets/logo.png"/>
     <router-view/>
   </main>
-  
-  <footer>
-    <FlashMessage position="right top" :time="3000" strategy="multiple" image="./assets/logo.png"/>
-  </footer>
 </template>
 
 <script setup lang="ts">
 import { ref } from 'vue';
 const burgerActivate = ref(false)
 </script>
-
-<style scoped>
-</style>

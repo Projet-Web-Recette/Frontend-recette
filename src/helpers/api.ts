@@ -111,7 +111,7 @@ export async function sendRequest(endpoint: string, method: 'GET' | 'POST' | 'PA
 
     request.method = method
     request.headers = {
-        ...contentType,
+        'Content-Type': 'application/json',
         ...token
     }
 
