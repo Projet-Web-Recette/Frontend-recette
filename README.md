@@ -82,7 +82,10 @@ Pour récupérer l'image de profil d'un utilisateur il existe plusieurs moyens :
   - Réalisation de composants de style (sideBar, page de connexion etc.)
 
 ### Nathan
-  - e
+  - conception intégrale du mini jeu
+  - - logique du jeu
+  - - gestion des données (pas le backend mais l'intéraction avec le backend)
+  - - style
 
 ### Loris C.
   - Implémentation complète de **MyAvatar** (backend & frontend).
