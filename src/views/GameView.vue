@@ -89,9 +89,9 @@ const specialMachines: {name: string, type: BuildingType}[] = [
 </script>
 
 <template>
-  <button @click="game.saveGame()">Save</button>
   <div id="gameWindow">
-    <div class="gameViewport" @mousedown="mouseDownHandler($event)">
+    <button @click="game.saveGame()">Save</button>
+    <div id="gameViewport" @mousedown="mouseDownHandler($event)">
       <div class="camera" :style="{ left: game.cameraLocation.x + 'px', top:game.cameraLocation.y + 'px', width: (1700-game.cameraLocation.x) + 'px', height: (1700-game.cameraLocation.y) + 'px' }">
         <draggable v-for="({type, data, machineId}, index) in [...game.entities.values()].filter(({type}) => type !== BuildingType.CONVEYER)" :key="index"
                   :height="data.displayData.height" 
@@ -189,14 +189,16 @@ const specialMachines: {name: string, type: BuildingType}[] = [
 <style>
 #gameWindow {
   overflow: hidden;
+  position: absolute;
   width: 100%;
   height: 100%;
 }
 
-.gameViewport {
+#gameViewport {
   position: relative;
-  width: 100vw;
-  height: 100vh;
+  height: 100%;
+  height: max-content;
+  overflow: hidden;
 }
 
 .camera {
