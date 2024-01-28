@@ -1,103 +1,56 @@
 <template>
-  <div class="flex flex-col items-center justify-center bg-gray-main p-8 border-2 border-black-main shadow-black-main rounded-md">
-    <MDBTabs v-model="form7ActiveTab">
-      <!-- Tabs navs -->
-      <MDBTabNav pills justify tabsClasses="mb-3 p-2">
-        <MDBTabItem tabId="form7-login" href="form7-login">Log in</MDBTabItem>
-        <MDBTabItem tabId="form7-register" href="form7-register">Register</MDBTabItem>
-      </MDBTabNav>
-      <!-- Tabs navs -->
-      <!-- Tabs content -->
-      <MDBTabContent>
-        <MDBTabPane tabId="form7-login">
-          <form>
+  <div class="relative flex flex-col justify-center min-h-screen overflow-hidden">
+    <div class="w-full p-6 m-auto bg-white border-t border-orange-600 rounded shadow-lg shadow-orange-800/50 lg:max-w-md">
+      <div class="flex flex-row justify-center items-center gap-2">
+        <img :src="'./src/assets/logo.png'" alt="logo" class="w-15 h-15">
+        <p class="text-3xl text-orange-main satisfont select-none">atisCraftory</p>
+      </div>
 
-            <!-- Email input -->
-            <MDBInput
-                type="text"
-                label="Username"
-                id="form7LoginUsername"
-                v-model="form7LoginUsername"
-                wrapperClass="mb-4"
-            />
+      <form class="mt-6">
+        <div>
+          <label for="login" class="block text-sm text-gray-800">Login</label>
+          <input type="login"
+            class="block w-full px-4 py-2 mt-2 text-orange-700 bg-white border rounded-md focus:border-orange-400 focus:ring-orange-300 focus:outline-none focus:ring focus:ring-opacity-40"
+            v-model="form7LoginUsername">
+        </div>
 
-            <!-- Password input -->
-            <MDBInput
-                type="password"
-                label="Password"
-                id="form7LoginPassword"
-                v-model="form7LoginPassword"
-                wrapperClass="mb-4"
-            />
 
-            <!-- 2 column grid layout for inline styling -->
+        <div class="mt-4">
+          <div>
+            <label for="password" class="block text-sm text-gray-800">Password</label>
+            <input type="password"
+              class="block w-full px-4 py-2 mt-2 text-orange-700 bg-white border rounded-md focus:border-orange-400 focus:ring-orange-300 focus:outline-none focus:ring focus:ring-opacity-40"
+              v-model="form7LoginPassword">
+          </div>
 
-            <!-- Submit button -->
-            <MDBBtn color="white" block
-                    class="bg-orange-main text-black-main border-black-main border-2 rounded-md"
-                    @click="loginSubmit">Sign in</MDBBtn>
+          <div class="mt-4" v-if="isRegistering">
+            <label for="email" class="block text-sm text-gray-800">Email adress</label>
+            <input type="email"
+              class="block w-full px-4 py-2 mt-2 text-orange-700 bg-white border rounded-md focus:border-orange-400 focus:ring-orange-300 focus:outline-none focus:ring focus:ring-opacity-40"
+              v-model="form7RegisterEmail">
+          </div>
 
-          </form>
-        </MDBTabPane>
-        <MDBTabPane tabId="form7-register">
-          <form>
+          <div class="mt-6">
+            <button type="button"
+              class="w-full px-4 py-2 tracking-wide text-white transition-colors duration-200 transform bg-orange-600 rounded-md hover:bg-orange-600 focus:outline-none focus:bg-orange-600"
+              @click="loginSubmit">
+              {{ formButtonNameSubmit }}
+            </button>
 
-            <!-- Username input -->
-            <MDBInput
-                type="text"
-                label="Username"
-                id="form7RegisterUsername"
-                v-model="form7RegisterUsername"
-                wrapperClass="mb-4"
-            />
-
-            <!-- Email input -->
-            <MDBInput
-                type="email"
-                label="Email"
-                id="form7RegisterEmail"
-                v-model="form7RegisterEmail"
-                wrapperClass="mb-4"
-            />
-
-            <!-- Password input -->
-            <MDBInput
-                type="password"
-                label="Password"
-                id="form7RegisterPassword"
-                v-model="form7RegisterPassword"
-                wrapperClass="mb-4"
-            />
-
-            <!-- Repeat Password input -->
-            <MDBInput
-                type="password"
-                label="Repeat password"
-                id="form7RegisterPasswordRepeat"
-                v-model="form7RegisterPasswordRepeat"
-                wrapperClass="mb-4"
-            />
-
-            <!-- Submit button -->
-            <MDBBtn color="white" block
-                    class="bg-orange-main text-black-main border-black-main border-2 rounded-md"
-                    @click="registerSubmit">
-              Sign in
-            </MDBBtn>
-          </form>
-        </MDBTabPane>
-      </MDBTabContent>
-      <!-- Tabs content -->
-    </MDBTabs>
+          </div>
+        </div>
+      </form>
+      <p class="mt-8 text-xs font-light text-center text-gray-700"> {{ formSwitchFormName }} <a @click="switchForm"
+          href="#" class="font-medium text-orange-600 hover:underline">{{ formSwitchFormLinkName }}</a></p>
+    </div>
   </div>
 </template>
 
 <script setup lang="ts">
-import {useMockStore} from '@/stores/mockStore'
-import {MDBBtn, MDBInput, MDBTabContent, MDBTabItem, MDBTabNav, MDBTabPane, MDBTabs,} from "mdb-vue-ui-kit";
-import {authenticationStore} from "@/stores/authenticationStore";
-import {ref} from "vue";
-import {useRouter} from "vue-router";
+import { useMockStore } from '@/stores/mockStore'
+import { authenticationStore } from "@/stores/authenticationStore";
+import { ref } from "vue";
+import { useRouter } from "vue-router";
 import { flashMessage } from '@smartweb/vue-flash-message';
 
 const form7ActiveTab = ref("form7-login");
@@ -105,28 +58,58 @@ const form7ActiveTab = ref("form7-login");
 const form7LoginUsername = ref("");
 const form7LoginPassword = ref("");
 
+
 const form7RegisterUsername = ref("");
-const form7RegisterEmail = ref("");
+const form7RegisterEmail = ref<string>("");
 const form7RegisterPassword = ref("");
 const form7RegisterPasswordRepeat = ref("");
+
+const formButtonNameSubmit = ref<string>("Login");
+const formSwitchFormName = ref<string>("Don't have an account ?");
+const formSwitchFormLinkName = ref<string>("Sign up");
+
+const isRegistering = ref<boolean>(false);
 
 
 const router = useRouter();
 
 
 const mockStore = useMockStore()
-// onMounted(() => {
-// })
 
 async function loginSubmit() {
   const authentication = authenticationStore()
   if (form7LoginUsername.value !== "" && form7LoginPassword.value !== "") {
+  
+    let register = true;
+
+    if (isRegistering.value){
+      if (form7RegisterEmail.value === "") return;
+    }
+
+    console.log("ok")
+      
+
+    if (isRegistering.value) {
+      await authentication.register(
+        form7LoginUsername.value,
+        form7LoginPassword.value,
+        form7RegisterEmail.value,
+        () => { 
+          register = false;
+          console.error('register not working'); 
+        }
+      )
+    }
+
+    if (!register) return;
+
+    
     await authentication.login(form7LoginUsername.value, form7LoginPassword.value, () => {
       console.log('Echec');
     });
 
-    if(authentication.isAuthenticated){
-      router.push({path:'/'});
+    if (authentication.isAuthenticated) {
+      router.push({ path: '/' });
       flashMessage.show({
         type: 'success',
         title: "",
@@ -140,16 +123,19 @@ async function loginSubmit() {
 async function registerSubmit() {
   const authentication = authenticationStore()
 
-  if(form7RegisterPassword.value === form7RegisterPasswordRepeat.value){
-    await authentication.register(
-      form7RegisterUsername.value,
-      form7RegisterPassword.value,
-      form7RegisterEmail.value,
-      () => {console.error('register not working')}
-    )
+  if (form7RegisterPassword.value === form7RegisterPasswordRepeat.value) {
+
   }
+}
 
+function switchForm() {
+  isRegistering.value = !isRegistering.value;
 
+  formButtonNameSubmit.value = isRegistering.value ? "Register" : "Login";
+
+  formSwitchFormName.value = isRegistering.value ? "Already have an account ?" : "Don't have an account ?";
+
+  formSwitchFormLinkName.value = isRegistering.value ? "Log in" : "Sign up";
 }
 
 </script>

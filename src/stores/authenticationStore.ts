@@ -50,7 +50,7 @@ export const authenticationStore = defineStore('authenticationStore', {
         },
         async register(login: string, password: string, email: string, fail: () => void): Promise<void> {
             try {
-                const response = await sendRequest('utilisateurs', 'POST', {login, plainPassword: password, adresseEmail: email})
+                const response = await sendRequest('utilisateurs', 'POST', {login:login, plainPassword: password, adresseEmail: email})
     
                 if(!response || response.status !== HttpErrors.CREATED){
                     fail()
