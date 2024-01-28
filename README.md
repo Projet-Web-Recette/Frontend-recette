@@ -72,7 +72,14 @@ Pour récupérer l'image de profil d'un utilisateur il existe plusieurs moyens :
   - Filtrage des items de différentes façon (par rapport à la machine le construisant, son type, qu'est ce qui le compose, etc...)
 
 ### Loris B.
-  - e
+  - Mise en place de **l'API**, réfléxion pour la conception du patron composite
+  - Intégration des **machines** (Foreuse, assembleuse, constructeur, fonderie) et routes associées
+  - Intégration d'une **entité** permettant de stocker les quantités nécessaire pour un item donné
+  - Intégration des **utilisateurs** dans l'api 
+  - Participation à la création du **livre de recettes** 
+  - Participation à la réalisation de **l'algorithme** permettant d'afficher l'arbre d'ingrédients d'un item
+  - Participation à la réalisation du **mode de création d'item** pour les utilisateurs premium / **création personnalisé** d'items pour les admins
+  - Réalisation de composants de style (sideBar, page de connexion etc.)
 
 ### Nathan
   - e
