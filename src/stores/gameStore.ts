@@ -4,8 +4,9 @@ import type { Item, Machine, Miner, Resource } from "@/types";
 import { defineStore } from "pinia";
 import { ref, toRaw } from "vue";
 import { v4 } from 'uuid'
-import { getAllItems, getAllMachines, getItemsMachine, getResources, retreiveGameData, saveGameData, sendRequest, updateSave } from "@/helpers/api";
+import { getAllMachines, getResources, retreiveGameData, saveGameData, sendRequest, updateSave } from "@/helpers/api";
 import { useLocalStorage } from "@vueuse/core";
+import { getAllItemsPatch, getItemsMachinePatch } from "@/helpers/api-patch";
 
 interface State {
     entities: Map<string,{type: BuildingType, data: any, machineId?: string}>,
@@ -51,7 +52,11 @@ export const gameStore = defineStore('gameStore', {
                 this.isProcessing = true
                 
                 const save: SaveFormat = {
-                    conveyers: [], inventory: [], machines: [], mergers: [], splitters: []
+                    conveyers: [], inventory: [], machines: [], mergers: [], splitters: [], initialized: false
+                }
+
+                if(this.entities.keys.length > 6){
+                    save.initialized = true
                 }
     
                 this.entities.forEach((entity, key) => {
@@ -107,7 +112,7 @@ export const gameStore = defineStore('gameStore', {
             try {
                 this.isProcessing = true
 
-                this.allItems = await getAllItems()
+                this.allItems = await getAllItemsPatch()
                 this.allResources = await getResources()
     
     
@@ -116,7 +121,7 @@ export const gameStore = defineStore('gameStore', {
                 const buildingGeneral = await Promise.all(this.allMachines.map(async (machine) => {
                     if(machine.id)
                     {
-                        const items = await getItemsMachine(machine.id)
+                        const items = await getItemsMachinePatch(machine.id)
     
                         const numberOfInputs = items.length > 0 ? items[0].ingredients.length : 0
                         
@@ -126,7 +131,7 @@ export const gameStore = defineStore('gameStore', {
     
     
                 const previousSave = await retreiveGameData() as SaveFormat
-                const hasSave = previousSave && (previousSave.conveyers.length > 0 || previousSave.machines.length > 0 || previousSave.mergers.length > 0 || previousSave.splitters.length > 0)
+                const hasSave = previousSave && previousSave.initialized && previousSave.machines && previousSave.machines.length > 2
                 if(hasSave){
                     previousSave.machines.forEach((machine) => {
                         const general = buildingGeneral.find((bg) => bg?.machine.id === machine.idMachine)

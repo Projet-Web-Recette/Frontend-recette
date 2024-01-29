@@ -90,6 +90,7 @@ export enum InteractionMode {
 }
 
 export interface SaveFormat {
+    initialized: boolean,
     machines: SaveMachine[],
     conveyers: {
         idFrom: string,

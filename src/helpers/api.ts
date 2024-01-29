@@ -280,6 +280,8 @@ export async function retreiveGameData() {
         return undefined
     } else {
         const {data} = request?.content
+        let result = data as SaveFormat
+        result.initialized = result.initialized ? result.initialized : false
         return data
     }
 }
