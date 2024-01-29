@@ -48,14 +48,7 @@ function translateItemFromApi(item: any): Item {
         logoPath: contentUrl,
         quantityProduced: quantityProduced,
         machine: machineTranslate,
-        quantityIngredients: quantitesIngredients ? quantitesIngredients.map(({quantite, recette}) => {
-            let ingredient
-            if(recette.nomRessource){
-                ingredient = translateResourceFromApi(recette)
-            } else {
-                ingredient = translateItemFromApi(recette)
-            }
-            return {quantity: quantite, receipe: ingredient}}) : [],
+        quantityIngredients: quantitesIngredients,
         ingredients: ingredients ? translateArrayIngredients(ingredients) : []
     }
 }
@@ -288,6 +281,8 @@ export async function retreiveGameData() {
         return undefined
     } else {
         const {data} = request?.content
+        let result = data as SaveFormat
+        result.initialized = result.initialized ? result.initialized : false
         return data
     }
 }

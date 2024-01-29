@@ -5,7 +5,7 @@ import { onMounted, ref } from 'vue';
 import ResourceDetail from './ResourceDetail.vue';
 import ItemDetail from './itemDetail.vue';
 import MachineDetail from './machineDetail.vue';
-import { generateUniqueId } from '@/helpers/utils';
+import { generateUniqueId, getNormalizedId } from '@/helpers/utils';
 
 const vueFlow = useVueFlow();
 
@@ -37,6 +37,8 @@ onMounted(async () => {
 
     item.id += generateUniqueId();
     machine.id += generateUniqueId();
+
+    sortIngredientAndQuantity(ingredients, quantityIngredients);
 
     elements.value.push({
       id: item.id,
@@ -82,13 +84,15 @@ function displayTreeStage(ingredients: any[], quantityIngredients: any[], idItem
   let index = 0;
   if (ingredients.length > 1) index = -1;
 
-  
+  sortIngredientAndQuantity(ingredients, quantityIngredients);
+
 
   for (let i = 0; i < ingredients.length; i++) {
 
 
     let ingredient = ingredients[i];
     let quantiteIngredient = quantityIngredients[i];
+
 
     let type = ingredient.ingredients ? "item" : "resource";
 
@@ -110,7 +114,7 @@ function displayTreeStage(ingredients: any[], quantityIngredients: any[], idItem
       position: pos,
     });
 
-  
+
     elements.value.push({ id: `${idItem}${ingredient.id}`, label: `${quantiteIngredient.quantite}`, source: idItem, target: ingredient.id, markerStart: MarkerType.ArrowClosed });
 
 
@@ -172,6 +176,20 @@ function countNumberStage(ingredients: any[]): number {
   return maxDepth;
 }
 
+function sortIngredientAndQuantity(ingredient: any[], quantiteIngredient: any[]) {
+
+  if (quantiteIngredient[0].recette) {
+    let firstIngredientId = getNormalizedId(ingredient[0].id.toString());
+    let firstQuantiteIngredientId = quantiteIngredient[0].recette.id;
+
+    if (firstIngredientId != firstQuantiteIngredientId) {
+      let temp = quantiteIngredient[0];
+      quantiteIngredient[0] = quantiteIngredient[1];
+      quantiteIngredient[1] = temp;
+    }
+  }
+}
+
 
 
 
@@ -183,10 +201,12 @@ function countNumberStage(ingredients: any[]): number {
       <ResourceDetail :isCreating="false" :resource="data"></ResourceDetail>
     </template>
     <template #node-item="{ data }">
-      <ItemDetail :isCreating="false" :item="data" @onItemClicked="$emit('on-item-selected-for-recipe', $event)"></ItemDetail>
+      <ItemDetail :isCreating="false" :item="data" @onItemClicked="$emit('on-item-selected-for-recipe', $event)">
+      </ItemDetail>
     </template>
     <template #node-machine="{ data }">
-      <MachineDetail :isCreating="false" :machine="data" @onMachineClicked="$emit('on-machine-selected-for-recipe', $event)"></MachineDetail>
+      <MachineDetail :isCreating="false" :machine="data"
+        @onMachineClicked="$emit('on-machine-selected-for-recipe', $event)"></MachineDetail>
     </template>
   </VueFlow>
 </template>

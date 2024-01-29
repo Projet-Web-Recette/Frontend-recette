@@ -160,10 +160,12 @@ const specialMachines: {name: string, type: BuildingType, iconPath: string}[] = 
 
           <WindowComponent v-model="windowOpen" left="10px" top="10px" title="Select output">
             <div style="min-width: 400px;">
-              <div style="background-color: orange; cursor: pointer;width: fit-content;padding: 2px; margin: 5px;" @click="disconnectConveyersClicked">
-                <h3>Disconnect conveyers</h3>
+              <div id="menuQuick">
+                <div @click="disconnectConveyersClicked">
+                  <h3>Disconnect conveyers</h3>
+                </div>
+                <div @click="game.storeSelectedElementItem"><h3>Collect</h3></div>
               </div>
-              <div style="background-color: red; cursor: pointer;" @click="game.storeSelectedElementItem"><h3>Collect</h3></div>
               <SelectItem :ingredient-list="game.getItemListSelectedBuild()" @ingredient-selected="(item: Item) => {game.changeSelectedBuildingOutput(item)}"></SelectItem>
               <SelectItem v-if="game.selectedElementType === BuildingType.MERGER || game.selectedElementType === BuildingType.SPLITTER" :ingredient-list="game.allResources" @ingredient-selected="(resource: Resource) => {game.changeSelectedBuildingOutput(resource)}"></SelectItem>
             </div>
@@ -286,6 +288,21 @@ const specialMachines: {name: string, type: BuildingType, iconPath: string}[] = 
 .buildingSelected {
   border: solid #ff5a00 2px;
 }
+
+#menuQuick {
+  display: flex;
+  flex-direction: row;
+}
+
+#menuQuick > div {
+  background-color: orange; 
+  cursor: pointer;
+  width: fit-content;
+  padding: 5px; 
+  margin: 5px;
+  border-radius: 5px;
+}
+
 
 .inventory {
   width: 400px; 
