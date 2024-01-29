@@ -8,7 +8,6 @@
         <img :src="`https://webinfo.iutmontp.univ-montp2.fr/~cazauxl/MyAvatar/public/avatar/${authentication.hashedEmail}`" style="width: 100px; height: 100px;border-radius: 100px;" >
     </div>
 
-
     <!-- Navbar menu that goes over body -->
     <nav class="flex flex-col justify-center items-center gap-8 fixed top-0 left-0 w-full h-full bg-gray-main flex justify-center items-center z-10" v-if="burgerActivate">
       <div class="flex flex-row justify-center items-center gap-2">
