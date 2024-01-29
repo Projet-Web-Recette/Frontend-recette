@@ -91,7 +91,7 @@ const specialMachines: {name: string, type: BuildingType, iconPath: string}[] = 
 <template>
   <div id="gameWindow">
     <div id="gameViewport" @mousedown="mouseDownHandler($event)">
-      <div class="camera" :style="{ left: game.cameraLocation.x + 'px', top:game.cameraLocation.y + 'px', minWidth:'100vw', width: (2000-game.cameraLocation.x) + 'px'}">
+      <div class="camera" :style="{ left: game.cameraLocation.x + 'px', top:game.cameraLocation.y + 'px', minWidth:'100vw', width: (2600-game.cameraLocation.x) + 'px'}">
         <draggable v-for="({type, data, machineId}, index) in [...game.entities.values()].filter(({type}) => type !== BuildingType.CONVEYER)" :key="index"
                   :height="data.displayData.height" 
                   :width="data.displayData.width" 
@@ -196,7 +196,7 @@ const specialMachines: {name: string, type: BuildingType, iconPath: string}[] = 
 }
 
 .camera {
-  background-image: url("/src/assets/satysfactory_high.jpg");
+  background-image: url("https://i.imgur.com/ZU9LskN.jpeg");
   position: relative;
   height: fit-content;
   overflow: unset;

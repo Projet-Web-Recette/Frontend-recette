@@ -128,6 +128,21 @@ export const gameStore = defineStore('gameStore', {
                         return {items, machine, numberOfInputs }
                     }
                 }))
+
+                const request = await sendRequest('foreuses', 'GET', undefined, true)
+        
+                const response = request?.content["hydra:member"];
+
+                const miners: Miner[] = response.map((value: any) => {
+                    const {id, contentUrl, nom, tauxProdForeuse, type} = value
+                    return {
+                        id,
+                        logoPath: contentUrl, 
+                        name: nom, 
+                        rate: tauxProdForeuse, 
+                        type
+                    } as Miner 
+                })
     
     
                 const previousSave = await retreiveGameData() as SaveFormat
@@ -193,23 +208,7 @@ export const gameStore = defineStore('gameStore', {
                         
                         if(item) this.storeItem(item, invent.quantity)
                     })
-    
-                } else {
-                    const request = await sendRequest('foreuses', 'GET', undefined, true)
-        
-                    const response = request?.content["hydra:member"];
-    
-                    const miners: Miner[] = response.map((value: any) => {
-                        const {id, contentUrl, nom, tauxProdForeuse, type} = value
-                        return {
-                            id,
-                            logoPath: contentUrl, 
-                            name: nom, 
-                            rate: tauxProdForeuse, 
-                            type
-                        } as Miner 
-                    })
-    
+                } else {    
                     const miner1 = miners.find((miner) => miner.type === 'mk1')
     
                     const minerBuildingGeneral: BuildingGeneral = {
@@ -220,17 +219,23 @@ export const gameStore = defineStore('gameStore', {
     
                     const validPosition: {x: number, y: number}[] = [
                         {x: 600, y: 1600},
-                        {x: 2000, y: 1800},
                         {x: 1400, y: 1700},
-                        {x: 800, y: 2200},
+                        {x: 2000, y: 1800},
+                        {x: 3000, y: 2200},
                         {x: 1200, y: 2400},
+                        
+                        {x: 1300, y: 2800},
+                        {x: 600, y: 3000},
+                        {x: 2000, y: 3300},
+                        {x: 1000, y: 3800},
+                        {x: 1500, y: 4000},
                     ]
     
                     let idx = 0
                     
                     if(miner1){
                         this.allResources.forEach((resource) => {
-                            this.addEntity(BuildingType.MACHINE, {output: resource, coords: validPosition[idx], buildingGeneral: minerBuildingGeneral})
+                            this.addEntity(BuildingType.MACHINE, {output: resource, coords: validPosition[idx], buildingGeneral: minerBuildingGeneral}, miner1.rate)
                             idx = (idx + 1) % validPosition.length
                         })
                     }
@@ -333,7 +338,8 @@ export const gameStore = defineStore('gameStore', {
             output?: Resource | Item, 
             coords: {x: number, y:number},
             buildingGeneral?: BuildingGeneral,
-            id?: string})
+            id?: string},
+            rate = 0)
         {
             const {output, coords, id, buildingGeneral} = infos
             
@@ -346,7 +352,7 @@ export const gameStore = defineStore('gameStore', {
             
 
             if(type === BuildingType.MACHINE && buildingGeneral){
-                const machine = instanciateMachine(buildingGeneral, coords, uuid)
+                const machine = instanciateMachine(buildingGeneral, coords, uuid, rate)
                 this.updatables.set(uuid, machine.updatable)
                 
                 const entityInfos = {data: machine.data, type, machineId: buildingGeneral.machine.id ?? ''}

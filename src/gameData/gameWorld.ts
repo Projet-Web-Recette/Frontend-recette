@@ -2,8 +2,6 @@ import type { Item, Miner, Resource } from "@/types";
 import { type Building, type Conveyer, type ConveyerDisplayData, type BuildingGeneral, type Display, type Merger, type Splitter, type Updatable, type Input, BuildingType } from "./types";
 import { gameStore } from "@/stores/gameStore";
 import { ref, watch } from "vue";
-import { rand } from "@vueuse/core";
-import { sendRequest } from "@/helpers/api";
 
 export const defaultItem: Item = {
     logoPath: 'public/icons/nothing.png',
@@ -24,7 +22,7 @@ export const mergerImg = 'https://static.wikia.nocookie.net/satisfactory_gameped
 export const conveyerImg = 'https://static.wikia.nocookie.net/satisfactory_gamepedia_en/images/c/c9/Conveyor_Belt_Mk.1.png'
 
 
-export function instanciateMachine(buildingInfo: BuildingGeneral, coords: {x: number, y: number}, uuid: string){
+export function instanciateMachine(buildingInfo: BuildingGeneral, coords: {x: number, y: number}, uuid: string, rate = 0){
     const {machine, items} = buildingInfo
 
     const x = ref(coords.x)
@@ -74,7 +72,7 @@ export function instanciateMachine(buildingInfo: BuildingGeneral, coords: {x: nu
         inputConveyerUid: [],
         canReceive: (ingredient) => false,
         
-        rate: machine.name === 'foreuse1' ? 60 : 0,
+        rate: rate,
         take,
     }
     const machineLogic = generateDeltaLogic()
