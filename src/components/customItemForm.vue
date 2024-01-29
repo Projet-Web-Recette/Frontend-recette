@@ -56,6 +56,10 @@ watch(() => showCustomNodeCreateModal.value, (show) => {
     if (!show) emits("closeModal");
 });
 
+/**
+ * @description retrieve the file when uploaded
+ * @param e 
+ */
 function onFileChange(e:any) {
   let files = e.target.files || e.dataTransfer.files;
   if (!files.length)

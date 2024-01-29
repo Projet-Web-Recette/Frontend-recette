@@ -50,6 +50,10 @@ onMounted(async () => {
     ressources.value = ressourcesApi;
 });
 
+/**
+ * @description add an item by clicking on the icon
+ * @param idItem 
+ */
 async function itemSelected(idItem: string) {
     const item = await getItem(idItem);
     keyRender.value = item.id;
@@ -65,6 +69,10 @@ async function itemSelected(idItem: string) {
 
 }
 
+/**
+ * @description add a machine by clicking on the icon
+ * @param idMachine 
+ */
 async function machineSelected(idMachine: string) {
     const machine = await getMachine(idMachine);
 
@@ -77,6 +85,10 @@ async function machineSelected(idMachine: string) {
     }
 }
 
+/**
+ * @description add a ressource by clicking on the icon
+ * @param idRessource 
+ */
 async function ressourceSelected(idRessource: string) {
 
     const ressource = await getRessource(idRessource);
@@ -90,6 +102,10 @@ async function ressourceSelected(idRessource: string) {
     }
 }
 
+/**
+ * @description manage clicking on the sidebar links
+ * @param link 
+ */
 async function menuItemClicked(link: string) {
     switch (link) {
         case "createItem":
@@ -110,7 +126,10 @@ async function menuItemClicked(link: string) {
 }
 
 
-
+/**
+ * @description Manage to filter recipes by the search bar
+ * @param stringSearch 
+ */
 function searchItem(stringSearch: string) {
     items.value = itemsApi.filter((item: Item) => {
         if (item.name.toLocaleLowerCase().includes(stringSearch.toLocaleLowerCase())) return item;
@@ -125,7 +144,10 @@ function searchItem(stringSearch: string) {
     })
 }
 
-
+/**
+ * @description get all items that include the item selected
+ * @param idItemCode 
+ */
 async function itemSelectedForRecipe(idItemCode: string) {
     const idItem = idItemCode.split("_")[0];
 
@@ -138,6 +160,10 @@ async function itemSelectedForRecipe(idItemCode: string) {
     });
 }
 
+/**
+ * @description get all items crafted by the machine selected
+ * @param idMachineCode 
+ */
 async function machineSelectedForRecipe(idMachineCode: string) {
     const idMachine = idMachineCode.split("_")[0];
 
@@ -150,7 +176,11 @@ async function machineSelectedForRecipe(idMachineCode: string) {
     });
 }
 
-
+/**
+ * @description Retrieves all ids machines (first stage) contained in the current item recipe
+ * @param items 
+ * @param ids 
+ */
 function getAllIdForMachine(items: any[], ids: string[] = []): string[] {
     for(let item of items){
         ids.push(item.id);
@@ -161,7 +191,7 @@ function getAllIdForMachine(items: any[], ids: string[] = []): string[] {
 
 
 /**
- * @description Récupère tous les identifiants des items contenus dans la recette de l'item courante
+ * @description Retrieves all the item identifiers contained in the current item recipe
  */
 function getAllId(itemsRecipes: any[], ids: string[] = []): string[] {
     for (let item of itemsRecipes) {

@@ -36,7 +36,7 @@
           Login
         </a>
         
-        <a v-if="authentication.isAuthenticated" @click="authentication.deconnexion" class="flex flex-row items-center gap-3 text-4xl text-white-main satisfont select-none transition-all duration-200">
+        <a v-if="authentication.isAuthenticated" @click="deconnexion" class="flex flex-row items-center gap-3 text-4xl text-white-main satisfont select-none transition-all duration-200">
           <span class="material-symbols-outlined text-4xl text-orange-main">logout</span>
           Logout
         </a>
@@ -53,10 +53,29 @@
 <script setup lang="ts">
 import { ref } from 'vue';
 import { authenticationStore } from './stores/authenticationStore';
+import { flashMessage } from '@smartweb/vue-flash-message';
+import router from './router';
 
 const authentication = authenticationStore()
 
 const burgerActivate = ref(false)
+
+/**
+ * @description disconnect the user and redirect to login
+ */
+function deconnexion(){
+  authentication.deconnexion(() => {
+    flashMessage.show({
+        type: 'success',
+        title: "",
+        text: 'You have been successfully disconnected',
+        image: './src/assets/flash-messages-logo/success.svg',
+      });
+      burgerActivate.value = false;
+      router.push('/login')
+  })
+}
+
 </script>
 
 <style>
