@@ -50,9 +50,24 @@ export const gameStore = defineStore('gameStore', {
         async saveGame() {
             try {
                 this.isProcessing = true
+
+                const request = await sendRequest('foreuses', 'GET', undefined, true)
+        
+                const response = request?.content["hydra:member"];
+
+                const miners: Miner[] = response.map((value: any) => {
+                    const {id, contentUrl, nom, tauxProdForeuse, type} = value
+                    return {
+                        id,
+                        logoPath: contentUrl, 
+                        name: nom, 
+                        rate: tauxProdForeuse, 
+                        type
+                    } as Miner 
+                })
                 
                 const save: SaveFormat = {
-                    conveyers: [], inventory: [], machines: [], mergers: [], splitters: [], initialized: false
+                    conveyers: [], inventory: [], machines: [], mergers: [], splitters: [], initialized: true
                 }
 
                 if(this.entities.keys.length > 6){
@@ -64,13 +79,15 @@ export const gameStore = defineStore('gameStore', {
                         let idOutput = undefined
                         if(entity.data.output?.id){idOutput = entity.data.output?.id}
     
-                        
+                        const isMiner = miners.find((miner) => miner.id + '' === entity.machineId + '') ? true : false
+
                         const {position} = entity.data
                         save.machines.push({
                             uuid: key,
                             idMachine: entity.machineId,
                             idOutput,
-                            position
+                            position,
+                            isMiner
                         })
                     } else if (entity.type === BuildingType.CONVEYER){
                         save.conveyers.push({
@@ -154,7 +171,7 @@ export const gameStore = defineStore('gameStore', {
                         const resource = this.allResources.find((resource) => resource.id + '' === machine.idOutput + '')
     
                         if(general){
-                            this.addEntity(BuildingType.MACHINE, {output: item ? item : resource, buildingGeneral: general, coords: machine.position, id: machine.uuid})
+                            this.addEntity(BuildingType.MACHINE, {output: item ? item : resource, buildingGeneral: general, coords: machine.position, id: machine.uuid}, machine.isMiner ? 60 : 0)
                         }else {
                             console.error('cant load entity from save')
                         }

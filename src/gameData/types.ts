@@ -112,4 +112,5 @@ export interface SaveBuilding {
 
 export interface SaveMachine extends SaveBuilding {
     idMachine: string,
+    isMiner?: boolean
 }
