@@ -7,7 +7,7 @@
 ## ⛓️ Liens
 - #### [🎯 API]()
  
-- #### [🌐 SatisCraftory]()
+- #### [🌐 SatisCraftory](https://webinfo.iutmontp.univ-montp2.fr/~royov/API-PLATFORM/public/api)
  
 - #### [🙂 MyAvatar](https://webinfo.iutmontp.univ-montp2.fr/~cazauxl/MyAvatar/public/)
 
@@ -46,10 +46,14 @@ L'API offre une représentation fidèle des méchanismes de bases composant le j
 ## 🌐 SatisCraftory
 
 ### 📋 Présentation
-Blablabla
+Le site est constitué d'une section recette et d'un mini jeu directement connecté aux recettes, ajouter de nouvelles recettes les rendra accessible dans le jeu pour être produit par des usines.
 
 ### 🛠️ Fonctionnalités
-blablabla
+Jeu:
+- déplacement de caméra
+- intéractions avec les usines (récupération des items, choix des recettes ...)
+- connexion entre les usines avec des convoyeurs
+- supression des usines
 
 ---
 ## 🙂 MyAvatar
