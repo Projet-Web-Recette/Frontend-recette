@@ -20,6 +20,11 @@ const routesSecure = [
                 path: '/account',
                 name: 'Account',
                 component: Account
+            },
+            {
+                path: "/recipes",
+                component: ReceipesView,
+                name: 'recipes'
             }
         ]
     },
@@ -30,11 +35,6 @@ const routesNoSecure = [
         path: "/login",
         component: LoginView,
         name: "Login"
-    },
-    {
-        path: "/recipes",
-        component: ReceipesView,
-        name: 'recipes'
     },
     {
         path: "/listAll",

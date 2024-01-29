@@ -72,7 +72,7 @@ onMounted(async () => {
 
 
 /**
- * @description Affiche l'arbre d'ingrédient et de machine associés 
+ * @description Displays the associated ingredient and machine tree
  * @param ingredients 
  * @param idItem 
  * @param stage 
@@ -150,7 +150,7 @@ function displayTreeStage(ingredients: any[], quantityIngredients: any[], idItem
 }
 
 /**
- * @description compte le nombre d'étage de l'arbre d'ingrédients
+ * @description counts the number of stages in the ingredient tree
  * @param ingredients 
  */
 function countNumberStage(ingredients: any[]): number {
@@ -176,6 +176,11 @@ function countNumberStage(ingredients: any[]): number {
   return maxDepth;
 }
 
+/**
+ * @description sort the two tabs to have same ids in the same order
+ * @param ingredient 
+ * @param quantiteIngredient 
+ */
 function sortIngredientAndQuantity(ingredient: any[], quantiteIngredient: any[]) {
 
   if (quantiteIngredient[0].recette) {

@@ -33,6 +33,10 @@ const authentication = authenticationStore()
 
 const { onConnect, addEdges, findNode, removeSelectedEdges, getSelectedEdges, removeSelectedNodes, getSelectedNodes } = useVueFlow();
 
+/**
+ * @description detect the key pressed to remove a node or edge on UI
+ * @param event 
+ */
 function detectKey(event) {
     if (event.keyCode === 8 || event.keyCode === 46) {
         removeSelectedEdges(getSelectedEdges.value);
@@ -58,7 +62,7 @@ watch(() => props.addNode, (node) => {
 });
 
 /**
- * 
+ * @description add a specific node to the flow
  */
 function addNodeToFlow(node: any) {
 
@@ -85,6 +89,9 @@ const clickedButton = ref(false);
 
 let paramsForActualNode: any = undefined;
 
+/**
+ * @description check if we can add a node to and from a specific node
+ */
 onConnect((params) => {
     const { source, sourceHandle, target, targetHandle } = params;
 
@@ -118,6 +125,9 @@ onConnect((params) => {
 
 });
 
+/**
+ * @description add edge and check if quantity is correct
+ */
 function confirmQuantityForNode() {
     if (inputQuantity.value > '0' && inputQuantity.value !== '') {
         showQuantitySelectModal.value = false;
@@ -127,12 +137,20 @@ function confirmQuantityForNode() {
     }
 }
 
+/**
+ * @description get all sources edges
+ * @param idNode 
+ */
 function getAllEdgesSourceForNode(idNode: string): any[] {
     return edges.value.filter((edge: any) => {
         if (edge.source === idNode) return edge;
     });
 }
 
+/**
+ * @description get all targets edges
+ * @param idNode 
+ */
 function getAllEdgesTargetForNode(idNode: string): any[] {
     return edges.value.filter((edge: any) => {
         if (edge.target === idNode) return edge;
@@ -174,7 +192,7 @@ function verifRessourceIsNotTarget(targetNode: any): boolean {
 }
 
 /**
- * 
+ * @description verify that a simple node can only have one edge
  * @param idSourceNode 
  */
 function verifOneEdgeForSourceNode(idSourceNode: string): boolean {
@@ -183,7 +201,7 @@ function verifOneEdgeForSourceNode(idSourceNode: string): boolean {
 }
 
 /**
- * 
+ * @description verify that target node can either have one edge or 2 edge if it's an assembler machine
  * @param targetNode 
  */
 function verifOneEdgeForTargetNode(targetNode: any): boolean {
@@ -195,19 +213,28 @@ function verifOneEdgeForTargetNode(targetNode: any): boolean {
     return edgesTarget.length === 0;
 }
 
-
+/**
+ * @description get all ressources nodes (leaf of the tree)
+ */
 function getAllNodesRessources(): any[] {
     return nodes.value.filter((node: any) => {
         if (node.type === "ressource") return node;
     });
 }
 
+/**
+ * @description get all target nodes from a specific edge
+ * @param edge 
+ */
 function getAllNodesTargetFromEdge(edge: any): any[] {
     return nodes.value.filter((node: any) => {
         if (node.id === edge.target) return node;
     });
 }
 
+/**
+ * @description get all start nodes (ressources)
+ */
 function getAllNodesDepart(): any[] {
     return nodes.value.filter((node: any) => {
         let noEdgeTargetForNode = true;
@@ -223,7 +250,9 @@ function getAllNodesDepart(): any[] {
     });
 }
 
-
+/**
+ * @description manage saving a specific item by the user
+ */
 function onSave() {
     if (nodes.value.length <= 1){
         flashMessage.show({
@@ -270,7 +299,10 @@ function onSave() {
 }
 
 
-
+/**
+ * @description save a custom admin recipe
+ * @param recipe 
+ */
 async function saveCustomRecipeAdmin(recipe:any[]): Promise<void> {
     const item = recipe[0];
 
@@ -280,7 +312,10 @@ async function saveCustomRecipeAdmin(recipe:any[]): Promise<void> {
 
 }
 
-
+/**
+ * @description save a user recipe
+ * @param recipe 
+ */
 async function saveCustomRecipeUser(recipe: any[]): Promise<void> {
 
     const mapPreviousIdToNewId = new Map();
@@ -333,7 +368,7 @@ async function saveCustomRecipeUser(recipe: any[]): Promise<void> {
 }
 
 /**
- * @description Parcours l'arbre et le transforme en un tableau exploitable pour etre enregistré
+ * @description Goes through the tree and transforms it into a table that can be used to save it
  */
 function prepareArrayForSave(nodesDepart: any[]): any[] {
 
@@ -393,7 +428,7 @@ function prepareArrayForSave(nodesDepart: any[]): any[] {
 }
 
 /**
- * @description Récupère les données d'un item dans l'arbre (l'item, sa machine et son/ses ingrédients)
+ * @description Retrieves the data for an item in the tree (the item, its machine and its ingredient(s))
  */
 function mapDataNode(previousNode: any, edge: any, targetNodeParent: any, targetNode: any, edgeFromMachine: any) {
     const mapIngredients = new Map<string, string>();
@@ -437,10 +472,16 @@ async function confirmModalCreationNode(data: any) {
     addNodeToFlow(newData);
 }
 
+/**
+ * @description close the modal
+ */
 function closeModalCreationNode() {
     clickedButton.value = false;
 }
 
+/**
+ * @description handle exiting the recipe mode
+ */
 function onExit(){
     flashMessage.show({
         type: 'info',

@@ -1,46 +1,42 @@
 <template>
   <div class="relative flex flex-col justify-center min-h-screen overflow-hidden">
-    <div class="w-full p-6 m-auto bg-white border-t border-orange-600 rounded shadow-lg shadow-orange-800/50 lg:max-w-md">
+    <div class="w-full p-6 m-auto bg-white border-orange-600 border rounded-md shadow-lg shadow-orange-800/50 lg:max-w-md space-y-10">
       <div class="flex flex-row justify-center items-center gap-2">
         <img :src="'./src/assets/logo.png'" alt="logo" class="w-15 h-15">
         <p class="text-3xl text-orange-main satisfont select-none">atisCraftory</p>
       </div>
 
-      <form class="mt-6">
+      <form class="space-y-8">
         <div>
           <label for="login" class="block text-sm text-gray-800">Login</label>
           <input type="login"
-            class="block w-full px-4 py-2 mt-2 text-orange-700 bg-white border rounded-md focus:border-orange-400 focus:ring-orange-300 focus:outline-none focus:ring focus:ring-opacity-40"
+            class="block w-full px-4 py-2 mt-2 text-orange-700 bg-white border-2 rounded-md focus:border-orange-400 focus:ring-orange-300 focus:outline-none focus:ring focus:ring-opacity-40"
             v-model="form7LoginUsername">
         </div>
 
+        <div>
+          <label for="password" class="block text-sm text-gray-800">Password</label>
+          <input type="password"
+            class="block w-full px-4 py-2 mt-2 text-orange-700 bg-white border-2 rounded-md focus:border-orange-400 focus:ring-orange-300 focus:outline-none focus:ring focus:ring-opacity-40"
+            v-model="form7LoginPassword">
+        </div>
 
-        <div class="mt-4">
-          <div>
-            <label for="password" class="block text-sm text-gray-800">Password</label>
-            <input type="password"
-              class="block w-full px-4 py-2 mt-2 text-orange-700 bg-white border rounded-md focus:border-orange-400 focus:ring-orange-300 focus:outline-none focus:ring focus:ring-opacity-40"
-              v-model="form7LoginPassword">
-          </div>
+        <div v-if="isRegistering">
+          <label for="email" class="block text-sm text-gray-800">Email address</label>
+          <input type="email"
+            class="block w-full px-4 py-2 mt-2 text-orange-700 bg-white border-2 rounded-md focus:border-orange-400 focus:ring-orange-300 focus:outline-none focus:ring focus:ring-opacity-40"
+            v-model="form7RegisterEmail">
+        </div>
 
-          <div class="mt-4" v-if="isRegistering">
-            <label for="email" class="block text-sm text-gray-800">Email adress</label>
-            <input type="email"
-              class="block w-full px-4 py-2 mt-2 text-orange-700 bg-white border rounded-md focus:border-orange-400 focus:ring-orange-300 focus:outline-none focus:ring focus:ring-opacity-40"
-              v-model="form7RegisterEmail">
-          </div>
-
-          <div class="mt-6">
-            <button type="button"
-              class="w-full px-4 py-2 tracking-wide text-white transition-colors duration-200 transform bg-orange-600 rounded-md hover:bg-orange-600 focus:outline-none focus:bg-orange-600"
-              @click="loginSubmit">
-              {{ formButtonNameSubmit }}
-            </button>
-
-          </div>
+        <div>
+          <button type="button"
+            class="mt-4 w-full px-4 py-2 tracking-wide text-white transition-colors duration-200 transform bg-orange-600 rounded-md hover:bg-orange-700 focus:outline-none focus:bg-orange-600"
+            @click="loginSubmit">
+            {{ formButtonNameSubmit }}
+          </button>
         </div>
       </form>
-      <p class="mt-8 text-xs font-light text-center text-gray-700"> {{ formSwitchFormName }} <a @click="switchForm"
+      <p class="text-xs font-light text-center text-gray-700"> {{ formSwitchFormName }} <a @click="switchForm"
           href="#" class="font-medium text-orange-600 hover:underline">{{ formSwitchFormLinkName }}</a></p>
     </div>
   </div>

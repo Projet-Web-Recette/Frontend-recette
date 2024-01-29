@@ -28,10 +28,19 @@ Ici nous avons donc utilisé le même système que le jeu (sans ajouter de règl
 ## 🎯 API
 
 ### 📋 Présentation
-Blablabla
+L'API de Satiscraftory est une interface de programmation facilitant la création et la gestion d'items, de machines ainsi que d'utilisateurs dans un environnement similaire au jeu Satisfactory.
+L'API offre une représentation fidèle des méchanismes de bases composant le jeu d'origine tout en simplifiant certaines composantes.
 
 ### 🛠️ Fonctionnalités
-blablabla
+- Gestion des **Assembleuses** (read, readAll, create, delete)
+- Gestion des **Constructeurs** (read, readAll, create, delete)
+- Gestion des **Foreuses** (read, readAll, create, delete)
+- Gestion des **Smelter** (read, readAll, create, delete)
+- Gestion des **Items** (read, readAll, create, delete) + requêtes personnalisées pour récupérer tous les items produits par une certaine machine et pour récupérer les items dont fait partit l'item récupéré
+- Gestion des **Ressources** primaires (read, readAll, create, delete)
+- Gestion des **Quantités** d'ingrédients qui permettent de connaître la quantité nécéssaire d'un ingrédient pour en faire un autre
+- Gestion des **itemsUsers** pour les recettes personalisés d'un utilisateur premium
+- Gestion de la **sauvegarde** des inventaires des utilisateurs
 
 ---
 ## 🌐 SatisCraftory
@@ -82,15 +91,16 @@ Pour récupérer l'image de profil d'un utilisateur il existe plusieurs moyens :
   - Réalisation de composants de style (sideBar, page de connexion etc.)
 
 ### Nathan
-  - conception intégrale du mini jeu
-  - - logique du jeu
-  - - gestion des données (pas le backend mais l'intéraction avec le backend)
-  - - style
+  - Conception intégrale du mini jeu
+  - Logique du jeu
+  - Gestion des données (pas le backend mais l'intéraction avec le backend)
+  - Style
 
 ### Loris C.
   - Implémentation complète de **MyAvatar** (backend & frontend).
-  - Gestion du frontend de **SatisCraftory** (gestion des pages, navbar, images, fonts, couleurs, ...).
+  - Gestion du frontend de **SatisCraftory** (gestion des pages, navbar, images, fonts, couleurs, implémentation MyAvatar dans la navbar, ...).
   - Rédaction d'une mini [documentation](https://docs.google.com/document/d/1wvHHz6K4X--f-7Gzr9sHnywHvXo2VBO10cKy_OfuU14/edit?usp=sharing) pour le style de SatisCraftory (pour que tout le monde utilise les mêmes couleurs, fonts, ...) + aide globale de tailwindcss.
+  - Fix du style de **SatisCraftory** et des components.
 
 ---
 ## 🔐 Comptes
@@ -100,7 +110,7 @@ Pour récupérer l'image de profil d'un utilisateur il existe plusieurs moyens :
 #### 👨‍💼️ Comptes utilisateurs
 | Login       | Mot de passe    |
 |-------------|-----------------|
-| normalUser  | NormalUser1234  |
+| normalUser  | normalUser1234  |
 | premiumUser | premiumUser1234 |
 
 #### 👨‍✈️ Comptes administrateurs
@@ -111,7 +121,10 @@ Pour récupérer l'image de profil d'un utilisateur il existe plusieurs moyens :
 ### 🙂 MyAvatar
 
 #### ‍👨‍💼️ Comptes utilisateurs
-| Login   | Mot de passe |
-|---------|--------------|
-| cazauxl | AAAAAAa8     |
-| test    | AAAAAAa8     |
+| Login      | Mot de passe |
+|------------|--------------|
+| cazauxl    | AAAAAAa8     |
+| Admin      | AAAAAAa8     |
+| normalUser | AAAAAAa8     |
+| Lebreton   | AAAAAAa8     |
+| test       | AAAAAAa8     |
