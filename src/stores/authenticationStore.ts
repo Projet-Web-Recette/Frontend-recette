@@ -1,16 +1,17 @@
 import {jwtDecode} from "jwt-decode";
-import { sendRequest } from '@/helpers/api';
+import { getUserAvatar, sendRequest } from '@/helpers/api';
 import { HttpErrors } from '@/types';
 import { defineStore } from "pinia";
 import { useLocalStorage } from "@vueuse/core"
+import { md5 } from "js-md5";
 
 export const authenticationStore = defineStore('authenticationStore', {
     state: () => ({ 
         JWT: useLocalStorage("JWT", ""),
         isPremium: useLocalStorage("isPremium", false),
         isAdmin: useLocalStorage("isAdmin", false),
-        userId: useLocalStorage("userId", "")
-
+        userId: useLocalStorage("userId", ""),
+        hashedEmail: useLocalStorage("", ""),
     }),
 
     getters: {
@@ -34,13 +35,15 @@ export const authenticationStore = defineStore('authenticationStore', {
                 
                 this.JWT = response.content.token? response.content.token : ""
               
-                const jwtJSON = jwtDecode<{adresseEmail: String, exp: Number, iat: Number, id: string, roles: String[], username: string, premium: boolean}>(this.JWT);
+                const jwtJSON = jwtDecode<{adresseEmail: string, exp: Number, iat: Number, id: string, roles: String[], username: string, premium: boolean}>(this.JWT);
 
     
                 this.isAdmin = jwtJSON.roles.includes('ROLE_ADMIN');
                 this.userId = jwtJSON.id
     
                 this.isPremium = jwtJSON.premium;
+
+                this.hashedEmail = md5(jwtJSON.adresseEmail)
 
             } catch(e) {
                 this.JWT = ""
