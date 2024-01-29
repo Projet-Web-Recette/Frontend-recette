@@ -3,13 +3,15 @@ import { getUserAvatar, sendRequest } from '@/helpers/api';
 import { HttpErrors } from '@/types';
 import { defineStore } from "pinia";
 import { useLocalStorage } from "@vueuse/core"
+import { md5 } from "js-md5";
 
 export const authenticationStore = defineStore('authenticationStore', {
     state: () => ({ 
         JWT: useLocalStorage("JWT", ""),
         isPremium: useLocalStorage("isPremium", false),
         isAdmin: useLocalStorage("isAdmin", false),
-        userId: useLocalStorage("userId", "")
+        userId: useLocalStorage("userId", ""),
+        hashedEmail: useLocalStorage("", ""),
     }),
 
     getters: {
@@ -41,7 +43,7 @@ export const authenticationStore = defineStore('authenticationStore', {
     
                 this.isPremium = jwtJSON.premium;
 
-                getUserAvatar(jwtJSON.adresseEmail)
+                this.hashedEmail = md5(jwtJSON.adresseEmail)
 
             } catch(e) {
                 this.JWT = ""

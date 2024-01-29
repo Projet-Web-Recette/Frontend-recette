@@ -1,10 +1,13 @@
 <template>
   <header style="position: absolute">
     <!-- Top right corner burger menu that opens a dropdown over body -->
-    <button id="burger-button" class="fixed top-0 right-0 material-symbols-outlined hover:text-orange-main transition-all duration-200
-    text-white-main p-4 select-none bg-gray-main" @click="burgerActivate = !burgerActivate" :class="{'rotate-90': burgerActivate}">
-        {{ burgerActivate ? 'close' : 'menu' }}
-    </button>
+    <div id="burger" class="fixed top-0 right-0 material-symbols-outlined hover:text-orange-main text-white-main p-4 select-none bg-gray-main" >
+      <button id="burger-button" class="transition-all duration-200" @click="burgerActivate = !burgerActivate" :class="{'rotate-90': burgerActivate}">
+          {{ burgerActivate ? 'close' : 'menu' }}
+        </button>
+        <img :src="`https://webinfo.iutmontp.univ-montp2.fr/~cazauxl/MyAvatar/public/avatar/${authentication.hashedEmail}`" style="width: 100px; height: 100px;border-radius: 100px;" >
+    </div>
+
 
     <!-- Navbar menu that goes over body -->
     <nav class="flex flex-col justify-center items-center gap-8 fixed top-0 left-0 w-full h-full bg-gray-main flex justify-center items-center z-10" v-if="burgerActivate">
@@ -58,7 +61,17 @@ const burgerActivate = ref(false)
 </script>
 
 <style>
-#burger-button {
+#burger {
   z-index: 11;
+}
+
+
+#burger > * {
+  margin: auto;
+}
+
+#burger-button {
+  width: 100%;
+  margin-bottom: 10px;
 }
 </style>

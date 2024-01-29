@@ -302,12 +302,11 @@ export async function getUserAvatar(email: string){
     request.method = 'GET'
     request.headers = {
         ...contentType,
-        
+        'Sec-Fetch-Mode': 'no-cors'
     }
 
-    const response = await fetch(`https://webinfo.iutmontp.univ-montp2.fr/~cazauxl/MyAvatar/public/avatar/${hashed}`)
+    const response = await fetch(`https://webinfo.iutmontp.univ-montp2.fr/~cazauxl/MyAvatar/public/avatar/${hashed}`, request)
 
-    debugger
     const result = { status: response.status, content: await response.json() }
     return result
 }
