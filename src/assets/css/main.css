@@ -1,0 +1,120 @@
+@import "indexTailwind.css";
+
+/*
+ * Fonts
+ */
+@font-face {
+  font-family: 'Satisfontory';
+  src: url('../fonts/Satisfontory.ttf') format('truetype');
+  font-weight: normal;
+  font-style: normal;
+}
+
+.satisfont {
+  font-family: 'Satisfontory', sans-serif;
+}
+
+
+/*
+ * Colors
+ */
+.bg-black-main {
+  background-color: #0B0B0B;
+}
+
+.text-black-main {
+  color: #0B0B0B;
+}
+
+.border-black-main {
+  border-color: #0B0B0B;
+}
+
+.shadow-black-main {
+  box-shadow: 4px 4px 0 0 #0B0B0B;
+}
+
+.bg-white-main {
+  background-color: #EFEFEF;
+}
+
+.text-white-main {
+  color: #EFEFEF;
+}
+
+.border-white-main {
+  border-color: #EFEFEF;
+}
+
+.bg-orange-main {
+  background-color: #FF5A00;
+}
+
+.text-orange-main {
+  color: #FF5A00;
+}
+
+.border-orange-main {
+  border-color: #FF5A00;
+}
+
+.hover\:text-orange-main:hover {
+  color: #FF5A00;
+}
+
+.bg-gray-main {
+  background-color: #222222;
+}
+
+.text-gray-main {
+  color: #222222;
+}
+
+.border-gray-main {
+  border-color: #222222;
+}
+
+
+/*
+ * Properties
+ */
+*,
+*::before,
+*::after {
+  font-family: Poppins, sans-serif;
+  box-sizing: border-box;
+  margin: 0;
+  font-weight: normal;
+}
+
+body {
+  min-height: 100vh;
+  backdrop-filter: blur(4px);
+  background: url("/src/assets/ressources/background_loginForm.png") no-repeat;
+  background-size: 100% 100%;
+  place-items: center;
+}
+
+
+/*
+ * Custom
+ */
+.section {
+  min-height: 100vh;
+  min-width: 100vw;
+}
+
+#app {
+  margin: 0 auto;
+  width: 100vw;
+  height: 100vh;
+  font-weight: normal;
+}
+
+._vue-flash-msg-body{
+  z-index: 10000;
+}
+
+.pl-0-important {
+  padding-left: 0 !important;
+}

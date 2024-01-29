@@ -1,46 +1,130 @@
-# frontend-recette
+<h1 align="center">
+    <img src="https://i.ibb.co/mJdbWwb/logo.png">
+    atisCraftory
+</h1>
 
-This template should help get you started developing with Vue 3 in Vite.
+---
+## ⛓️ Liens
+- #### [🎯 API]()
+ 
+- #### [🌐 SatisCraftory]()
+ 
+- #### [🙂 MyAvatar](https://webinfo.iutmontp.univ-montp2.fr/~cazauxl/MyAvatar/public/)
 
-## Recommended IDE Setup
+---
+## 📚 Repository
+Tout se trouve sur l'organisation `SatisCraftory` sur GitHub au travers 3 repositories différents.
+- #### [🔧 SatisCraftory](https://github.com/Projet-Web-Recette)
 
-[VSCode](https://code.visualstudio.com/) + [Volar](https://marketplace.visualstudio.com/items?itemName=Vue.volar) (and disable Vetur) + [TypeScript Vue Plugin (Volar)](https://marketplace.visualstudio.com/items?itemName=Vue.vscode-typescript-vue-plugin).
+---
+## 📝 Thème choisi
+Pour ce projet de site de recettes nous avons choisi le thème du jeu vidéo Satisfactory.
 
-## Type Support for `.vue` Imports in TS
+Ce jeu est un jeu de construction et de gestion de ressources. Le joueur doit construire une usine pour produire des ressources et des produits finis. Il doit donc gérer les ressources et les flux de production.
 
-TypeScript cannot handle type information for `.vue` imports by default, so we replace the `tsc` CLI with `vue-tsc` for type checking. In editors, we need [TypeScript Vue Plugin (Volar)](https://marketplace.visualstudio.com/items?itemName=Vue.vscode-typescript-vue-plugin) to make the TypeScript language service aware of `.vue` types.
+Ici nous avons donc utilisé le même système que le jeu (sans ajouter de règles / spécifités).
 
-If the standalone TypeScript plugin doesn't feel fast enough to you, Volar has also implemented a [Take Over Mode](https://github.com/johnsoncodehk/volar/discussions/471#discussioncomment-1361669) that is more performant. You can enable it by the following steps:
+---
+## 🎯 API
 
-1. Disable the built-in TypeScript Extension
-    1) Run `Extensions: Show Built-in Extensions` from VSCode's command palette
-    2) Find `TypeScript and JavaScript Language Features`, right click and select `Disable (Workspace)`
-2. Reload the VSCode window by running `Developer: Reload Window` from the command palette.
+### 📋 Présentation
+L'API de Satiscraftory est une interface de programmation facilitant la création et la gestion d'items, de machines ainsi que d'utilisateurs dans un environnement similaire au jeu Satisfactory.
+L'API offre une représentation fidèle des méchanismes de bases composant le jeu d'origine tout en simplifiant certaines composantes.
 
-## Customize configuration
+### 🛠️ Fonctionnalités
+- Gestion des **Assembleuses** (read, readAll, create, delete)
+- Gestion des **Constructeurs** (read, readAll, create, delete)
+- Gestion des **Foreuses** (read, readAll, create, delete)
+- Gestion des **Smelter** (read, readAll, create, delete)
+- Gestion des **Items** (read, readAll, create, delete) + requêtes personnalisées pour récupérer tous les items produits par une certaine machine et pour récupérer les items dont fait partit l'item récupéré
+- Gestion des **Ressources** primaires (read, readAll, create, delete)
+- Gestion des **Quantités** d'ingrédients qui permettent de connaître la quantité nécéssaire d'un ingrédient pour en faire un autre
+- Gestion des **itemsUsers** pour les recettes personalisés d'un utilisateur premium
+- Gestion de la **sauvegarde** des inventaires des utilisateurs
 
-See [Vite Configuration Reference](https://vitejs.dev/config/).
+---
+## 🌐 SatisCraftory
 
-## Project Setup
+### 📋 Présentation
+Blablabla
 
-```sh
-npm install
-```
+### 🛠️ Fonctionnalités
+blablabla
 
-### Compile and Hot-Reload for Development
+---
+## 🙂 MyAvatar
 
-```sh
-npm run dev
-```
+### ⚙️ Fonctionnement
+Pour récupérer l'image de profil d'un utilisateur il existe plusieurs moyens :
+- **_(Pour les utilisateurs)_** <br> Sur la page `Avatars` disponible dans la barre de navigation, il suffira ensuite de rentrer l'email de la personne dont on veut l'image de profil. Si la personne cherchée n'a pas d'avatar une erreur sera affichée.
+- **_(Pour les services externes)_** <br> En envoyant une requête à la route `/avatar/{email}` avec l'email haché en MD5 de la personne dont on veut l'image de profil. Si la personne cherchée n'a pas d'avatar un avatar par défaut sera renvoyé.
 
-### Type-Check, Compile and Minify for Production
+**La base de données utilisée pour MyAvatar est disponible sur la session de Loris C. sur le phpMyAdmin de l'IUT.**
 
-```sh
-npm run build
-```
+### 🛠️ Fonctionnalités ajoutées
+- Modification de l'avatar (avec l'ancien avatar disponible)
+- Modification du mot de passe
+- Page de consultation des avatars
 
-### Lint with [ESLint](https://eslint.org/)
+---
+## 🔬 Investissement de chaque membre
+### Vincent
+  - Mise en place de **l'API**, réalisation de la structure du patron composite pour les recettes (items et ressources)
+  - Intégration de nombreux **systèmes** de l'API comme les event listener, le filter permettant de récupérer un certain type d'item, gestion des states processors de toutes les tables
+  - Mise en place de la **sécurité** de l'API (création d'un **voter**, attributs security, etc...)
+  - Intégration de la **structure** permettant de récupérer les quantités d'ingrédients pour les ingrédients d'une recette particulière
+  - Réalisation du **serializer** offrant la possibilité d'enregistrer des images à l'aide des formulaires de type multipart pour l'API
+  - Gestion du livre de recette (frontend & backend)
+  - Réalisation d'un **algorithme** permettant d'afficher l'arbre de construction d'un item
+  - Réalisation de la fonctionnalité permettant de **créer une recette** pour les utilisateurs premium (mise en place de récursivité pour le parcours de l'arbre)
+  - Réalisation de **requêtes** et mise en place de **types** pour récupérer les informations depuis l'api
+  - Filtrage des items de différentes façon (par rapport à la machine le construisant, son type, qu'est ce qui le compose, etc...)
 
-```sh
-npm run lint
-```
+### Loris B.
+  - Mise en place de **l'API**, réfléxion pour la conception du patron composite
+  - Intégration des **machines** (Foreuse, assembleuse, constructeur, fonderie) et routes associées
+  - Intégration d'une **entité** permettant de stocker les quantités nécessaire pour un item donné
+  - Intégration des **utilisateurs** dans l'api 
+  - Participation à la création du **livre de recettes** 
+  - Participation à la réalisation de **l'algorithme** permettant d'afficher l'arbre d'ingrédients d'un item
+  - Participation à la réalisation du **mode de création d'item** pour les utilisateurs premium / **création personnalisé** d'items pour les admins
+  - Réalisation de composants de style (sideBar, page de connexion etc.)
+
+### Nathan
+  - Conception intégrale du mini jeu
+  - Logique du jeu
+  - Gestion des données (pas le backend mais l'intéraction avec le backend)
+  - Style
+
+### Loris C.
+  - Implémentation complète de **MyAvatar** (backend & frontend).
+  - Gestion du frontend de **SatisCraftory** (gestion des pages, navbar, images, fonts, couleurs, implémentation MyAvatar dans la navbar, ...).
+  - Rédaction d'une mini [documentation](https://docs.google.com/document/d/1wvHHz6K4X--f-7Gzr9sHnywHvXo2VBO10cKy_OfuU14/edit?usp=sharing) pour le style de SatisCraftory (pour que tout le monde utilise les mêmes couleurs, fonts, ...) + aide globale de tailwindcss.
+  - Fix du style de **SatisCraftory** et des components.
+
+---
+## 🔐 Comptes
+
+### 🌐 SatisCraftory
+
+#### 👨‍💼️ Comptes utilisateurs
+| Login       | Mot de passe    |
+|-------------|-----------------|
+| normalUser  | normalUser1234  |
+| premiumUser | premiumUser1234 |
+
+#### 👨‍✈️ Comptes administrateurs
+| Login       | Mot de passe    |
+|-------------|-----------------|
+| admin       | Admin1234       |
+
+### 🙂 MyAvatar
+
+#### ‍👨‍💼️ Comptes utilisateurs
+| Login      | Mot de passe |
+|------------|--------------|
+| cazauxl    | AAAAAAa8     |
+| Admin      | AAAAAAa8     |
+| normalUser | AAAAAAa8     |
+| Lebreton   | AAAAAAa8     |
+| test       | AAAAAAa8     |

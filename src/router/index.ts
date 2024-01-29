@@ -1,8 +1,10 @@
-import {createRouter, createWebHistory} from 'vue-router'
+import {createRouter, createWebHistory, type RouteRecordRaw} from 'vue-router'
 import ProtectedRoute from "@/router/ProtectedRoute.vue"
-import LoginView from "@/LoginView.vue";
-import GameView from '@/GameView.vue';
-import Account from '@/AccountView.vue';
+import LoginView from "@/views/LoginView.vue";
+import GameView from '@/views/GameView.vue';
+import Account from '@/views/AccountView.vue';
+import ReceipesView from '@/views/ReceipesView.vue'
+import IngredientsList from '@/views/IngredientsList.vue'
 
 const routesSecure = [
     {
@@ -18,6 +20,11 @@ const routesSecure = [
                 path: '/account',
                 name: 'Account',
                 component: Account
+            },
+            {
+                path: "/recipes",
+                component: ReceipesView,
+                name: 'recipes'
             }
         ]
     },
@@ -28,8 +35,13 @@ const routesNoSecure = [
         path: "/login",
         component: LoginView,
         name: "Login"
+    },
+    {
+        path: "/listAll",
+        component: IngredientsList,
+        name: 'listAll'
     }
-]
+] as RouteRecordRaw[]
 
 const router = createRouter({
     history: createWebHistory(''),
