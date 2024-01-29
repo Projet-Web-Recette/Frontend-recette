@@ -173,7 +173,7 @@ const specialMachines: {name: string, type: BuildingType, iconPath: string}[] = 
         </div>
 
         <div v-if="game.isProcessing" id="processing">
-          <img :src="'src/assets/logo.png'" />
+          <img :src="'/src/assets/logo.png'" />
           <h1>Processing</h1>
         </div>
       </div>

@@ -78,7 +78,7 @@ async function handleErrors(response: Response) {
                 type: 'error',
                 title: "",
                 text: object.message,
-                image: './src/assets/flash-messages-logo/error.svg',
+                image: '/src/assets/flash-messages-logo/error.svg',
                 });
         })
 

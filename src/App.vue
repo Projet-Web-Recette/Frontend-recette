@@ -13,15 +13,15 @@
     <!-- Navbar menu that goes over body -->
     <nav class="flex flex-col justify-center items-center gap-8 fixed top-0 left-0 w-full h-full bg-gray-main flex justify-center items-center z-[100]" v-if="burgerActivate">
       <div class="flex flex-row justify-center items-center gap-2">
-        <img :src="'./src/assets/logo.png'" alt="logo" class="w-32 h-32">
+        <img :src="'/src/assets/logo.png'" alt="logo" class="w-32 h-32">
         <p class="text-6xl text-orange-main satisfont select-none">atisCraftory</p>
       </div>
 
       <div class="grid grid-cols-1 gap-4">
-        <a href="/recipes" class="flex flex-row items-center gap-3 text-4xl text-white-main satisfont select-none transition-all duration-200">
-          <span class="material-symbols-outlined text-4xl text-orange-main">skillet</span>
+        <router-link :to="{name: 'recipes'}" class="flex flex-row items-center gap-3 text-4xl text-white-main satisfont select-none transition-all duration-200">
+          <span class="material-symbols-outlined text-4xl text-orange-main" @click="hideMenu">skillet</span>
           Recipes
-        </a>
+        </router-link>
 
         <a href="/" class="flex flex-row items-center gap-3 text-4xl text-white-main satisfont select-none transition-all duration-200">
           <span class="material-symbols-outlined text-4xl text-orange-main">joystick</span>
@@ -75,11 +75,16 @@ function deconnexion(){
         type: 'success',
         title: "",
         text: 'You have been successfully disconnected',
-        image: './src/assets/flash-messages-logo/success.svg',
+        image: '/src/assets/flash-messages-logo/success.svg',
       });
       burgerActivate.value = false;
       router.push('/login')
   })
+}
+
+function hideMenu(){
+  console.log('ok')
+  burgerActivate.value = false;
 }
 
 </script>

@@ -1,4 +1,4 @@
-import {createRouter, createWebHistory, type RouteRecordRaw} from 'vue-router'
+import {createRouter, createWebHashHistory, type RouteRecordRaw} from 'vue-router'
 import ProtectedRoute from "@/router/ProtectedRoute.vue"
 import LoginView from "@/views/LoginView.vue";
 import GameView from '@/views/GameView.vue';
@@ -44,7 +44,7 @@ const routesNoSecure = [
 ] as RouteRecordRaw[]
 
 const router = createRouter({
-    history: createWebHistory(''),
+    history: createWebHashHistory(''),
     routes: [
         ...routesSecure,
         ...routesNoSecure

@@ -259,7 +259,7 @@ function onSave() {
           type: 'info',
           title: "",
           text: 'You must have at least a machine connected to two nodes',
-          image: './src/assets/flash-messages-logo/info.svg',
+          image: '/src/assets/flash-messages-logo/info.svg',
         });
         return;
     }
@@ -270,7 +270,7 @@ function onSave() {
             type: 'info',
             title: "",
             text: 'You must have at least a machine connected to two nodes',
-            image: './src/assets/flash-messages-logo/info.svg',
+            image: '/src/assets/flash-messages-logo/info.svg',
         });
         return;
     }
@@ -294,7 +294,7 @@ function onSave() {
         type: 'success',
         title: "",
         text: 'Recipe successfully saved',
-        image: './src/assets/flash-messages-logo/success.svg',
+        image: '/src/assets/flash-messages-logo/success.svg',
       });
 }
 
@@ -487,7 +487,7 @@ function onExit(){
         type: 'info',
         title: "",
         text: 'Exiting create recipe mode',
-        image: './src/assets/flash-messages-logo/info.svg',
+        image: '/src/assets/flash-messages-logo/info.svg',
       });
     emits('cancel-creation');
 }

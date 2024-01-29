@@ -2,7 +2,7 @@
   <div class="relative flex flex-col justify-center min-h-screen overflow-hidden">
     <div class="w-full p-6 m-auto bg-white border-orange-600 border rounded-md shadow-lg shadow-orange-800/50 lg:max-w-md space-y-10">
       <div class="flex flex-row justify-center items-center gap-2">
-        <img :src="'./src/assets/logo.png'" alt="logo" class="w-15 h-15">
+        <img :src="'/src/assets/logo.png'" alt="logo" class="w-15 h-15">
         <p class="text-3xl text-orange-main satisfont select-none">atisCraftory</p>
       </div>
 
@@ -110,7 +110,7 @@ async function loginSubmit() {
         type: 'success',
         title: "",
         text: 'You have been successfully connected',
-        image: './src/assets/flash-messages-logo/success.svg',
+        image: '/src/assets/flash-messages-logo/success.svg',
       });
     }
   }
