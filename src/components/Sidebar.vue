@@ -24,9 +24,6 @@
                                 <i class="material-symbols-outlined">{{ menuItem.icon }}</i>
                                 <span class="links_name">{{ menuItem.name }}</span>
                             </a>
-                            <span :data-target="'links_' + index" class="tooltip">{{
-                                menuItem.tooltip || menuItem.name
-                            }}</span>
                         </div>
 
                     </li>
@@ -35,12 +32,6 @@
                         <i class="material-symbols-outlined search">{{ menuIcon }}</i>
                         <input type="text" :placeholder="searchPlaceholder"
                             @input="$emit('search-input-emit', $event.target.value)">
-
-
-                        <span data-target="links_search" class="tooltip">{{
-                            searchTooltip
-                        }}
-                        </span>
                     </li>
                 </ul>
 
@@ -154,7 +145,6 @@ export default {
                 {
                     link: 'createItem',
                     name: 'Créer un item',
-                    tooltip: 'Créer un item',
                     icon: 'add',
                     safe: false
 
@@ -162,14 +152,12 @@ export default {
                 {
                     link: 'Items',
                     name: 'Toutes les recettes',
-                    tooltip: 'Toutes les recettes',
                     icon: 'public',
                     safe: true
                 },
                  {
                     link: 'myItems',
                     name: 'Mes recettes',
-                    tooltip: 'Mes recettes',
                     icon: 'deployed_code_account',
                     safe: true
                 }
@@ -195,10 +183,6 @@ export default {
         searchPlaceholder: {
             type: String,
             default: 'Recherche...',
-        },
-        searchTooltip: {
-            type: String,
-            default: "Taper le nom d'un item",
         },
         //! Profile detailes
         profileImg: {

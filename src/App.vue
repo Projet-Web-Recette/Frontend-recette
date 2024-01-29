@@ -1,11 +1,13 @@
 <template>
   <header style="position: absolute">
     <!-- Top right corner burger menu that opens a dropdown over body -->
-    <div id="burger" class="fixed top-0 right-0 material-symbols-outlined hover:text-orange-main text-white-main p-4 select-none bg-gray-main z-[101]" >
-      <button id="burger-button" class="transition-all duration-200" @click="burgerActivate = !burgerActivate" :class="{'rotate-90': burgerActivate}">
-          {{ burgerActivate ? 'close' : 'menu' }}
-        </button>
-        <img :src="`https://webinfo.iutmontp.univ-montp2.fr/~cazauxl/MyAvatar/public/avatar/${authentication.hashedEmail}`" style="width: 100px; height: 100px;border-radius: 100px;" >
+    <div class="fixed top-0 right-0 material-symbols-outlined text-white-main p-4 select-none bg-gray-main z-[101]
+      flex flex-col justify-center items-center gap-2 rounded-xl m-2" v-if="authentication.isAuthenticated">
+      <button id="burger-button" class="transition-all duration-200 hover:text-orange-main" @click="burgerActivate = !burgerActivate" :class="{'rotate-90': burgerActivate}">
+        {{ burgerActivate ? 'close' : 'menu' }}
+      </button>
+      <img :src="`https://webinfo.iutmontp.univ-montp2.fr/~cazauxl/MyAvatar/public/avatar/${email}`" class="rounded-full"
+           width="20" height="20">
     </div>
 
     <!-- Navbar menu that goes over body -->
@@ -16,11 +18,6 @@
       </div>
 
       <div class="grid grid-cols-1 gap-4">
-        <a href="" class="flex flex-row items-center gap-3 text-4xl text-white-main satisfont select-none transition-all duration-200">
-          <span class="material-symbols-outlined text-4xl text-orange-main">home</span>
-          Home
-        </a>
-
         <a href="/recipes" class="flex flex-row items-center gap-3 text-4xl text-white-main satisfont select-none transition-all duration-200">
           <span class="material-symbols-outlined text-4xl text-orange-main">skillet</span>
           Recipes
@@ -40,6 +37,11 @@
           <span class="material-symbols-outlined text-4xl text-orange-main">logout</span>
           Logout
         </a>
+
+        <div v-if="authentication.isAuthenticated" class="mt-10 flex flex-col justify-center items-center text-white-main">
+          <p>Pas d'image de profil ?</p>
+          <a href="https://webinfo.iutmontp.univ-montp2.fr/~cazauxl/MyAvatar/public/" class="text-orange-main hover:underline hover:text-orange-main">Essayez MyAvatar</a>
+        </div>
       </div>
     </nav>
   </header>
@@ -60,6 +62,10 @@ const authentication = authenticationStore()
 
 const burgerActivate = ref(false)
 
+const email = ref<string>('');
+if(authentication.hashedEmail === '') email.value = 'e';
+else email.value = authentication.hashedEmail;
+
 /**
  * @description disconnect the user and redirect to login
  */
@@ -77,19 +83,3 @@ function deconnexion(){
 }
 
 </script>
-
-<style>
-#burger {
-  border-bottom-left-radius: 5px;
-}
-
-
-#burger > * {
-  margin: auto;
-}
-
-#burger-button {
-  width: 100%;
-  margin-bottom: 10px;
-}
-</style>

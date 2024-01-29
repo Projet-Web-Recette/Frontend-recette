@@ -91,15 +91,16 @@ Pour récupérer l'image de profil d'un utilisateur il existe plusieurs moyens :
   - Réalisation de composants de style (sideBar, page de connexion etc.)
 
 ### Nathan
-  - conception intégrale du mini jeu
-  - - logique du jeu
-  - - gestion des données (pas le backend mais l'intéraction avec le backend)
-  - - style
+  - Conception intégrale du mini jeu
+  - Logique du jeu
+  - Gestion des données (pas le backend mais l'intéraction avec le backend)
+  - Style
 
 ### Loris C.
   - Implémentation complète de **MyAvatar** (backend & frontend).
-  - Gestion du frontend de **SatisCraftory** (gestion des pages, navbar, images, fonts, couleurs, ...).
+  - Gestion du frontend de **SatisCraftory** (gestion des pages, navbar, images, fonts, couleurs, implémentation MyAvatar dans la navbar, ...).
   - Rédaction d'une mini [documentation](https://docs.google.com/document/d/1wvHHz6K4X--f-7Gzr9sHnywHvXo2VBO10cKy_OfuU14/edit?usp=sharing) pour le style de SatisCraftory (pour que tout le monde utilise les mêmes couleurs, fonts, ...) + aide globale de tailwindcss.
+  - Fix du style de **SatisCraftory** et des components.
 
 ---
 ## 🔐 Comptes
@@ -120,7 +121,10 @@ Pour récupérer l'image de profil d'un utilisateur il existe plusieurs moyens :
 ### 🙂 MyAvatar
 
 #### ‍👨‍💼️ Comptes utilisateurs
-| Login   | Mot de passe |
-|---------|--------------|
-| cazauxl | AAAAAAa8     |
-| test    | AAAAAAa8     |
+| Login      | Mot de passe |
+|------------|--------------|
+| cazauxl    | AAAAAAa8     |
+| Admin      | AAAAAAa8     |
+| normalUser | AAAAAAa8     |
+| Lebreton   | AAAAAAa8     |
+| test       | AAAAAAa8     |
