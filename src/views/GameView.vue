@@ -159,7 +159,7 @@ const specialMachines: {name: string, type: BuildingType, iconPath: string}[] = 
           </div>
 
           <WindowComponent v-model="windowOpen" left="10px" top="10px" title="Select output">
-            <div style="min-width: 400px;">
+            <div style="min-width: 400px; width: 100%;">
               <div id="menuQuick">
                 <div @click="disconnectConveyersClicked">
                   <h3>Disconnect conveyers</h3>

@@ -1,7 +1,7 @@
 <template>
   <header style="position: absolute">
     <!-- Top right corner burger menu that opens a dropdown over body -->
-    <div id="burger" class="fixed top-0 right-0 material-symbols-outlined hover:text-orange-main text-white-main p-4 select-none bg-gray-main" >
+    <div id="burger" class="fixed top-0 right-0 material-symbols-outlined hover:text-orange-main text-white-main p-4 select-none bg-gray-main z-[101]" >
       <button id="burger-button" class="transition-all duration-200" @click="burgerActivate = !burgerActivate" :class="{'rotate-90': burgerActivate}">
           {{ burgerActivate ? 'close' : 'menu' }}
         </button>
@@ -9,7 +9,7 @@
     </div>
 
     <!-- Navbar menu that goes over body -->
-    <nav class="flex flex-col justify-center items-center gap-8 fixed top-0 left-0 w-full h-full bg-gray-main flex justify-center items-center z-10" v-if="burgerActivate">
+    <nav class="flex flex-col justify-center items-center gap-8 fixed top-0 left-0 w-full h-full bg-gray-main flex justify-center items-center z-[100]" v-if="burgerActivate">
       <div class="flex flex-row justify-center items-center gap-2">
         <img :src="'./src/assets/logo.png'" alt="logo" class="w-32 h-32">
         <p class="text-6xl text-orange-main satisfont select-none">atisCraftory</p>
@@ -61,7 +61,7 @@ const burgerActivate = ref(false)
 
 <style>
 #burger {
-  z-index: 11;
+  border-bottom-left-radius: 5px;
 }
 
 

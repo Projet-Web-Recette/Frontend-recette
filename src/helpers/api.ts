@@ -70,7 +70,7 @@ function translateMachineFromApi(machine: any): Machine {
     }
 }
 
-async function handleErrors(response: Response, needAuthentication = false) {
+async function handleErrors(response: Response) {
     if (!response.ok) {
         await response.json().
             then(object => {
@@ -82,7 +82,7 @@ async function handleErrors(response: Response, needAuthentication = false) {
                 });
         })
 
-        if(needAuthentication){
+        if(response.status === HttpErrors.UNAUTHORIZED){
             router.push({path: 'login'})
         }
         
@@ -130,7 +130,7 @@ export async function sendRequest(endpoint: string, method: 'GET' | 'POST' | 'PA
 
     const response = await fetch(`${baseUrl}/${endpoint}`, request)
 
-    await handleErrors(response, useJWT);
+    await handleErrors(response);
 
     const result = { status: response.status, content: await response.json() }
     return result

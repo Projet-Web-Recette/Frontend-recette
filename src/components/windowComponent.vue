@@ -50,10 +50,12 @@ function close() {
     width: fit-content;
     height: fit-content;
     min-height: 50px;
+    max-width: 100vw;
     display: flex;
     flex-direction: column;
     background-color: #868686;
     color: #EFEFEF;
+    z-index: 102;
 }
 
 .header {

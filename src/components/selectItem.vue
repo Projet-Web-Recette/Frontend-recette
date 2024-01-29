@@ -22,7 +22,7 @@ const emit = defineEmits<{
 <style>
 .itemSelector {
     display: flex;
-    flex-direction: row;
+    flex-flow: wrap;
     padding: 5px;
 }
 
