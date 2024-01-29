@@ -47,14 +47,7 @@ function translateItemFromApi(item: any): Item {
         logoPath: contentUrl,
         quantityProduced: quantityProduced,
         machine: machineTranslate,
-        quantityIngredients: quantitesIngredients ? quantitesIngredients.map(({quantite, recette}) => {
-            let ingredient
-            if(recette.nomRessource){
-                ingredient = translateResourceFromApi(recette)
-            } else {
-                ingredient = translateItemFromApi(recette)
-            }
-            return {quantity: quantite, receipe: ingredient}}) : [],
+        quantityIngredients: quantitesIngredients,
         ingredients: ingredients ? translateArrayIngredients(ingredients) : []
     }
 }
